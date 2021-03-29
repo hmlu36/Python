@@ -248,12 +248,14 @@ def Sleep_And_Print(sec):
 
 
 IdCompany = '2330'
-# Get_Company_Info(IdCompany)
+Get_Company_Info(IdCompany)
 # Sleep_And_Print(15)
 #liDividend = Get_Company_Dividend(IdCompany)
 # for i in range(len(liDividend)):
 #    print(liDividend[i])
 # Sleep_And_Print(15)
+'''
 liProfit = Get_Company_Profit(IdCompany)
 for i in range(len(liProfit)):
     print(liProfit[i])
+'''
