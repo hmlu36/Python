@@ -27,3 +27,14 @@ class StockDetail(db.Entity):
     profitAfterTaxPercentage = Optional(Decimal)
     roe = Optional(Decimal)
     eps = Optional(Decimal)
+
+########################################################################
+
+
+class StockDividend(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    stockId = Required(str)
+    year = Optional(str)
+    cashDividends = Optional(Decimal)
+    stockDividends = Optional(Decimal)
+    totalDividends = Optional(Decimal)
