@@ -31,8 +31,9 @@ merge = reduce(lambda df1, df2: pd.merge(df1, df2, on='證券代號'), [df, df2]
 
 
 print(merge[pd.DataFrame(df['證券名稱'].tolist()).isin(['根基', '冠德']).any(1).values])
+# print(merge['證券代號'].to_csv(header=None, index=False).strip('\r\n').split('\r\n')) # 列印所有證券代號
 
-
+'''
 # 本益比(Price-to-Earning Ratio)
 PE = pd.to_numeric(merge['本益比'], errors='coerce') < 15
 DY = pd.to_numeric(merge['殖利率(%)'], errors='coerce') > 7  # 殖利率(Dividend yield)
@@ -40,3 +41,4 @@ DY = pd.to_numeric(merge['殖利率(%)'], errors='coerce') > 7  # 殖利率(Divi
 PBR = pd.to_numeric(merge['股價淨值比'], errors='coerce') <= 1.81
 candidate = merge[(PE & DY & PBR)]
 print(candidate)
+'''
