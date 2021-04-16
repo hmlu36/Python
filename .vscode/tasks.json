@@ -12,5 +12,19 @@
         "env": {
             "PYTHONIOENCODING": "UTF-8"
         }
-    }
+    },
+    "tasks": [
+        {
+            "label": "Run Python Code",
+            "type": "process",
+            "command": "${config:python.pythonPath}",
+            "args": [
+                "${file}"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
 }

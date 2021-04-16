@@ -38,3 +38,18 @@ class StockDividend(db.Entity):
     cashDividends = Optional(Decimal)
     stockDividends = Optional(Decimal)
     totalDividends = Optional(Decimal)
+
+
+########################################################################
+class DailyExchangeInfo(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    stockId = Required(str)
+    name = Required(str)
+    dividendYield = Optional(Decimal)
+    year = Optional(str)
+    dividendYield = Optional(Decimal)
+    pERatio = Optional(Decimal)
+    pBRatio = Optional(Decimal)
+    financialReportSeason = Optional(str)
+    closingPrice = Optional(Decimal)
+    upDownPrice = Optional(Decimal)

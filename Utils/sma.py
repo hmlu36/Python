@@ -58,5 +58,5 @@ def GetSma(stockId):
 #print(CalculateSma(df, 5))
 #print(CalculateSma(df, 20))
 #print(CalculateSma(df, 60))
-df = GetSma('2330')
-print(df)
+#df = GetSma('2330')
+#print(df)
