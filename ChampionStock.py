@@ -81,7 +81,8 @@ with db_session:
         "      and operatingIncome > profitAfterTaxPercentage                          " +
         "      and roe > 10                                                            " +
         "      and eps > StockDividend.totalDividends                                  " +
-        "     and (select count(*) from StockDividend temp                             " +
+        "      and StockDividend.totalDividends > 0                                    " +
+        "      and (select count(*) from StockDividend temp                            " +
         "           where StockInfo.stockId = temp.stockId) > 5                        " +
         " order by StockInfo.stockId;                                                  ")[:]
     # print(rows)
@@ -90,13 +91,14 @@ with db_session:
         data.append([row.stockId, row.name, row.industry, row.yearSeason, row.revenue, row.profitAfterTax, row.grossMargin,
                     row.operatingIncome, row.profitAfterTaxPercentage, row.roe, row.eps, row.cashDividends, row.stockDividends, row.totalDividends])
 
-    merge_df = pd.DataFrame(rows, columns=[["證券代號", "證券名稱", "產業別", "年/季", "營收(億)",
+    history_df = pd.DataFrame(rows, columns=[["證券代號", "證券名稱", "產業別", "年/季", "營收(億)",
                                             "稅後淨利(億)", "毛利(%)", "營業利益(%)", "稅後淨利(%)", "ROE(%)", "EPS(%)", "現金股利", "股票股利", "合計股利"]])
-    print(merge_df)
+                                            
+    print(history_df)
     # print(merge_df['證券代號'])
 
- 
+    dailyExchange_df = dailyExchange_df[dailyExchange_df["證券代號"].isin()]
 
 
-# df = reduce(lambda dailyExchange_df, stockInfo_df: pd.merge(dailyExchange_df, stockInfo_df, on=['證券代號', '證券名稱']), [dailyExchange_df, stockInfo_df])
+    df = reduce(lambda dailyExchange_df, history_df: pd.merge(dailyExchange_df, history_df, on=['證券代號', '證券名稱']), [dailyExchange_df, history_df])
 # print(df)

@@ -46,10 +46,10 @@ getjson=json.loads(soup.text)
 
 # 因為是表格式，用dataframe處理會比較方便
 stockdf = pd.DataFrame(getjson['data'],columns=["證券代號","證券名稱","殖利率(%)","股利年度","本益比","股價淨值比","財報年/季"])
-PBR = pd.to_numeric(stockdf['股價淨值比'], errors='coerce') < 0.5 # 找到股價淨值比小於0.7的股票
+PBR = pd.to_numeric(stockdf['股價淨值比'], errors='coerce') > 7 # 找到股價淨值比小於0.7的股票
 EPS = pd.to_numeric(stockdf['本益比'], errors='coerce') < 15 # 找到本益比小於15的股票
 candidate= stockdf[(PBR & EPS)] # 綜合以上兩者，選出兩者皆符合的股票
-
+print(candidate)
 
 
 #------------------------------ 基本面財報檢查 --------------------------------
