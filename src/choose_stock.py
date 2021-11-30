@@ -23,23 +23,29 @@ from Step2 import GetPE
 
 （2）本益比低估
 1. 本益比小於10
-2. 小於近五年本益比第1項
+2. 小於近五年最小級距本益比
+
+（3）確定本業利益是成長的，且為本業賺的（不是靠業外收益賺的，獲利不持久）
+1. 營收累計年增率 > ０％
+2. 毛利率 > ０％
+3. 營業益益率 > ０％
+4. 稅前淨利率 > ０％
+5. 稅後淨利率 > ０％
+6. 本業收益（營業利益率／稅前淨利率） > ６０％
 '''
-
-headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko'
-}
-
-
         
 competitors = GetCompetitor()
 print(competitors)
 for stockId in competitors["證券代號"]:
-    print(stockId)
+    time.sleep(random.randint(5, 20))
+    #print(stockId)
     PE = GetPE(stockId)
-    print(PE)
-    print(list(PE.values())[2])
+    #print(PE)
     stock = twstock.Stock(stockId)
-    print(stock.price[-1:][0])
-    if Decimal(PE['PE_now']) < 10 & stock.price[-1:][0] < Decimal(list(PE.values())[2]):
+    print("current PE:" + PE['CurrentPE'])
+    print("current price:" + stock.price[-1:][0])
+    print("low PE:" + list(PE.values())[2])
+
+    # 本益比 < 10, 目前股價小於最小級距本益比
+    if Decimal(PE['CurrentPE']) < 10 and stock.price[-1:][0] < Decimal(list(PE.values())[2]):
         print("choose:" + stockId)

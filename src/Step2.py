@@ -10,9 +10,12 @@ from decimal import Decimal
 from BbrowserUserAgent import GetHeader
 
 '''
+抓取本益比
+取得現今EPS、本益比、近五年六個級距本益比
+
 選股條件：
 1. 本益比小於10
-2. 小於近五年本益比第1項
+2. 小於近五年最小級距本益比
 '''
 def GetPE(stockId):
     url = f'https://goodinfo.tw/StockInfo/ShowK_ChartFlow.asp?RPT_CAT=PER&STOCK_ID={stockId}&CHT_CAT=WEEK'
@@ -20,7 +23,7 @@ def GetPE(stockId):
     resInfo.encoding = 'utf-8'
     htmlInfo = etree.HTML(resInfo.text)
 
-    header = ['EPS', 'PE_now']
+    header = ['EPS', 'CurrentPE']
     for index in range(1, 6, 1):
         XPath = f'/html/body/table[2]/tbody/tr/td[3]/div/div/div/table/tbody/tr[142]/td[{index}]/nobr'
         entry = htmlInfo.xpath(re.sub(r'/tbody([[]\\d[]])?', '', XPath) + '/text()')[0]
