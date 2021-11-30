@@ -8,6 +8,7 @@ import re
 from lxml import etree
 from decimal import Decimal
 from BbrowserUserAgent import GetHeader
+from Utils import GetDataByXPath
 
 '''
 抓取本益比
@@ -26,22 +27,28 @@ def GetPE(stockId):
     header = ['EPS', 'CurrentPE']
     for index in range(1, 6, 1):
         XPath = f'/html/body/table[2]/tbody/tr/td[3]/div/div/div/table/tbody/tr[142]/td[{index}]/nobr'
-        entry = htmlInfo.xpath(re.sub(r'/tbody([[]\\d[]])?', '', XPath) + '/text()')[0]
-        header.append(entry)
+        target = GetDataByXPath(htmlInfo, XPath)
+        header.append(target)
     #print(header)
 
-    data = []
+    entry = []
     for index in range(5, 12, 1):
         #print(index)
         XPath = f'/html/body/table[2]/tbody/tr/td[3]/div/div/div/table/tbody/tr[3]/td[{index}]'
         #print(XPath)
 
-        entry = htmlInfo.xpath(re.sub(r'/tbody([[]\\d[]])?', '', XPath) + '/text()')[0]
-        data.append(entry)
+        target = GetDataByXPath(htmlInfo, XPath)
+        entry.append(target)
 
-    #print(data)
-    PE = {}
+    #print(entry)
+    data = {}
     for index in range(len(header)):
         #print(header[index] + ': ' + data[index])
-        PE.update({header[index] : data[index]})
-    return PE
+        data.update({header[index] : entry[index]})
+    return data
+
+'''
+# 測試
+data = GetPE("2330")
+print(data)
+'''

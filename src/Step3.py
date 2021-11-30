@@ -1,19 +1,22 @@
-import datetime
 import pandas as pd
 from bs4 import BeautifulSoup
-import requests
-import json
 import time
 from io import StringIO
 import random
+import requests
+from lxml import etree
+from decimal import Decimal
+from BbrowserUserAgent import GetHeader
+from Utils import GetDataByXPath
 
 '''
-1. 營收累計年增率 > ０％
-2. 毛利率 > ０％
-3. 營業益益率 > ０％
-4. 稅前淨利率 > ０％
-5. 稅後淨利率 > ０％
-6. 本業收益（營業利益率／稅前淨利率） > ６０％
+1. 營收累計年增率 > 0 %
+2. 毛利率 > 0 %
+3. 營業利益率 > 0 %
+4. 稅前淨利率 > 0 %
+5. 稅後淨利率 > 0 %
+6. 本業收益（營業利益率／稅前淨利率） > 60 %
+7. ROE > 10 %
 '''
 def GetPageContent(url):
     print(url)
@@ -34,150 +37,68 @@ def GetPageContent(url):
     return getdata
         
 
-def IncomeFilter(stockId):
-    ### 現在時間處裡 ###
-    now = datetime.datetime.now()  # 現在的時間
-    year = now.strftime("%Y")  # 抓今年
-    lastmonth = now - datetime.timedelta(days=31)  # 一個月前的時間
+def GetIncome(stockId):
+    url = f"https://goodinfo.tw/StockInfo/StockDetail.asp?STOCK_ID={stockId}"
+    resInfo = requests.get(url, headers=GetHeader())
+    resInfo.encoding = 'utf-8'
+    htmlInfo = etree.HTML(resInfo.text)
+    data = {}
 
-    for season in range(4, 0, -1):
-        print('stockId:' + stockId)
-        print('season:' + str(season))
+    #營收累計年增率 > 0 %
+    XPath = "/html/body/table[2]/tbody/tr/td[3]/table/tbody/tr[2]/td[3]/div[2]/div/table/tbody/tr[3]/td[6]"
+    target1 = GetDataByXPath(htmlInfo, XPath)
+    #print('營收累計年增率:' + str(Decimal(target1)))
+    data.update({'營收累計年增率': str(Decimal(target1))})
 
-        ### 先與網站請求抓到每天的報價資料 ###
-        url = 'https://mops.twse.com.tw/server-java/t164sb01?step=1&CO_ID=' + stockId + '&SYEAR=' + year + '&SSEASON=' + str(season) + '&REPORT_ID=C'
-        getdata = GetPageContent(url)
+    #毛利率 > 0 %
+    XPath = "/html/body/table[2]/tbody/tr/td[3]/table/tbody/tr[2]/td[3]/div[4]/div/div/table/tbody/tr[3]/td[4]"
+    target2 = GetDataByXPath(htmlInfo, XPath)
+    if target2 == '-':
+        target2 = "0"
+    #print('毛利率:' + target2)
+    data.update({'毛利率': target2})
 
-        '''
-        if getdata == "":
-            url = 'https://mops.twse.com.tw/server-java/t164sb01?step=1&CO_ID=' + stockId + '&SYEAR=' + str(int(year)-1) + '&SSEASON=4&REPORT_ID=C'
-            getdata = GetPageContent(url)
+    #營業利益率 > 0 %
+    XPath = "/html/body/table[2]/tbody/tr/td[3]/table/tbody/tr[2]/td[3]/div[4]/div/div/table/tbody/tr[3]/td[5]"
+    target3 = GetDataByXPath(htmlInfo, XPath)
+    if target3 == '-':
+        target3 = "0"
+    #print('營業利益率:' + target3)
+    data.update({'營業利益率': target3})
 
-        if getdata == "":
-            url = 'https://mops.twse.com.tw/server-java/t164sb01?step=1&CO_ID=' + stockId + '&SYEAR=' + str(int(year)-1) + '&SSEASON=3&REPORT_ID=C'
-        
-        '''
-        if getdata == "":
-            continue
+    time.sleep(random.randint(0, 10))
+    url = f"https://goodinfo.tw/StockInfo/StockFinDetail.asp?RPT_CAT=XX_M_QUAR_ACC&STOCK_ID={stockId}"
+    resInfo2 = requests.get(url, headers=GetHeader())
+    resInfo2.encoding = 'utf-8'
+    htmlInfo2 = etree.HTML(resInfo2.text)
 
-        del getdata[0]  # 殺掉第一個，因為第一個沒有意義
-        print(getdata[0]['會計項目Accounting Title']);
+    #稅前淨利率 > 0 %
+    XPath = "/html/body/table[2]/tbody/tr/td[3]/div/div/div/table/tbody/tr[4]/td[2]/nobr"
+    target4 = GetDataByXPath(htmlInfo2, XPath)
+    #print('稅前淨利率:' + target4)
+    data.update({'稅前淨利率': target4})
 
+    #稅後淨利率 > 0 %
+    XPath = "/html/body/table[2]/tbody/tr/td[3]/table/tbody/tr[2]/td[3]/div[4]/div/div/table/tbody/tr[3]/td[6]"
+    target5 = GetDataByXPath(htmlInfo, XPath)
+    #print('稅後淨利率:' + target5)
+    data.update({'稅後淨利率': target5})
 
-        # 營收要比去年高
-        if getdata[1][getdata[1]['會計項目'] == '營業收入合計'].values[0][3] > getdata[1][getdata[1]['會計項目'] == '營業收入合計'].values[0][4]:
-            # 毛利跟營收要是正的
-            if getdata[1][getdata[1]['會計項目'] == '營業收入合計'].values[0][3] > 0 and getdata[1][getdata[1]['會計項目'] == '營業毛利（毛損）淨額'].values[0][3] > 0:
-                # 營業利益是正的
-                if getdata[1][getdata[1]['會計項目'] == '營業利益（損失）'].values[0][3] > 0:
-                    # 稅前稅後淨利是正的
-                    if getdata[1][getdata[1]['會計項目'] == '繼續營業單位稅前淨利（淨損）'].values[0][3] > 0 and getdata[1][getdata[1]['會計項目'] == '繼續營業單位本期淨利（淨損）'].values[0][3] > 0:
-                        # 本業收益（營業利益率／稅前淨利率）　＞６０％
-                        if (getdata[1][getdata[1]['會計項目'] == '營業利益（損失）'].values[0][3]/getdata[1][getdata[1]['會計項目'] == '營業收入合計'].values[0][3])/(getdata[1][getdata[1]['會計項目'] == '繼續營業單位稅前淨利（淨損）'].values[0][3]/getdata[1][getdata[1]['會計項目'] == '營業收入合計'].values[0][3]) > 0.6:
-                            # 營運現金是正的>0
-                            if getdata[2][getdata[2]['會計項目'] == '本期現金及約當現金增加（減少）數'].values[0][1] > 0 and getdata[2][getdata[2]['會計項目'] == '本期現金及約當現金增加（減少）數'].values[0][2] > 0:
+    #本業收益（營業利益率／稅前淨利率） > ６０％
+    target6 = round(Decimal(target3) / Decimal(target4) * 100, 2)
+    #print('本業收益（營業利益率／稅前淨利率）:' + str(target6))
+    data.update({'本業收益': str(target6)})
 
-                                # 檢查價格超過MA10、MA20
-                                avgprice = []
-                                url = 'https://www.twse.com.tw/exchangeReport/STOCK_DAY_AVG?response=json&date=' + \
-                                    now.strftime("%Y%m%d") + \
-                                    '&stockNo=' + stockId
+    # ROE
+    XPath = "/html/body/table[2]/tbody/tr/td[3]/table/tbody/tr[2]/td[3]/div[4]/div/div/table/tbody/tr[3]/td[7]/nobr/div[1]"
+    target7 = GetDataByXPath(htmlInfo, XPath)
+    #print('ROE:' + target7)
+    data.update({'ROE': target7})
+    
+    return data
 
-                                # 要睡覺一下，不然會被ben掉
-                                time.sleep(random.randint(0, 10))
-
-                                list_req = requests.get(url)  # 請求網站
-                                soup = BeautifulSoup(
-                                    list_req.content, "html.parser")  # 將整個網站的程式碼爬下來
-                                jsonsoup = json.loads(str(soup))
-                                for i in range(len(jsonsoup['data'])-1):
-                                    avgprice.append(
-                                        float(jsonsoup['data'][i][1]))
-
-                                # 如果不夠20日，就爬上個月的價格
-                                if len(avgprice) < 19:
-                                    url = 'http://www.twse.com.tw/exchangeReport/STOCK_DAY_AVG?response=json&date=' + \
-                                        lastmonth.strftime(
-                                            "%Y%m%d") + '&stockNo=' + stockId
-
-                                    # 要睡覺一下，不然會被ben掉
-                                    time.sleep(random.randint(0, 10))
-
-                                    list_req = requests.get(url)  # 請求網站
-                                    soup = BeautifulSoup(
-                                        list_req.content, "html.parser")  # 將整個網站的程式碼爬下來
-                                    jsonsoup = json.loads(str(soup))
-                                    for i in range(len(jsonsoup['data'])-1, 1, -1):
-                                        avgprice.append(
-                                            float(jsonsoup['data'][i][1]))
-                                # 計算出平均並且進行判斷
-                                avg20 = sum(avgprice[:20])/20
-                                
-                                # ------------------------------先顯示目前價格----------------------------------
-                                # 要抓取的網址
-                                url = 'https://tw.stock.yahoo.com/q/q?s=' + stockId
-                                # 請求網站
-                                list_req = requests.get(url)
-                                # 將整個網站的程式碼爬下來
-                                soup = BeautifulSoup(list_req.content, "html.parser")
-                                # 找到b這個標籤
-                                get_stock_price = soup.findAll('b')[1].text  # 裡面所有文字內容
-                                if avg20 < float(get_stock_price):
-                                    avg10 = sum(avgprice[:10])/10
-                                    if avg10 < float(get_stock_price):
-                                        # 黃金交叉
-                                        if avg20 < avg10:
-                                            # 檢查董監事持股比例
-                                            data = {
-                                                'step': '1',
-                                                'firstin': '1',
-                                                'off': '1',
-                                                'queryName': 'co_id',
-                                                'inpuType': 'co_id',
-                                                'TYPEK': 'all',
-                                                'isnew': 'true',
-                                                'co_id': stockId
-                                            }
-
-                                            headers = {
-                                                'Host': 'mops.twse.com.tw',
-                                                'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'
-                                            }
-
-                                            url = 'http://mops.twse.com.tw/mops/web/stapap1'
-                                            list_req = requests.post(
-                                                url, data=data, headers=headers)
-                                            soup = BeautifulSoup(
-                                                list_req.content, "html.parser")
-                                            stockbroad = soup.find_all(
-                                                'td', {'style': 'text-align:right !important;'})
-                                            if int(stockbroad[-2:-1][0].text.replace(' ', '').replace(',', ''))/getdata[3][getdata[3]['Unnamed: 0'] == '期末餘額'].values[0][2] > 0.1:
-
-                                                # 檢查三大法人買賣狀況
-                                                countstock = 0
-                                                sumstock = 0
-                                                for i in range(5, 0, -1):
-                                                    date = datetime.datetime.strftime(
-                                                        datetime.datetime.now() - datetime.timedelta(days=i), '%Y%m%d')
-                                                    r = requests.get(
-                                                        'https://www.tse.com.tw/fund/T86?response=csv&date='+date+'&selectType=ALLBUT0999')
-                                                    if r.text != '\r\n':  # 有可能會沒有爬到東西，有可能是六日
-                                                        countstock += 1
-                                                        get = pd.read_csv(StringIO(r.text), header=1).dropna(
-                                                            how='all', axis=1).dropna(how='any')
-                                                        # 找到我們要搜尋的股票
-                                                        get = get[get['證券代號']
-                                                                == stockId]
-                                                        if len(get) > 0:
-                                                            get['三大法人買賣超股數'] = get['三大法人買賣超股數'].str.replace(
-                                                                ',', '').astype(float)
-                                                            if get['三大法人買賣超股數'].values[0] > 0:
-                                                                sumstock += 1
-
-                                                if countstock == sumstock:
-                                                    candidate2.append(stockId)
-
-
-
-
-IncomeFilter("2330")
+'''
+# 測試
+data = GetIncome("2838")
+print(data)
+'''

@@ -5,5 +5,11 @@
             "PYTHONIOENCODING":"utf-8"
         }
     },
-    "terminal.integrated.shellArgs.windows": ["/K", "chcp 65001"]
+    "terminal.integrated.shellArgs.windows": [
+        "/K",
+        "chcp 65001"
+    ],
+    "cSpell.words": [
+        "tbody"
+    ]
 }

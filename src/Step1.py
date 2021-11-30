@@ -12,6 +12,7 @@ import re
 from lxml import etree
 from decimal import Decimal
 
+
 '''
 選股條件：
 1. 本益比    ＜15倍
@@ -33,10 +34,10 @@ def GetCompetitor():
     PER = pd.to_numeric(stockdf['本益比'], errors='coerce') < 10  # 找到本益比小於10的股票
     DividendYield = pd.to_numeric(stockdf['殖利率(%)'].replace('-', 0), errors='coerce') > 5  # 殖利率 > 5
 
-    candidate = stockdf[(PBR & PER & DividendYield)]  # 綜合以上兩者，選出兩者皆符合的股票
+    candidate = stockdf[(PER & DividendYield)]  # 綜合以上兩者，選出兩者皆符合的股票
     #print(candidate)
     return candidate
 
-    
+# 測試
 competitors = GetCompetitor()
 print(competitors)
