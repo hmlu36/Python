@@ -17,6 +17,7 @@ from Utils import GetDataByXPath
 5. 稅後淨利率 > 0 %
 6. 本業收益（營業利益率／稅前淨利率） > 60 %
 7. ROE > 10 %
+8. 董監持股比例 > 20
 '''
 def GetPageContent(url):
     print(url)
@@ -95,6 +96,11 @@ def GetIncome(stockId):
     #print('ROE:' + target7)
     data.update({'ROE': target7})
     
+    # 董監持股
+    XPath = "/html/body/table[2]/tbody/tr/td[3]/table/tbody/tr[2]/td[1]/div[5]/div/table/tbody/tr[4]/td[3]/nobr"
+    target8 = GetDataByXPath(htmlInfo, XPath)
+    print('董監持股:' + target8)
+    data.update({'董監持股': target8})
     return data
 
 '''
