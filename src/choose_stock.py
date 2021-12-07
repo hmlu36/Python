@@ -9,9 +9,10 @@ import twstock
 from decimal import Decimal
 from Step1 import GetCompetitor
 from Step2 import GetPE
-from Step3 import GetIncome
-from Step4 import GetListingDate
+from Step3 import GetStockInfo
+from Step4 import GetStockCapital
 import Utils
+import csv
 
 '''
 選股條件：
@@ -36,43 +37,87 @@ import Utils
 championStock = {}
 
 competitors = GetCompetitor()
-listingDate = GetListingDate()
+stockCapital = GetStockCapital()
 
-print(competitors)
-for stockId in competitors["證券代號"]:
-    time.sleep(random.randint(0, 10))
-    name = competitors.loc[competitors['證券代號'] == stockId, '證券名稱'].values[0]
-    stockKistingDate = listingDate.get(Decimal(stockId))
-    if Utils.GetYearBetween(stockKistingDate) < 3:
-        continue
+#print(competitors)
+#print(stockInfo)
+with open('參考清單.csv', 'w', newline='') as csvfile:
+    # 建立 CSV 檔寫入器
+    writer = csv.writer(csvfile)
+    # 寫入一列資料
+    writer.writerow([
+                        '公司名稱', '股本(億)', '上市日期', '成交價', '殖利率(%)', '本益比', '股價淨值比', 
+                        '營收累計年增率', '毛利率', '營業利益率', '稅前淨利率', '稅後淨利率', '本業收益', 'ROE', '董監持股比', 
+                        '本益比-級距1', '本益比-級距2', '本益比-級距3', '本益比-級距4', '本益比-級距5', '本益比-級距6'
+                     ])
 
-    print(str(stockKistingDate))
-    print(name + " (" + stockId + ") ")
+    for stockId in competitors['證券代號']:
+        entryStockCapital = stockCapital.loc[stockCapital['公司代號'] == stockId]
+        stockName = entryStockCapital['公司名稱'].values[0]
+        #print(competitors.loc[competitors['證券代號'] == stockId])
+        print(stockName + '(' + stockId + ')')
+        shareCapital = round(entryStockCapital['實收資本額'].values[0] / 100000000, 4)
+        print('股本:' + str(shareCapital))
+        #time.sleep(random.randint(0, 10))
 
-    PE = GetPE(stockId)
-    #print(PE)
-    stock = twstock.Stock(stockId)
-    print("現今本益比:" + PE['CurrentPE'])
-    print("目前價格:" + str(stock.price[-1:][0]))
-    print("推估最低本益比價格:" + list(PE.values())[2])
+        listingDate = entryStockCapital['上市日期'].values[0]
+        print('上市日期:' + listingDate + ':' + str(Utils.GetYearBetween(listingDate)))
+        
+        # 大於等於5年的上市公司
+        if Utils.GetYearBetween(listingDate) >= 5:
+            entryCompetitor = competitors[competitors['證券代號'] == stockId]
+            dividendYield = entryCompetitor['殖利率(%)'].values[0]
+            print("殖利率:" + dividendYield)
 
-    Income = GetIncome(stockId)
-    print(Income)
+            PE = entryCompetitor['本益比'].values[0]
+            print('本益比:' + PE)
 
-    # 本益比 < 10, 目前股價小於最小級距本益比
-    if Decimal(PE['CurrentPE']) < 10 and stock.price[-1:][0] < Decimal(list(PE.values())[2]):
-        '''
-            1. 營收累計年增率 > 0 %
-            2. 毛利率 > 0 %
-            3. 營業利益率 > 0 %
-            4. 稅前淨利率 > 0 %
-            5. 稅後淨利率 > 0 %
-            6. 本業收益（營業利益率／稅前淨利率） > 50 %
-            7. ROE > 10
-        '''
-        if Decimal(Income["營收累計年增率"]) > 0 and Decimal(Income["毛利率"]) > 0 and Decimal(Income["營業利益率"]) > 0 and Decimal(Income["稅前淨利率"]) > 0 and Decimal(Income["本業收益"]) > 50 and Decimal(Income["ROE"]) > 10:
-            print("冠軍股:" + stockId)
-            championStock.update({name: stockId})
-    print()
+            PBR = entryCompetitor['股價淨值比'].values[0]
+            print('股價淨值比:' + PBR)
 
-print(championStock)
+            #stock = twstock.Stock(stockId)
+            #print("目前價格:" + str(stock.price[-1:][0]))
+            stockInfo = GetStockInfo(stockId)
+            currentPrice = stockInfo['成交價']
+            print("目前價格:" + currentPrice)
+
+            target1 = stockInfo['營收累計年增率']
+            print("營收累計年增率:" + target1)
+
+            target2 = stockInfo['毛利率']
+            print("毛利率:" + target2)
+            
+            target3 = stockInfo['營業利益率']
+            print("營業利益率:" + target3)
+
+            target4 = stockInfo['稅前淨利率']
+            print("稅前淨利率:" + target4)
+            
+            target5 = stockInfo['稅後淨利率']
+            print("稅後淨利率:" + target5)
+            
+            target6 = stockInfo['本業收益']
+            print("本業收益:" + target6)
+            
+            target7 = stockInfo['ROE']
+            print("ROE:" + target7)
+            
+            target8 = stockInfo['董監持股']
+            print("董監持股:" + target8)
+
+            #毛利率 > 0, 本業收益 > 0, ROE > 10
+            if Decimal(target2) > 0 and Decimal(target6) > 0 and Decimal(target7) > 10:
+                PEInfo = GetPE(stockId) 
+                print(PEInfo)
+
+                writer.writerow([
+                                    stockName + '(' + stockId + ')', shareCapital, listingDate, currentPrice, dividendYield, PE, PBR, 
+                                    target1, target2, target3, target4, target5, target6, target7, target8, 
+                                    list(PEInfo)[2] + ' / ' + list(PEInfo.values())[2], list(PEInfo)[3] + ' / ' + list(PEInfo.values())[3], 
+                                    list(PEInfo)[4] + ' / ' + list(PEInfo.values())[4], list(PEInfo)[3] + ' / ' + list(PEInfo.values())[5], 
+                                    list(PEInfo)[6] + ' / ' + list(PEInfo.values())[6]
+                                ])
+                            
+        
+        time.sleep(random.randint(15, 20))
+        

@@ -14,7 +14,7 @@ from Utils import GetDataByXPath
 '''
 
 
-def GetStockInfo():
+def GetStockCapital():
     df = pd.read_csv('https://mopsfin.twse.com.tw/opendata/t187ap03_L.csv')
     # print(df)
 
@@ -28,6 +28,6 @@ def GetStockInfo():
 
 '''
 # 測試
-data = GetStockInfo()
+data = GetStockCapital()
 print(data.loc[data['公司代號'] == '2069'])
 '''

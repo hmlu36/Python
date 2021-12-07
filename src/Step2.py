@@ -9,6 +9,7 @@ from lxml import etree
 from decimal import Decimal
 from BbrowserUserAgent import GetHeader
 from Utils import GetDataByXPath
+import time
 
 '''
 抓取本益比
@@ -19,6 +20,8 @@ from Utils import GetDataByXPath
 2. 小於近五年最小級距本益比
 '''
 def GetPE(stockId):
+    time.sleep(random.randint(15, 20))
+
     url = f'https://goodinfo.tw/StockInfo/ShowK_ChartFlow.asp?RPT_CAT=PER&STOCK_ID={stockId}&CHT_CAT=WEEK'
     resInfo = requests.get(url, headers=GetHeader())
     resInfo.encoding = 'utf-8'
@@ -49,6 +52,7 @@ def GetPE(stockId):
 
 '''
 # 測試
-data = GetPE("2330")
+data = GetPE("8112")
 print(data)
+print(list(data)[2] + ' / ' + list(data.values())[2])
 '''

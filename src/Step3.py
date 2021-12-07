@@ -23,7 +23,7 @@ def GetPageContent(url):
     print(url)
 
     # 要睡覺一下，不然會被ben掉
-    time.sleep(random.randint(0, 10))
+    time.sleep(random.randint(15, 20))
 
     rawData = requests.get(url)
     rawData.encoding = 'big5'
@@ -38,7 +38,9 @@ def GetPageContent(url):
     return getdata
         
 
-def GetIncome(stockId):
+def GetStockInfo(stockId):
+    time.sleep(random.randint(15, 20))
+    
     url = f"https://goodinfo.tw/StockInfo/StockDetail.asp?STOCK_ID={stockId}"
     resInfo = requests.get(url, headers=GetHeader())
     resInfo.encoding = 'utf-8'
@@ -67,7 +69,7 @@ def GetIncome(stockId):
     #print('營業利益率:' + target3)
     data.update({'營業利益率': target3})
 
-    time.sleep(random.randint(0, 10))
+    time.sleep(random.randint(15, 20))
     url = f"https://goodinfo.tw/StockInfo/StockFinDetail.asp?RPT_CAT=XX_M_QUAR_ACC&STOCK_ID={stockId}"
     resInfo2 = requests.get(url, headers=GetHeader())
     resInfo2.encoding = 'utf-8'
@@ -97,14 +99,20 @@ def GetIncome(stockId):
     data.update({'ROE': target7})
     
     # 董監持股
-    XPath = "/html/body/table[2]/tbody/tr/td[3]/table/tbody/tr[2]/td[1]/div[5]/div/table/tbody/tr[4]/td[3]/nobr"
+    XPath = "/html/body/table[2]/tbody/tr/td[3]/table/tbody/tr[2]/td[1]/div[7]/div/table/tbody/tr[4]/td[3]/nobr"
     target8 = GetDataByXPath(htmlInfo, XPath)
     print('董監持股:' + target8)
     data.update({'董監持股': target8})
+
+    # 成交價
+    XPath = "/html/body/table[2]/tbody/tr/td[3]/table/tbody/tr[1]/td/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td[1]"
+    target9 = GetDataByXPath(htmlInfo, XPath)
+    print('成交價:' + target9)
+    data.update({'成交價': target9})
+
     return data
 
-'''
+
 # 測試
-data = GetIncome("2838")
+data = GetStockInfo("2020")
 print(data)
-'''
