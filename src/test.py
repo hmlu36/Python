@@ -1,6 +1,6 @@
-my_dict = {"m": 1, "l": 2}
 
+import random
+from fake_useragent import UserAgent
 
-index_key = list(my_dict)[1]
-
-print(index_key)
+print(UserAgent().random)
+print(random.randint(15, 60))

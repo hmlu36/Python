@@ -34,8 +34,6 @@ import csv
 7. ROE > 10
 '''
         
-championStock = {}
-
 competitors = GetCompetitor()
 stockCapital = GetStockCapital()
 
@@ -47,11 +45,11 @@ with open('參考清單.csv', 'w', newline='') as csvfile:
     # 寫入一列資料
     writer.writerow([
                         '公司名稱', '股本(億)', '上市日期', '成交價', '殖利率(%)', '本益比', '股價淨值比', 
-                        '營收累計年增率', '毛利率', '營業利益率', '稅前淨利率', '稅後淨利率', '本業收益', 'ROE', '董監持股比', 
+                        '營收累計年增率', '毛利率', '營業利益率', '稅前淨利率', '稅後淨利率', '本業收益', 'ROE', '董監持股比', '每股自由現金流量',
                         '本益比-級距1', '本益比-級距2', '本益比-級距3', '本益比-級距4', '本益比-級距5', '本益比-級距6'
                      ])
 
-    for stockId in competitors['證券代號']:
+    for stockId in ['8112']: #competitors['證券代號']:
         entryStockCapital = stockCapital.loc[stockCapital['公司代號'] == stockId]
         stockName = entryStockCapital['公司名稱'].values[0]
         #print(competitors.loc[competitors['證券代號'] == stockId])
@@ -64,60 +62,80 @@ with open('參考清單.csv', 'w', newline='') as csvfile:
         print('上市日期:' + listingDate + ':' + str(Utils.GetYearBetween(listingDate)))
         
         # 大於等於5年的上市公司
-        if Utils.GetYearBetween(listingDate) >= 5:
-            entryCompetitor = competitors[competitors['證券代號'] == stockId]
-            dividendYield = entryCompetitor['殖利率(%)'].values[0]
-            print("殖利率:" + dividendYield)
+        if Utils.GetYearBetween(listingDate) < 5:
+            continue
+    
+        entryCompetitor = competitors[competitors['證券代號'] == stockId]
+        dividendYield = entryCompetitor['殖利率(%)'].values[0]
+        print("殖利率:" + dividendYield)
 
-            PE = entryCompetitor['本益比'].values[0]
-            print('本益比:' + PE)
+        PE = entryCompetitor['本益比'].values[0]
+        print('本益比:' + PE)
 
-            PBR = entryCompetitor['股價淨值比'].values[0]
-            print('股價淨值比:' + PBR)
+        PBR = entryCompetitor['股價淨值比'].values[0]
+        print('股價淨值比:' + PBR)
 
-            #stock = twstock.Stock(stockId)
-            #print("目前價格:" + str(stock.price[-1:][0]))
-            stockInfo = GetStockInfo(stockId)
-            currentPrice = stockInfo['成交價']
-            print("目前價格:" + currentPrice)
+        #stock = twstock.Stock(stockId)
+        #print("目前價格:" + str(stock.price[-1:][0]))
+        #Stock 物件的屬性	 說明
+        #price	 傳回近 31 天的收盤價 (單位=元) 串列
+        #capacity	 傳回近 31 天的成交量 (單位=股) 串列
+        #turnover	 傳回近 31 天的成交金額 (單位=元) 串列
+        #transaction	 傳回近 31 天的成交筆數 (單位=筆) 串列
+        #close	 傳回近 31 天的收盤價 (單位=元) 串列 (同 price)
+        #change	 傳回近 31 天收盤價的漲跌幅 (單位=元) 串列 
+        #open 	 傳回近 31 天的開盤價 (單位=元) 串列
+        #low	 傳回近 31 天的最低價 (單位=元) 串列
+        #high	 傳回近 31 天的最高價 (單位=元) 串列
+        #date	 傳回近 31 天的交易日期 datetime 物件串列
+        #sid	 傳回股票代號字串
+        #data	 傳回近 31 天的 Stock 物件全部資料內容 (Data 物件) 串列
+        #raw_data	 傳回近 31 天所擷取之原始資料串列
+        #https://yhhuang1966.blogspot.com/2018/11/python-twstock.html
+        stockInfo = GetStockInfo(stockId)
+        currentPrice = stockInfo['成交價']
+        print("目前價格:" + currentPrice)
 
-            target1 = stockInfo['營收累計年增率']
-            print("營收累計年增率:" + target1)
+        target1 = stockInfo['營收累計年增率']
+        #print("營收累計年增率:" + target1)
 
-            target2 = stockInfo['毛利率']
-            print("毛利率:" + target2)
-            
-            target3 = stockInfo['營業利益率']
-            print("營業利益率:" + target3)
+        target2 = stockInfo['毛利率']
+        #print("毛利率:" + target2)
+        
+        target3 = stockInfo['營業利益率']
+        #print("營業利益率:" + target3)
 
-            target4 = stockInfo['稅前淨利率']
-            print("稅前淨利率:" + target4)
-            
-            target5 = stockInfo['稅後淨利率']
-            print("稅後淨利率:" + target5)
-            
-            target6 = stockInfo['本業收益']
-            print("本業收益:" + target6)
-            
-            target7 = stockInfo['ROE']
-            print("ROE:" + target7)
-            
-            target8 = stockInfo['董監持股']
-            print("董監持股:" + target8)
+        target4 = stockInfo['稅前淨利率']
+        #print("稅前淨利率:" + target4)
+        
+        target5 = stockInfo['稅後淨利率']
+        #print("稅後淨利率:" + target5)
+        
+        target6 = stockInfo['本業收益']
+        #print("本業收益:" + target6)
+        
+        target7 = stockInfo['ROE']
+        #print("ROE:" + target7)
+        
+        target8 = stockInfo['董監持股']
+        #print("董監持股:" + target8)
 
-            #毛利率 > 0, 本業收益 > 0, ROE > 10
-            if Decimal(target2) > 0 and Decimal(target6) > 0 and Decimal(target7) > 10:
-                PEInfo = GetPE(stockId) 
-                print(PEInfo)
+        target9 = stockInfo['每股自由現金流量']
+        #print("董監持股:" + target8)
 
-                writer.writerow([
-                                    stockName + '(' + stockId + ')', shareCapital, listingDate, currentPrice, dividendYield, PE, PBR, 
-                                    target1, target2, target3, target4, target5, target6, target7, target8, 
-                                    list(PEInfo)[2] + ' / ' + list(PEInfo.values())[2], list(PEInfo)[3] + ' / ' + list(PEInfo.values())[3], 
-                                    list(PEInfo)[4] + ' / ' + list(PEInfo.values())[4], list(PEInfo)[3] + ' / ' + list(PEInfo.values())[5], 
-                                    list(PEInfo)[6] + ' / ' + list(PEInfo.values())[6]
-                                ])
+        #毛利率 > 0, 本業收益 > 0, ROE > 10
+        if Decimal(target2) > 0 and Decimal(target6) > 0 and Decimal(target7) > 10:
+            PEInfo = GetPE(stockId) 
+            print(PEInfo)
+
+            writer.writerow([
+                                stockName + '(' + stockId + ')', shareCapital, listingDate, currentPrice, dividendYield, PE, PBR, 
+                                target1, target2, target3, target4, target5, target6, target7, target8, target9,
+                                list(PEInfo)[2] + ' / ' + list(PEInfo.values())[2], list(PEInfo)[3] + ' / ' + list(PEInfo.values())[3], 
+                                list(PEInfo)[4] + ' / ' + list(PEInfo.values())[4], list(PEInfo)[3] + ' / ' + list(PEInfo.values())[5], 
+                                list(PEInfo)[6] + ' / ' + list(PEInfo.values())[6]
+                            ])
                             
         
-        time.sleep(random.randint(15, 20))
+        time.sleep(random.randint(15, 60))
         

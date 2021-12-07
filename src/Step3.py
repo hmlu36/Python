@@ -6,8 +6,8 @@ import random
 import requests
 from lxml import etree
 from decimal import Decimal
-from BbrowserUserAgent import GetHeader
 from Utils import GetDataByXPath
+from BbrowserUserAgent import GetHeader
 
 '''
 1. 營收累計年增率 > 0 %
@@ -23,7 +23,7 @@ def GetPageContent(url):
     print(url)
 
     # 要睡覺一下，不然會被ben掉
-    time.sleep(random.randint(15, 20))
+    time.sleep(random.randint(15, 60))
 
     rawData = requests.get(url)
     rawData.encoding = 'big5'
@@ -39,13 +39,19 @@ def GetPageContent(url):
         
 
 def GetStockInfo(stockId):
-    time.sleep(random.randint(15, 20))
-    
+    time.sleep(random.randint(15, 60))
+
     url = f"https://goodinfo.tw/StockInfo/StockDetail.asp?STOCK_ID={stockId}"
-    resInfo = requests.get(url, headers=GetHeader())
+    resInfo = requests.get(url, headers = GetHeader())
     resInfo.encoding = 'utf-8'
     htmlInfo = etree.HTML(resInfo.text)
     data = {}
+    
+    # 成交價
+    XPath = "/html/body/table[2]/tbody/tr/td[3]/table/tbody/tr[1]/td/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td[1]"
+    currentPrice = GetDataByXPath(htmlInfo, XPath)
+    print('成交價:' + currentPrice)
+    data.update({'成交價': currentPrice})
 
     #營收累計年增率 > 0 %
     XPath = "/html/body/table[2]/tbody/tr/td[3]/table/tbody/tr[2]/td[3]/div[2]/div/table/tbody/tr[3]/td[6]"
@@ -69,9 +75,9 @@ def GetStockInfo(stockId):
     #print('營業利益率:' + target3)
     data.update({'營業利益率': target3})
 
-    time.sleep(random.randint(15, 20))
+    time.sleep(random.randint(15, 60))
     url = f"https://goodinfo.tw/StockInfo/StockFinDetail.asp?RPT_CAT=XX_M_QUAR_ACC&STOCK_ID={stockId}"
-    resInfo2 = requests.get(url, headers=GetHeader())
+    resInfo2 = requests.get(url, headers = GetHeader())
     resInfo2.encoding = 'utf-8'
     htmlInfo2 = etree.HTML(resInfo2.text)
 
@@ -104,15 +110,16 @@ def GetStockInfo(stockId):
     print('董監持股:' + target8)
     data.update({'董監持股': target8})
 
-    # 成交價
-    XPath = "/html/body/table[2]/tbody/tr/td[3]/table/tbody/tr[1]/td/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td[1]"
+    # 每股自由現金流量 
+    XPath = '/html/body/table[2]/tbody/tr/td[3]/div/div/div/table/tbody/tr[104]/td[2]/nobr'
     target9 = GetDataByXPath(htmlInfo, XPath)
-    print('成交價:' + target9)
-    data.update({'成交價': target9})
-
+    print('每股自由現金流量:' + target9)
+    data.update({'每股自由現金流量': target9})
     return data
 
 
+'''
 # 測試
-data = GetStockInfo("2020")
+data = GetStockInfo("2330")
 print(data)
+'''
