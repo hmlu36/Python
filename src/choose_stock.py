@@ -44,12 +44,13 @@ with open('參考清單.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile)
     # 寫入一列資料
     writer.writerow([
-                        '公司名稱', '股本(億)', '上市日期', '成交價', '殖利率(%)', '本益比', '股價淨值比', 
-                        '營收累計年增率', '毛利率', '營業利益率', '稅前淨利率', '稅後淨利率', '本業收益', 'ROE', '董監持股比', '每股自由現金流量',
+                        '公司名稱', '證券代號', '股本(億)', '上市日期', '成交價', '殖利率(%)', '本益比', '股價淨值比', 
+                        '營收累計年增率', '毛利率', '營業利益率', '稅前淨利率', '稅後淨利率', '本業收益', 'ROE', '董監持股比', '每股營業現金流量', '每股自由現金流量',
                         '本益比-級距1', '本益比-級距2', '本益比-級距3', '本益比-級距4', '本益比-級距5', '本益比-級距6'
                      ])
 
-    for stockId in ['8112']: #competitors['證券代號']:
+    # for stockId in competitors['證券代號']:
+    for stockId in ['2115','2204','2324','2347','2348','2357','2417','2458','2474','2505','2520','2535','2545','2546','2855','2915','3005','3028','3048','3056','3209','3557','3669','3679','3702','4930','4935','4942','5215','5515','5519','6005','6176','6239','6582','6641','6790','8112','8213','8499','9945']:
         entryStockCapital = stockCapital.loc[stockCapital['公司代號'] == stockId]
         stockName = entryStockCapital['公司名稱'].values[0]
         #print(competitors.loc[competitors['證券代號'] == stockId])
@@ -92,6 +93,8 @@ with open('參考清單.csv', 'w', newline='') as csvfile:
         #data	 傳回近 31 天的 Stock 物件全部資料內容 (Data 物件) 串列
         #raw_data	 傳回近 31 天所擷取之原始資料串列
         #https://yhhuang1966.blogspot.com/2018/11/python-twstock.html
+        
+        time.sleep(random.randint(30, 40))
         stockInfo = GetStockInfo(stockId)
         currentPrice = stockInfo['成交價']
         print("目前價格:" + currentPrice)
@@ -120,22 +123,24 @@ with open('參考清單.csv', 'w', newline='') as csvfile:
         target8 = stockInfo['董監持股']
         #print("董監持股:" + target8)
 
-        target9 = stockInfo['每股自由現金流量']
+        target9 = stockInfo['每股營業現金流量']
+        
+        target10 = stockInfo['每股自由現金流量']
         #print("董監持股:" + target8)
 
         #毛利率 > 0, 本業收益 > 0, ROE > 10
         if Decimal(target2) > 0 and Decimal(target6) > 0 and Decimal(target7) > 10:
+            time.sleep(random.randint(30, 40))
             PEInfo = GetPE(stockId) 
             print(PEInfo)
 
             writer.writerow([
-                                stockName + '(' + stockId + ')', shareCapital, listingDate, currentPrice, dividendYield, PE, PBR, 
-                                target1, target2, target3, target4, target5, target6, target7, target8, target9,
+                                stockName, stockId, shareCapital, listingDate, currentPrice, dividendYield, PE, PBR, 
+                                target1, target2, target3, target4, target5, target6, target7, target8, target9, target10,
                                 list(PEInfo)[2] + ' / ' + list(PEInfo.values())[2], list(PEInfo)[3] + ' / ' + list(PEInfo.values())[3], 
                                 list(PEInfo)[4] + ' / ' + list(PEInfo.values())[4], list(PEInfo)[3] + ' / ' + list(PEInfo.values())[5], 
                                 list(PEInfo)[6] + ' / ' + list(PEInfo.values())[6]
                             ])
                             
         
-        time.sleep(random.randint(15, 60))
         

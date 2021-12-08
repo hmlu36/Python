@@ -42,3 +42,8 @@ referer = [
 
 def GetHeader():
     return {'user-agent': UserAgent().random, 'Referer': referer[np.random.randint(0, len(referer))]}
+
+'''
+data = GetHeader()
+print(data)
+'''

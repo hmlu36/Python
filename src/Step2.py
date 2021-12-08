@@ -20,7 +20,6 @@ import time
 2. 小於近五年最小級距本益比
 '''
 def GetPE(stockId):
-    time.sleep(random.randint(15, 60))
 
     url = f'https://goodinfo.tw/StockInfo/ShowK_ChartFlow.asp?RPT_CAT=PER&STOCK_ID={stockId}&CHT_CAT=WEEK'
     resInfo = requests.get(url, headers = GetHeader())
@@ -29,6 +28,8 @@ def GetPE(stockId):
 
     header = ['EPS', 'CurrentPE']
     for index in range(1, 6, 1):
+        #2115
+                #/html/body/table[2]/tbody/tr/td[3]/div/div/div/table/tbody/tr[3]/td[5]
         XPath = f'/html/body/table[2]/tbody/tr/td[3]/div/div/div/table/tbody/tr[142]/td[{index}]/nobr'
         target = GetDataByXPath(htmlInfo, XPath)
         header.append(target)

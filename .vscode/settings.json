@@ -1,14 +1,12 @@
 {
     "python.pythonPath": "C:\\Users\\joshua.lu\\AppData\\Local\\Programs\\Python\\Python39\\python.exe",
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
     "options": {
         "env": {
             "PYTHONIOENCODING":"utf-8"
         }
     },
-    "terminal.integrated.shellArgs.windows": [
-        "/K",
-        "chcp 65001"
-    ],
     "cSpell.words": [
         "tbody"
     ]

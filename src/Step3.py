@@ -39,8 +39,6 @@ def GetPageContent(url):
         
 
 def GetStockInfo(stockId):
-    time.sleep(random.randint(15, 60))
-
     url = f"https://goodinfo.tw/StockInfo/StockDetail.asp?STOCK_ID={stockId}"
     resInfo = requests.get(url, headers = GetHeader())
     resInfo.encoding = 'utf-8'
@@ -75,7 +73,7 @@ def GetStockInfo(stockId):
     #print('營業利益率:' + target3)
     data.update({'營業利益率': target3})
 
-    time.sleep(random.randint(15, 60))
+    time.sleep(random.randint(15, 30))
     url = f"https://goodinfo.tw/StockInfo/StockFinDetail.asp?RPT_CAT=XX_M_QUAR_ACC&STOCK_ID={stockId}"
     resInfo2 = requests.get(url, headers = GetHeader())
     resInfo2.encoding = 'utf-8'
@@ -110,16 +108,27 @@ def GetStockInfo(stockId):
     print('董監持股:' + target8)
     data.update({'董監持股': target8})
 
-    # 每股自由現金流量 
-    XPath = '/html/body/table[2]/tbody/tr/td[3]/div/div/div/table/tbody/tr[104]/td[2]/nobr'
-    target9 = GetDataByXPath(htmlInfo, XPath)
-    print('每股自由現金流量:' + target9)
-    data.update({'每股自由現金流量': target9})
+    #每股營業現金流量
+    XPath = '/html/body/table[2]/tbody/tr/td[3]/div/div/div/table/tbody/tr[100]/td[2]/nobr'
+    target9 = GetDataByXPath(htmlInfo2, XPath)
+    print('每股營業現金流量:' + target9)
+    data.update({'每股營業現金流量': target9})  
+  
+    #每股自由現金流量
+    # 1423 利華的位置不一樣
+    try:
+        XPath = '/html/body/table[2]/tbody/tr/td[3]/div/div/div/table/tbody/tr[104]/td[2]/nobr'
+        target10 = GetDataByXPath(htmlInfo2, XPath)
+    except:    
+        XPath = '/html/body/table[2]/tbody/tr/td[3]/div/div/div/table/tbody/tr[98]/td[1]/nobr'
+        target10 = GetDataByXPath(htmlInfo2, XPath)
+    
+    print('每股自由現金流量:' + target10)
+    data.update({'每股自由現金流量': target10})
+    
     return data
-
-
 '''
 # 測試
-data = GetStockInfo("2330")
+data = GetStockInfo("1598")
 print(data)
 '''

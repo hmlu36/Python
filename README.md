@@ -23,6 +23,13 @@ https://umin27.medium.com/vs-code%E6%8E%A1%E7%94%A8code-runner%E9%81%87%E5%88%B0
 4.加入"code-runner.runInTerminal": true,
 
 
+## 環境變數
+**python**
+C:\Users\joshua.lu\AppData\Local\Programs\Python\Python39\
+C:\Users\joshua.lu\AppData\Local\Programs\Python\Python39\Scripts
+**Git**
+C:\Program Files\Git\cmd
+
 *每股盈餘 ＥＰＳ（Earning Per Share）*
 => 計算公式是：每股盈餘＝本期淨利／流通
 

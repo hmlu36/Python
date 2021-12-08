@@ -40,8 +40,8 @@ def GetCompetitor():
     #print(candidate)
     return candidate
 
-'''
+
 # 測試
 competitors = GetCompetitor()
 print(competitors)
-'''
+
