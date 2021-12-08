@@ -41,10 +41,10 @@ def GetPageContent(url):
 def GetStockInfo(stockId):
     url = f"https://goodinfo.tw/StockInfo/StockDetail.asp?STOCK_ID={stockId}"
     rawData = requests.get(url, headers = GetHeader())
-    rawData.encoding = 'big5'
+    rawData.encoding = 'utf-8'
     soup = BeautifulSoup(rawData.text, "html.parser")
 
-    table = soup.find('table', attrs={'class':'subs noBorders evenRows'})
+    table = soup.find('table', attrs={'class':'b1 p4_4 r0_10 row_mouse_over'})
     table_rows = table.find_all('tr')
 
     res = []
@@ -54,6 +54,7 @@ def GetStockInfo(stockId):
         if row:
             res.append(row)
     
+    print(res)
     data = {}
     
     '''
@@ -147,8 +148,7 @@ def GetStockInfo(stockId):
     data.update({'每股自由現金流量': target10})
     '''
     return data
-'''
+
 # 測試
 data = GetStockInfo("2546")
 print(data)
-'''
