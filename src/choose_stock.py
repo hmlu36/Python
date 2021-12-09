@@ -46,11 +46,17 @@ with open('參考清單.csv', 'w', newline='') as csvfile:
     writer.writerow([
                         '公司名稱', '證券代號', '股本(億)', '上市日期', '成交價', '殖利率(%)', '本益比', '股價淨值比', 
                         '營收累計年增率', '毛利率', '營業利益率', '稅前淨利率', '稅後淨利率', '本業收益', 'ROE', '董監持股比', '每股營業現金流量', '每股自由現金流量',
-                        '本益比-級距1', '本益比-級距2', '本益比-級距3', '本益比-級距4', '本益比-級距5', '本益比-級距6'
+                        '本益比-級距1倍數', '本益比-級距1價格', 
+                        '本益比-級距2倍數', '本益比-級距2價格',
+                        '本益比-級距3倍數', '本益比-級距3價格',
+                        '本益比-級距4倍數', '本益比-級距4價格',
+                        '本益比-級距5倍數', '本益比-級距5價格', 
+                        '本益比-級距6倍數', '本益比-級距6價格'
                      ])
 
     # for stockId in competitors['證券代號']:
-    for stockId in ['2115','2204','2324','2347','2348','2357','2417','2458','2474','2505','2520','2535','2545','2546','2855','2915','3005','3028','3048','3056','3209','3557','3669','3679','3702','4930','4935','4942','5215','5515','5519','6005','6176','6239','6582','6641','6790','8112','8213','8499','9945']:
+    # error stock 2505 3702 4935
+    for stockId in ['4942','5215','5515','5519','6005','6176','6239','6582','6641','6790','8112','8213','8499','9945']:
         entryStockCapital = stockCapital.loc[stockCapital['公司代號'] == stockId]
         stockName = entryStockCapital['公司名稱'].values[0]
         #print(competitors.loc[competitors['證券代號'] == stockId])
@@ -103,7 +109,7 @@ with open('參考清單.csv', 'w', newline='') as csvfile:
         #print("營收累計年增率:" + target1)
 
         target2 = stockInfo['毛利率']
-        #print("毛利率:" + target2)
+        print("毛利率:" + target2)
         
         target3 = stockInfo['營業利益率']
         #print("營業利益率:" + target3)
@@ -115,7 +121,7 @@ with open('參考清單.csv', 'w', newline='') as csvfile:
         #print("稅後淨利率:" + target5)
         
         target6 = stockInfo['本業收益']
-        #print("本業收益:" + target6)
+        print("本業收益:" + target6)
         
         target7 = stockInfo['ROE']
         #print("ROE:" + target7)
@@ -126,7 +132,7 @@ with open('參考清單.csv', 'w', newline='') as csvfile:
         target9 = stockInfo['每股營業現金流量']
         
         target10 = stockInfo['每股自由現金流量']
-        #print("董監持股:" + target8)
+        print("董監持股:" + target8)
 
         #毛利率 > 0, 本業收益 > 0, ROE > 10
         if Decimal(target2) > 0 and Decimal(target6) > 0 and Decimal(target7) > 10:
@@ -137,9 +143,12 @@ with open('參考清單.csv', 'w', newline='') as csvfile:
             writer.writerow([
                                 stockName, stockId, shareCapital, listingDate, currentPrice, dividendYield, PE, PBR, 
                                 target1, target2, target3, target4, target5, target6, target7, target8, target9, target10,
-                                list(PEInfo)[2] + ' / ' + list(PEInfo.values())[2], list(PEInfo)[3] + ' / ' + list(PEInfo.values())[3], 
-                                list(PEInfo)[4] + ' / ' + list(PEInfo.values())[4], list(PEInfo)[3] + ' / ' + list(PEInfo.values())[5], 
-                                list(PEInfo)[6] + ' / ' + list(PEInfo.values())[6]
+                                list(PEInfo)[2], list(PEInfo.values())[2],
+                                list(PEInfo)[3], list(PEInfo.values())[3],
+                                list(PEInfo)[4], list(PEInfo.values())[4], 
+                                list(PEInfo)[3], list(PEInfo.values())[5], 
+                                list(PEInfo)[6], list(PEInfo.values())[6], 
+                                list(PEInfo)[7], list(PEInfo.values())[7]
                             ])
                             
         

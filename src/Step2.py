@@ -27,7 +27,7 @@ def GetPE(stockId):
     htmlInfo = etree.HTML(resInfo.text)
 
     header = ['EPS', 'CurrentPE']
-    for index in range(1, 6, 1):
+    for index in range(1, 7, 1):
         #2115
                 #/html/body/table[2]/tbody/tr/td[3]/div/div/div/table/tbody/tr[3]/td[5]
         XPath = f'/html/body/table[2]/tbody/tr/td[3]/div/div/div/table/tbody/tr[142]/td[{index}]/nobr'
@@ -36,7 +36,7 @@ def GetPE(stockId):
     #print(header)
 
     entry = []
-    for index in range(5, 12, 1):
+    for index in range(5, 13, 1):
         #print(index)
         XPath = f'/html/body/table[2]/tbody/tr/td[3]/div/div/div/table/tbody/tr[3]/td[{index}]'
         #print(XPath)
@@ -51,9 +51,8 @@ def GetPE(stockId):
         data.update({header[index] : entry[index]})
     return data
 
-'''
+
 # 測試
-data = GetPE("8112")
+data = GetPE("3702")
 print(data)
 print(list(data)[2] + ' / ' + list(data.values())[2])
-'''

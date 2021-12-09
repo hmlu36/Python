@@ -109,8 +109,12 @@ def GetStockInfo(stockId):
     data.update({'董監持股': target8})
 
     #每股營業現金流量
-    XPath = '/html/body/table[2]/tbody/tr/td[3]/div/div/div/table/tbody/tr[100]/td[2]/nobr'
-    target9 = GetDataByXPath(htmlInfo2, XPath)
+    try:
+        XPath = '/html/body/table[2]/tbody/tr/td[3]/div/div/div/table/tbody/tr[100]/td[2]/nobr'
+        target9 = GetDataByXPath(htmlInfo2, XPath)
+    except: 
+        XPath = '/html/body/table[2]/tbody/tr/td[3]/div/div/div/table/tbody/tr[90]/td[2]/nobr'
+        target9 = GetDataByXPath(htmlInfo2, XPath)
     print('每股營業現金流量:' + target9)
     data.update({'每股營業現金流量': target9})  
   
@@ -123,12 +127,16 @@ def GetStockInfo(stockId):
         XPath = '/html/body/table[2]/tbody/tr/td[3]/div/div/div/table/tbody/tr[98]/td[1]/nobr'
         target10 = GetDataByXPath(htmlInfo2, XPath)
     
+    if target10.isnumeric() == False:
+        XPath = '/html/body/table[2]/tbody/tr/td[3]/div/div/div/table/tbody/tr[94]/td[2]/nobr'
+        target10 = GetDataByXPath(htmlInfo2, XPath)
+        
     print('每股自由現金流量:' + target10)
     data.update({'每股自由現金流量': target10})
     
     return data
 '''
 # 測試
-data = GetStockInfo("1598")
+data = GetStockInfo("2546")
 print(data)
 '''
