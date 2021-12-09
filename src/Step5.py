@@ -18,45 +18,37 @@ from BbrowserUserAgent import GetHeader
 6. 本業收益（營業利益率／稅前淨利率） > 60 %
 7. ROE > 10 %
 8. 董監持股比例 > 20
-'''
-def GetPageContent(url):
-    print(url)
-
-    # 要睡覺一下，不然會被ben掉
-    time.sleep(random.randint(15, 60))
-
-    rawData = requests.get(url)
-    rawData.encoding = 'big5'
-    #print(rawData.text)
-    #print(rawData.encoding) # 網頁encoding
-    soup = BeautifulSoup(rawData.text, "html.parser")
-    getdata = ""
-    if soup.find('font') is None or soup.find('font').text != '檔案不存在!':
-        print("content exists")
-        getdata = pd.read_html(url)
-    #print(getdata)
-    return getdata
-        
+'''      
 
 def GetStockInfo(stockId):
-    url = f"https://goodinfo.tw/StockInfo/StockDetail.asp?STOCK_ID={stockId}"
+    url = f"https://goodinfo.tw/StockInfo/StockFinDetail.asp?RPT_CAT=XX_M_QUAR_ACC&STOCK_ID={stockId}"
     rawData = requests.get(url, headers = GetHeader())
     rawData.encoding = 'utf-8'
     soup = BeautifulSoup(rawData.text, "html.parser")
 
+    # 參考
+    # https://stackoverflow.com/questions/50633050/scrape-tables-into-dataframe-with-beautifulsoup
     table = soup.find('table', attrs={'class':'b1 p4_4 r0_10 row_mouse_over'})
     table_rows = table.find_all('tr')
 
-    res = []
-    for tr in table_rows:
-        td = tr.find_all('td')
-        row = [tr.text.strip() for tr in td if tr.text.strip()]
+    headers = []
+    rows = []
+    for index, tr in enumerate(table_rows):
+        td = tr.find_all('th') + tr.find_all('td')
+        row = [tr.text.strip().replace('\n', '').replace('\xa0', '') for tr in td if tr.text.strip()]
         if row:
-            res.append(row)
-    
-    print(res)
+            if index == 0:
+                headers.append(row)
+            else :
+                rows.append(row)
+
+    #print(headers)
+    #print(rows)
+    entryDf = pd.DataFrame(rows, columns=headers)
+    extractDf = entryDf.iloc[:, 0:2]
+    print(extractDf.loc[extractDf["獲利能力"].str.startswith("營業毛利率")]);
     data = {}
-    
+
     '''
     # 成交價
     XPath = "/html/body/table[2]/tbody/tr/td[3]/table/tbody/tr[1]/td/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td[1]"
@@ -150,5 +142,5 @@ def GetStockInfo(stockId):
     return data
 
 # 測試
-data = GetStockInfo("2546")
+data = GetStockInfo("8112")
 print(data)
