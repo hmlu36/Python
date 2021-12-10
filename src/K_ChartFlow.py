@@ -13,7 +13,11 @@ def GetPE(stockId):
 
     url = f"https://goodinfo.tw/StockInfo/ShowK_ChartFlow.asp?RPT_CAT=PER&STOCK_ID={stockId}&CHT_CAT=WEEK"
     df = Utils.GetDataFrameByClass(url, 'b1 p4_0 r0_10 row_bg_2n row_mouse_over');
-    print(df)
+    print(df.head())
+
+    
+
+
     data = {}
     '''
     url = f'https://goodinfo.tw/StockInfo/ShowK_ChartFlow.asp?RPT_CAT=PER&STOCK_ID={stockId}&CHT_CAT=WEEK'
@@ -52,4 +56,3 @@ def GetPE(stockId):
 # 測試
 data = GetPE("8112")
 print(data)
-print(list(data)[2] + ' / ' + list(data.values())[2])
