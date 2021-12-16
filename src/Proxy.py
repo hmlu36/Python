@@ -1,7 +1,7 @@
 import requests
 import re
 import pandas as pd
-from BbrowserUserAgent import GetHeader
+from BrowserUserAgent import GetHeader
 
 #proxy_json = pd.read_json(url);
 

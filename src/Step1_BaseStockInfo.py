@@ -11,9 +11,9 @@ import requests
 import re
 from lxml import etree
 from decimal import Decimal
+from datetime import datetime, timedelta
 
-
-def GetCompetitor():
+def GetDailyExchangeReport():
     # ----------------- （１）評估價值是否被低估？（股票價格不會太貴） -------------
     ########## 去公開資訊觀測站，把本益比、股價淨值比爬下來 ##########
     url = 'https://www.twse.com.tw/exchangeReport/BWIBBU_d?response=json&date=&selectType=&_=' + str(time.time())
@@ -24,7 +24,7 @@ def GetCompetitor():
     # 因為是表格式，用dataframe處理會比較方便
     stockdf = pd.DataFrame(getjson['data'], columns=["證券代號", "證券名稱", "殖利率(%)", "股利年度", "本益比", "股價淨值比", "財報年/季"])
     
-    #del stockdf['證券名稱']
+    del stockdf['財報年/季']
 
     PBR = pd.to_numeric(stockdf['股價淨值比'], errors='coerce') < 0.8  # 找到股價淨值比小於0.7的股票
     PER = pd.to_numeric(stockdf['本益比'], errors='coerce') < 10  # 找到本益比小於10的股票
@@ -34,11 +34,15 @@ def GetCompetitor():
     #print(candidate)
     return candidate
 
-
-
 def GetStockCapital():
     df = pd.read_csv('https://mopsfin.twse.com.tw/opendata/t187ap03_L.csv')
     # print(df)
+    
+    # 大於等於5年的上市公司
+    fiveYearBefore = (datetime.today() - timedelta(days=5 * 365)).strftime('%Y%m%d')
+    #print(fiveYearBefore)
+    YEAR_CONDITION = pd.to_datetime(df['上市日期'], format='%Y%m%d') < fiveYearBefore 
+    df = df[YEAR_CONDITION]        
 
     #data = df.set_index("公司代號")["上市日期"].to_dict()
     df[['公司代號', '上市日期']] = df[['公司代號', '上市日期']].astype(str)
@@ -50,21 +54,21 @@ def GetStockCapital():
     # print(data)
     # return data
 
-def GetStockInfo():
-    competitor = GetCompetitor()
+def GetBaseStockInfo():
+    exchangeReport = GetDailyExchangeReport()
     capital = GetStockCapital()
     # merge dataframe
     # ref: http://violin-tao.blogspot.com/2017/06/pandas-2-concat-merge.html
-    return pd.merge(competitor, capital, on='證券代號')
+    mergeDf = pd.merge(capital, exchangeReport, on='證券代號')
 
-'''
-# 測試
-competitors = GetCompetitor()
-print(competitors)
-data = GetStockCapital()
-print(data.loc[data['公司代號'] == '2069'])
-'''
+    # move column in pandas dataframe
+    # ref https://stackoverflow.com/questions/35321812/move-column-in-pandas-dataframe
+    column_to_move = mergeDf.pop("證券名稱")
+    mergeDf.insert(1, "證券名稱", column_to_move)
+
+    return mergeDf
+
 
 # 測試
-data = GetStockInfo()
+data = GetBaseStockInfo()
 print(data)

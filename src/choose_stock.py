@@ -7,10 +7,9 @@ import random
 from lxml import etree
 import twstock
 from decimal import Decimal
-from Step1 import GetCompetitor
-from Step2 import GetPE
+from Step1_BaseStockInfo import GetBaseStockInfo
+import Step2_FinDetail
 from Step3 import GetStockInfo
-from Step4 import GetStockCapital
 import Utils
 import csv
 
@@ -34,10 +33,13 @@ import csv
 7. ROE > 10
 '''
         
-competitors = GetCompetitor()
-stockCapital = GetStockCapital()
-
+#competitors = GetBaseStockInfo()
 #print(competitors)
+
+for stockId in ['8112']:
+
+
+'''
 #print(stockInfo)
 with open('參考清單.csv', 'w', newline='') as csvfile:
     # 建立 CSV 檔寫入器
@@ -150,6 +152,6 @@ with open('參考清單.csv', 'w', newline='') as csvfile:
                                 list(PEInfo)[6], list(PEInfo.values())[6], 
                                 list(PEInfo)[7], list(PEInfo.values())[7]
                             ])
-                            
+'''            
         
         

@@ -3,7 +3,7 @@ from datetime import datetime
 import pandas as pd
 from bs4 import BeautifulSoup
 import requests
-from BbrowserUserAgent import GetHeader
+from BrowserUserAgent import GetHeader
 
 
 def GetDataByXPath(htmlInfo, XPath):

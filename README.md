@@ -49,3 +49,6 @@ ex: 中華電信來說，103年發放現金股利4.86元 股價98.7元，殖利�
 *TODO*
 **杜邦方程式**
 https://www.cmoney.tw/learn/course/0520/topic/1115
+
+**財報三率**
+https://www.wealth.com.tw/articles/bccd3b22-e0fa-4613-8436-d58aea0849fc

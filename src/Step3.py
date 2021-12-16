@@ -7,7 +7,7 @@ import requests
 from lxml import etree
 from decimal import Decimal
 from Utils import GetDataByXPath
-from BbrowserUserAgent import GetHeader
+from BrowserUserAgent import GetHeader
 
 '''
 1. 營收累計年增率 > 0 %

@@ -7,7 +7,7 @@ import requests
 import re
 from lxml import etree
 from decimal import Decimal
-from BbrowserUserAgent import GetHeader
+from BrowserUserAgent import GetHeader
 from Utils import GetDataByXPath
 import time
 

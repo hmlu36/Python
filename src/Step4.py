@@ -6,7 +6,7 @@ import random
 import requests
 from lxml import etree
 from decimal import Decimal
-from BbrowserUserAgent import GetHeader
+from BrowserUserAgent import GetHeader
 from Utils import GetDataByXPath
 
 '''
