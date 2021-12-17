@@ -1,13 +1,11 @@
-import datetime
 import pandas as pd
 from bs4 import BeautifulSoup
 import requests
 import json
-from io import StringIO
 import requests
-import re
-from lxml import etree
 from datetime import date, timedelta
+import time
+import random
 
 '''
 reference: https://www.ptt.cc/bbs/Stock/M.1639061202.A.DDD.html
@@ -59,14 +57,27 @@ def ComposeDfByDate(stockId, date):
 def GetTransactionInfo(stockId):
     df = pd.DataFrame()
     tempDate = date.today()
-    stockDf = ComposeDfByDate(stockId, tempDate)
-    #while df.shape[0] < 60:
-    print(df.shape[0])
-    stockDf = ComposeDfByDate(stockId, tempDate)
-    tempDate = date.today().replace(day=1) - timedelta(days=1)
-    df.append(stockDf)
-    print(df.shape[0])
-
+    df = ComposeDfByDate(stockId, tempDate)
+    
+    while df.shape[0] < 60:
+        time.sleep(random.randint(10, 20))
+        #print(df.shape[0])
+        tempDate = tempDate.replace(day=1) - timedelta(days=1)
+        stockDf = ComposeDfByDate(stockId, tempDate)
+        #print(stockDf)
+        df = df.append(stockDf)
+        #print('day:' + tempDate.strftime('%Y%m%d') + ', count:' + str(df.shape[0]))
+    
+    df = df.sort_values(by='日期', ascending=False)
+    print(pd.to_numeric(df['成交筆數'].head(5)).mean())
+    '''
+    print(df['成交筆數'].head(5).mean())
+    print(df['收盤價'].head(5).mean())
+    print(df['成交筆數'].head(20).mean())
+    print(df['收盤價'].head(20).mean())
+    print(df['成交筆數'].head(60).mean())
+    print(df['收盤價'].head(60).mean())
+    '''
     return df
 
 
