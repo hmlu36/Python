@@ -26,6 +26,7 @@ def GetDailyExchangeReport():
     
     del stockdf['財報年/季']
 
+    #errors = 'coerce'：是因為本益比千位數有逗號，若改成value會出錯，這個指令是讓出錯的地方以NaN型式取代
     PBR = pd.to_numeric(stockdf['股價淨值比'], errors='coerce') < 0.8  # 找到股價淨值比小於0.7的股票
     PER = pd.to_numeric(stockdf['本益比'], errors='coerce') < 10  # 找到本益比小於10的股票
     DividendYield = pd.to_numeric(stockdf['殖利率(%)'].replace('-', 0), errors='coerce') > 5  # 殖利率 > 5
