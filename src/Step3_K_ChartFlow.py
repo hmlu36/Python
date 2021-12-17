@@ -20,9 +20,26 @@ def GetPE(stockId):
     #print(firtRowDf)
 
     #dataframe轉成dictionary 參考 https://stackoverflow.com/questions/45452935/pandas-how-to-get-series-to-dict
-    data = [dict(key=re.findall(r'[0-9]+[.]?[0-9]*', str(k))[0], value=v) for k, v in firtRowDf.items()]
+    dictionaries = [dict(key=re.findall(r'[0-9]+[.]?[0-9]*', str(k))[0], value=v) for k, v in firtRowDf.items()]
     #print(data)
-    return data
+    
+    # 轉換成dataframe
+    data = []
+    headers = ['本益比-級距1倍數', '本益比-級距1價格', 
+               '本益比-級距2倍數', '本益比-級距2價格',
+               '本益比-級距3倍數', '本益比-級距3價格',
+               '本益比-級距4倍數', '本益比-級距4價格',
+               '本益比-級距5倍數', '本益比-級距5價格', 
+               '本益比-級距6倍數', '本益比-級距6價格']
+    for entry in dictionaries:
+        #print(entry)
+        data.append(entry['key'])
+        data.append(entry['value'])
+
+    ##print(headers)
+    print(data)
+    df = pd.DataFrame([data], columns=headers)
+    return df
 
 
 # 測試

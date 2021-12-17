@@ -11,28 +11,33 @@ import Utils
 6. 本業收益（營業利益率／稅前淨利率） > 60 %
 7. ROE > 10 %
 8. 董監持股比例 > 20
-'''      
+'''
+
 
 def GetFinHeaders():
-    return ['毛利率', '營業利益率', '股東權益報酬率(年預估)', '稅前淨利率', '稅後淨利率', '本業收益', '每股營業現金流量', '每股自由現金流量']
+    return ['毛利率', '營業利益率', '股東權益報酬率(年預估)', '稅前淨利率', '稅後淨利率', '總資產週轉率', '本業收益', '每股營業現金流量', '每股自由現金流量']
+
 
 def GetFinDetail(stockId):
     url = f"https://goodinfo.tw/StockInfo/StockFinDetail.asp?RPT_CAT=XX_M_QUAR_ACC&STOCK_ID={stockId}"
-    df = Utils.GetDataFrameByClass(url, 'b1 p4_4 r0_10 row_mouse_over');
-    #print(df)
-    data = {}
+    df = Utils.GetDataFrameByClass(url, 'b1 p4_4 r0_10 row_mouse_over')
+    # print(df)
+    dict = {}
 
     headers = GetFinHeaders()
     for header in headers:
         if header == '本業收益':
-             #本業收益（營業利益率／稅前淨利率） > ６０％
-            tempData = round(Decimal(data['營業利益率']) / Decimal(data['稅前淨利率']) * 100, 2)
-            data.update({'本業收益': str(tempData)})
+            # 本業收益（營業利益率／稅前淨利率） > ６０％
+            tempDict = round(
+                Decimal(dict['營業利益率']) / Decimal(dict['稅前淨利率']) * 100, 2)
+            dict.update({'本業收益': str(tempDict)})
         else:
-            tempData = Utils.GetDataFrameValueByLabel(df, '獲利能力', header)
-            data.update({header: str(Decimal(tempData[0]))})
+            tempDict = Utils.GetDataFrameValueByLabel(df, '獲利能力', header)
+            dict.update({header.replace('股東權益報酬率(年預估)', 'ROE'): str(Decimal(tempDict[0]))})
 
-    return data
+    df = pd.DataFrame([dict.keys(), dict.values()])
+    return df
+
 
 # 測試
 data = GetFinDetail("8112")
