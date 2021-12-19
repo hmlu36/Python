@@ -20,7 +20,8 @@ def GetFinHeaders():
 
 def GetFinDetail(stockId):
     url = f"https://goodinfo.tw/StockInfo/StockFinDetail.asp?RPT_CAT=XX_M_QUAR_ACC&STOCK_ID={stockId}"
-    df = Utils.GetDataFrameByClass(url, 'b1 p4_4 r0_10 row_mouse_over')
+    attrs = {'class', 'b1 p4_4 r0_10 row_mouse_over'}
+    df = Utils.GetDataFrameByAttrs(url, attrs)
     # print(df)
     dict = {}
 

@@ -11,8 +11,9 @@ import re
 '''
 def GetPE(stockId):
 
-    url = f"https://goodinfo.tw/StockInfo/ShowK_ChartFlow.asp?RPT_CAT=PER&STOCK_ID={stockId}&CHT_CAT=WEEK"
-    df = Utils.GetDataFrameByClass(url, 'b1 p4_0 r0_10 row_bg_2n row_mouse_over')
+    url = f'https://goodinfo.tw/StockInfo/ShowK_ChartFlow.asp?RPT_CAT=PER&STOCK_ID={stockId}&CHT_CAT=WEEK'
+    attrs={'class', 'b1 p4_0 r0_10 row_bg_2n row_mouse_over'}
+    df = Utils.GetDataFrameByAttrs(url, attrs)
     #firtRowDf = df[df.columns[-5:]].head(1)
 
     # 取前兩列後面倒數6欄資料
@@ -43,5 +44,5 @@ def GetPE(stockId):
 
 
 # 測試
-data = GetPE("8112")
+data = GetPE('8112')
 print(data)

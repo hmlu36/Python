@@ -2,6 +2,7 @@ import requests
 from fake_useragent import UserAgent
 from urllib.parse import urlencode
 from bs4 import BeautifulSoup
+import Utils
 
 url_root = 'https://goodinfo.tw/StockInfo/ShowK_Chart.asp'
 
@@ -11,22 +12,15 @@ payload = {
     'STEP': 'DATA',
     'PERIOD': 365
 }
-qs = urlencode(payload)
-url = f'{url_root}?{qs}'
+attrs = {'id': 'tblPriceDetail'}
 
-ua = UserAgent()
-headers = {
-    'user-agent': ua.random,
-    'referer': url
-}
+df = Utils.PostDataFrameByAttrs(url_root, payload, attrs)
+print(df)
 
-response = requests.post(url, headers=headers)
-response.encoding = 'utf-8'
-soup = BeautifulSoup(response.text, 'lxml')
-rows = soup.select('div#divPriceDetail > table > tbody > tr')
+'''
 k_data = []
+print(rows)
 for row in rows:
-    print("row:" + row)
     columns = row.select('td')
     print(columns)
     k_data.append({
@@ -38,3 +32,4 @@ for row in rows:
     })
     
 print(k_data)
+'''
