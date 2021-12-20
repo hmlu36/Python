@@ -54,3 +54,4 @@ https://www.cmoney.tw/learn/course/0520/topic/1115
 https://www.wealth.com.tw/articles/bccd3b22-e0fa-4613-8436-d58aea0849fc
 
 https://github.com/rex-chien/ithome-scrapy
+https://chenchenhouse.com/goodinfo/

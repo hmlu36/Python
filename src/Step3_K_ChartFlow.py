@@ -1,6 +1,11 @@
 import pandas as pd
 import Utils
 import re
+import Utils
+from BrowserUserAgent import GetHeader
+import requests
+from bs4 import BeautifulSoup
+
 '''
 抓取本益比
 取得現今EPS、本益比、近五年六個級距本益比
@@ -10,10 +15,9 @@ import re
 2. 小於近五年最小級距本益比
 '''
 def GetPE(stockId):
-
     url = f'https://goodinfo.tw/StockInfo/ShowK_ChartFlow.asp?RPT_CAT=PER&STOCK_ID={stockId}&CHT_CAT=WEEK'
-    attrs={'class', 'b1 p4_0 r0_10 row_bg_2n row_mouse_over'}
-    df = Utils.GetDataFrameByAttrs(url, attrs)
+    css_selector = '#divK_ChartFlowDetail'
+    df = Utils.GetDataFrameByCssSelector(url, css_selector)
     #firtRowDf = df[df.columns[-5:]].head(1)
 
     # 取前兩列後面倒數6欄資料

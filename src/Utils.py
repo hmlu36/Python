@@ -7,10 +7,8 @@ from BrowserUserAgent import GetHeader
 from fake_useragent import UserAgent
 from urllib.parse import urlencode
 
-
 def GetDataByXPath(htmlInfo, XPath):
     return htmlInfo.xpath(re.sub(r'/tbody([[]\\d[]])?', '', XPath) + '/text()')[0]
-
 
 def GetYearBetween(startDateStr, endDate=datetime.today()):
     date_format = "%Y%m%d"
@@ -26,14 +24,12 @@ def GetYearBetween(startDateStr, endDate=datetime.today()):
 def GetDataFrameValueByLabel(df, columnLable, matchRowLable):
     return df.set_index(columnLable).filter(like=matchRowLable, axis=0).values[0]
 
-
-def GetDataFrameByAttrs(url, attrs):
+def GetDataFrameByCssSelector(url, css_selector):
     rawData = requests.get(url, headers=GetHeader())
     rawData.encoding = 'utf-8'
-    soup = BeautifulSoup(rawData.text, "html.parser")
-    return BeautifulSoup2DataFrame(url, soup, attrs)
+    return BeautifulSoup2DataFrame(rawData, css_selector)
 
-def PostDataFrameByAttrs(url_root, payload, attrs):
+def PostDataFrameByCssSelector(url_root, payload, css_selector):
     qs = urlencode(payload)
     url = f'{url_root}?{qs}'
 
@@ -43,38 +39,18 @@ def PostDataFrameByAttrs(url_root, payload, attrs):
         'referer': url
     }
 
-    response = requests.post(url, headers=headers)
-    response.encoding = 'utf-8'
-    soup = BeautifulSoup(response.text, 'lxml')
-    return BeautifulSoup2DataFrame(url, soup, attrs)
+    rawData = requests.post(url, headers=headers)
+    rawData.encoding = 'utf-8'
+    return BeautifulSoup2DataFrame(rawData, css_selector)
 
-#BeautifulSoup資料轉成DataFrame
-def BeautifulSoup2DataFrame(url, soup, attrs):
-    # 參考
-    # https://stackoverflow.com/questions/50633050/scrape-tables-into-dataframe-with-beautifulsoup
-    table = soup.find('table', attrs=attrs)
-    table_rows = table.find_all('tr')
-    
-    headers = []
-    rows = []
-    for index, tr in enumerate(table_rows):
-        print(tr)
-        td = tr.find_all('th') + tr.find_all('td')
-        row = [tr.text.strip().replace('\n', '').replace('\xa0', '')
-               for tr in td if tr.text.strip()]
-        if row:
-            if index == 0:
-                headers.append(row)
-            else:
-                rows.append(row)
-
-    # 本益比河流圖有跨欄, 需額外處理(將跨欄標題合併同一行)
-    if any(x in url for x in ['ShowK_ChartFlow', 'ShowK_Chart']):
-        del headers[0][-1] # 刪除跨欄標題
-        headers[0].extend(rows[0]) #加入第二行跨欄標題
-        del rows[0] # 刪除第二行
-
-    #print(headers)
-    #print(rows)
-    df = pd.DataFrame(rows, columns=headers)
-    return df
+# BeautifulSoup資料轉成DataFrame
+def BeautifulSoup2DataFrame(rawData, css_selector):
+    soup = BeautifulSoup(rawData.text, "html.parser")
+    data = soup.select_one(css_selector)
+    dfs = pd.read_html(data.prettify())
+    #print(dfs)
+    if len(dfs[0]) > 1:
+        return dfs[0]
+    if len(dfs[1]) > 1:
+        return dfs[1]
+    return dfs

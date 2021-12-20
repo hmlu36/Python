@@ -8,7 +8,7 @@ from lxml import etree
 import twstock
 from decimal import Decimal
 from Step1_BaseStockInfo import GetBaseStockInfo
-import Step2_FinDetail
+import Step2_FinDetail as FinDetail
 from Step3 import GetStockInfo
 import Utils
 import csv
@@ -36,8 +36,10 @@ import csv
 #competitors = GetBaseStockInfo()
 #print(competitors)
 
-for stockId in ['8112']:
+finDetailHeader = FinDetail.GetFinHeaders()
 
+for stockId in ['8112']:
+    FinDetail.GetFinDetail(stockId)    
 
 '''
 #print(stockInfo)
