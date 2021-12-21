@@ -40,8 +40,12 @@ def GetFinDetail(stockId):
             tempDict = Utils.GetDataFrameValueByLabel(df, '獲利能力', header)
             dict.update({header.replace('股東權益報酬率  (年預估)', 'ROE') : str(Decimal(tempDict[0]))})
 
-    df = pd.DataFrame([dict.keys(), dict.values()])
+    df = pd.DataFrame([dict])
+    
     return df
+
+'''
 # 測試
 data = GetFinDetail("8112")
 print(data)
+'''

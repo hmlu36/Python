@@ -1,16 +1,14 @@
 
 import pandas as pd
-from bs4 import BeautifulSoup
 import time
 from io import StringIO
-import random
-from lxml import etree
-import twstock
 from decimal import Decimal
+import random
+
 from Step1_BaseStockInfo import GetBaseStockInfo
-import Step2_FinDetail as FinDetail
-from Step3 import GetStockInfo
-import Utils
+from Step2_FinDetail import GetFinDetail
+from Step3_K_ChartFlow import GetPE
+from Step4_K_Chart import GetTransaction
 import csv
 
 '''
@@ -32,128 +30,29 @@ import csv
 6. 本業收益（營業利益率／稅前淨利率） > 60 %
 7. ROE > 10
 '''
-        
-#competitors = GetBaseStockInfo()
-#print(competitors)
+def GetChampionStock(op):
+    # 過濾清單
+    if op == 1:
+        competitors = GetBaseStockInfo()
+        #print(competitors)
+        competitors.to_csv('過濾清單.csv',encoding='utf_8_sig')
 
-finDetailHeader = FinDetail.GetFinHeaders()
+    # 明細資料
+    if op == 2:
+        for stockId in ['2474']:
+            print(stockId)
+            data = GetFinDetail(stockId)
+            print(data)
 
-for stockId in ['8112']:
-    FinDetail.GetFinDetail(stockId)    
+            time.sleep(random.randint(20, 30))
+            data = GetPE(stockId)
+            print(data)
 
-'''
-#print(stockInfo)
-with open('參考清單.csv', 'w', newline='') as csvfile:
-    # 建立 CSV 檔寫入器
-    writer = csv.writer(csvfile)
-    # 寫入一列資料
-    writer.writerow([
-                        '公司名稱', '證券代號', '股本(億)', '上市日期', '成交價', '殖利率(%)', '本益比', '股價淨值比', 
-                        '營收累計年增率', '毛利率', '營業利益率', '稅前淨利率', '稅後淨利率', '本業收益', 'ROE', '董監持股比', '每股營業現金流量', '每股自由現金流量',
-                        '本益比-級距1倍數', '本益比-級距1價格', 
-                        '本益比-級距2倍數', '本益比-級距2價格',
-                        '本益比-級距3倍數', '本益比-級距3價格',
-                        '本益比-級距4倍數', '本益比-級距4價格',
-                        '本益比-級距5倍數', '本益比-級距5價格', 
-                        '本益比-級距6倍數', '本益比-級距6價格'
-                     ])
+            time.sleep(random.randint(20, 30))
+            data = GetTransaction(stockId)
+            print(data)
 
-    # for stockId in competitors['證券代號']:
-    # error stock 2505 3702 4935
-    for stockId in ['4942','5215','5515','5519','6005','6176','6239','6582','6641','6790','8112','8213','8499','9945']:
-        entryStockCapital = stockCapital.loc[stockCapital['公司代號'] == stockId]
-        stockName = entryStockCapital['公司名稱'].values[0]
-        #print(competitors.loc[competitors['證券代號'] == stockId])
-        print(stockName + '(' + stockId + ')')
-        shareCapital = round(entryStockCapital['實收資本額'].values[0] / 100000000, 4)
-        print('股本:' + str(shareCapital))
-        #time.sleep(random.randint(0, 10))
-
-        listingDate = entryStockCapital['上市日期'].values[0]
-        print('上市日期:' + listingDate + ':' + str(Utils.GetYearBetween(listingDate)))
-        
-        # 大於等於5年的上市公司
-        if Utils.GetYearBetween(listingDate) < 5:
-            continue
-    
-        entryCompetitor = competitors[competitors['證券代號'] == stockId]
-        dividendYield = entryCompetitor['殖利率(%)'].values[0]
-        print("殖利率:" + dividendYield)
-
-        PE = entryCompetitor['本益比'].values[0]
-        print('本益比:' + PE)
-
-        PBR = entryCompetitor['股價淨值比'].values[0]
-        print('股價淨值比:' + PBR)
-
-        #stock = twstock.Stock(stockId)
-        #print("目前價格:" + str(stock.price[-1:][0]))
-        #Stock 物件的屬性	 說明
-        #price	 傳回近 31 天的收盤價 (單位=元) 串列
-        #capacity	 傳回近 31 天的成交量 (單位=股) 串列
-        #turnover	 傳回近 31 天的成交金額 (單位=元) 串列
-        #transaction	 傳回近 31 天的成交筆數 (單位=筆) 串列
-        #close	 傳回近 31 天的收盤價 (單位=元) 串列 (同 price)
-        #change	 傳回近 31 天收盤價的漲跌幅 (單位=元) 串列 
-        #open 	 傳回近 31 天的開盤價 (單位=元) 串列
-        #low	 傳回近 31 天的最低價 (單位=元) 串列
-        #high	 傳回近 31 天的最高價 (單位=元) 串列
-        #date	 傳回近 31 天的交易日期 datetime 物件串列
-        #sid	 傳回股票代號字串
-        #data	 傳回近 31 天的 Stock 物件全部資料內容 (Data 物件) 串列
-        #raw_data	 傳回近 31 天所擷取之原始資料串列
-        #https://yhhuang1966.blogspot.com/2018/11/python-twstock.html
-        
-        time.sleep(random.randint(30, 40))
-        stockInfo = GetStockInfo(stockId)
-        currentPrice = stockInfo['成交價']
-        print("目前價格:" + currentPrice)
-
-        target1 = stockInfo['營收累計年增率']
-        #print("營收累計年增率:" + target1)
-
-        target2 = stockInfo['毛利率']
-        print("毛利率:" + target2)
-        
-        target3 = stockInfo['營業利益率']
-        #print("營業利益率:" + target3)
-
-        target4 = stockInfo['稅前淨利率']
-        #print("稅前淨利率:" + target4)
-        
-        target5 = stockInfo['稅後淨利率']
-        #print("稅後淨利率:" + target5)
-        
-        target6 = stockInfo['本業收益']
-        print("本業收益:" + target6)
-        
-        target7 = stockInfo['ROE']
-        #print("ROE:" + target7)
-        
-        target8 = stockInfo['董監持股']
-        #print("董監持股:" + target8)
-
-        target9 = stockInfo['每股營業現金流量']
-        
-        target10 = stockInfo['每股自由現金流量']
-        print("董監持股:" + target8)
-
-        #毛利率 > 0, 本業收益 > 0, ROE > 10
-        if Decimal(target2) > 0 and Decimal(target6) > 0 and Decimal(target7) > 10:
-            time.sleep(random.randint(30, 40))
-            PEInfo = GetPE(stockId) 
-            print(PEInfo)
-
-            writer.writerow([
-                                stockName, stockId, shareCapital, listingDate, currentPrice, dividendYield, PE, PBR, 
-                                target1, target2, target3, target4, target5, target6, target7, target8, target9, target10,
-                                list(PEInfo)[2], list(PEInfo.values())[2],
-                                list(PEInfo)[3], list(PEInfo.values())[3],
-                                list(PEInfo)[4], list(PEInfo.values())[4], 
-                                list(PEInfo)[3], list(PEInfo.values())[5], 
-                                list(PEInfo)[6], list(PEInfo.values())[6], 
-                                list(PEInfo)[7], list(PEInfo.values())[7]
-                            ])
-'''            
-        
-        
+            
+# 1 產生過濾清單
+# 2 抓出股票明細資料
+GetChampionStock(2)

@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 def GetDailyExchangeReport():
     # ----------------- （１）評估價值是否被低估？（股票價格不會太貴） -------------
     ########## 去公開資訊觀測站，把本益比、股價淨值比爬下來 ##########
-    url = 'https://www.twse.com.tw/exchangeReport/BWIBBU_d?response=json&date=&selectType=&_=' + str(time.time())
+    url = f'https://www.twse.com.tw/exchangeReport/BWIBBU_d?response=json&date=&selectType=&_={str(time.time())}'
     list_req = requests.get(url)
     soup = BeautifulSoup(list_req.content, "html.parser")
     getjson = json.loads(soup.text)
@@ -69,7 +69,8 @@ def GetBaseStockInfo():
 
     return mergeDf
 
-
+'''
 # 測試
 data = GetBaseStockInfo()
 print(data)
+'''

@@ -42,11 +42,12 @@ def GetPE(stockId):
         data.append(entry['value'])
 
     ##print(headers)
-    print(data)
+    #print(data)
     df = pd.DataFrame([data], columns=headers)
     return df
 
-
+'''
 # 測試
 data = GetPE('8112')
 print(data)
+'''
