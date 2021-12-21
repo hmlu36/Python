@@ -39,20 +39,24 @@ def GetChampionStock(op):
 
     # 明細資料
     if op == 2:
-        for stockId in ['2474']:
+        for stockId in ['8112']:
             print(stockId)
-            data = GetFinDetail(stockId)
-            print(data)
+            finDetail_df = GetFinDetail(stockId)
+            print(finDetail_df)
 
             time.sleep(random.randint(20, 30))
-            data = GetPE(stockId)
-            print(data)
+            PE_df = GetPE(stockId)
+            print(PE_df)
 
             time.sleep(random.randint(20, 30))
-            data = GetTransaction(stockId)
-            print(data)
-
+            transaction_df = GetTransaction(stockId)
+            print(transaction_df)
             
+            sum_df = pd.concat([finDetail_df, PE_df, transaction_df], axis=1)
+            print(sum_df)
+            
+            sum_df.to_csv('彙整清單.csv',encoding='utf_8_sig')
+
 # 1 產生過濾清單
 # 2 抓出股票明細資料
 GetChampionStock(2)

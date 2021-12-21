@@ -48,6 +48,6 @@ def GetPE(stockId):
 
 '''
 # 測試
-data = GetPE('8112')
+data = GetPE('2474')
 print(data)
 '''
