@@ -9,6 +9,7 @@ from Step1_BasicStockInfo import GetBasicStockInfo
 from Step2_FinDetail import GetFinDetail
 from Step3_K_ChartFlow import GetPE
 from Step4_K_Chart import GetTransaction
+from Step6_StockDividendPolicy import GetDividend
 import csv
 
 '''
@@ -41,7 +42,7 @@ def GetChampionStock(op):
     if op == 2:
         basicStockInfo_df = GetBasicStockInfo()
         sum_df = pd.DataFrame()
-        for stockId in ['5515', '2020', '2546', '2881', '2385', '2069', '2458', '2347', '3005', '3706']: #
+        for stockId in ['1474','1514','1515','1587','2020','2069','2347','2458','2520','2546','2881','3706','5515','8112','8150','8213']: #'5515', '2020', '2546', '2881', '2385', '2069', '2458', '2347', '3005', '3706', '1229', '1231', '3044'
             print(stockId)
             
             stockInfo_df = basicStockInfo_df[basicStockInfo_df['證券代號'] == stockId]
@@ -59,7 +60,11 @@ def GetChampionStock(op):
             transaction_df = GetTransaction(stockId)
             print(transaction_df)
             
-            temp_df = pd.concat([stockInfo_df, transaction_df, PE_df, finDetail_df], axis=1)
+            time.sleep(random.randint(20, 30))
+            dividend_df = GetDividend(stockId)
+            print(dividend_df)
+            
+            temp_df = pd.concat([stockInfo_df, transaction_df, PE_df, finDetail_df, dividend_df], axis=1)
             print(temp_df)
 
             # 合併所有欄位成一列

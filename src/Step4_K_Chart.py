@@ -1,5 +1,4 @@
 from fake_useragent import UserAgent
-from urllib.parse import urlencode
 from bs4 import BeautifulSoup
 import Utils
 import pandas as pd
@@ -47,7 +46,7 @@ def GetTransaction(stockId):
                 #print(data)
                 sma = round(data.mean(), 2)
                 #print(sma)
-                entry += ('' if entry == '' else ' / ') + str(sma)
+                entry += ('' if entry == '' else ' / ') + str(sma).rjust(8)
             
             #print(header.replace(' ', ''))
             #print(entry)
