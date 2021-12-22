@@ -5,7 +5,7 @@ from io import StringIO
 from decimal import Decimal
 import random
 
-from Step1_BaseStockInfo import GetBaseStockInfo
+from Step1_BasicStockInfo import GetBasicStockInfo
 from Step2_FinDetail import GetFinDetail
 from Step3_K_ChartFlow import GetPE
 from Step4_K_Chart import GetTransaction
@@ -33,14 +33,21 @@ import csv
 def GetChampionStock(op):
     # 過濾清單
     if op == 1:
-        competitors = GetBaseStockInfo()
+        competitors = GetBasicStockInfo(True)
         #print(competitors)
         competitors.to_csv('過濾清單.csv',encoding='utf_8_sig')
 
     # 明細資料
     if op == 2:
-        for stockId in ['8112']:
+        basicStockInfo_df = GetBasicStockInfo()
+        sum_df = pd.DataFrame()
+        for stockId in ['5515', '2020', '2546', '2881', '2385', '2069', '2458', '2347', '3005', '3706']: #
             print(stockId)
+            
+            stockInfo_df = basicStockInfo_df[basicStockInfo_df['證券代號'] == stockId]
+            stockInfo_df.reset_index(drop=True, inplace=True)
+            print(stockInfo_df)
+            
             finDetail_df = GetFinDetail(stockId)
             print(finDetail_df)
 
@@ -52,11 +59,15 @@ def GetChampionStock(op):
             transaction_df = GetTransaction(stockId)
             print(transaction_df)
             
-            sum_df = pd.concat([finDetail_df, PE_df, transaction_df], axis=1)
-            print(sum_df)
-            
-            sum_df.to_csv('彙整清單.csv',encoding='utf_8_sig')
+            temp_df = pd.concat([stockInfo_df, transaction_df, PE_df, finDetail_df], axis=1)
+            print(temp_df)
 
+            # 合併所有欄位成一列
+            sum_df = pd.concat([sum_df, temp_df], axis=0)
+
+        #將列合併入dataframe
+        sum_df.to_csv('彙整清單.csv',encoding='utf_8_sig')
+            
 # 1 產生過濾清單
 # 2 抓出股票明細資料
 GetChampionStock(2)

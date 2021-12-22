@@ -5,7 +5,8 @@ import Utils
 from BrowserUserAgent import GetHeader
 import requests
 from bs4 import BeautifulSoup
-
+import random
+import time
 '''
 抓取本益比
 取得現今EPS、本益比、近五年六個級距本益比
@@ -17,9 +18,12 @@ from bs4 import BeautifulSoup
 def GetPE(stockId):
     url = f'https://goodinfo.tw/StockInfo/ShowK_ChartFlow.asp?RPT_CAT=PER&STOCK_ID={stockId}&CHT_CAT=WEEK'
     css_selector = '#divK_ChartFlowDetail'
-    df = Utils.GetDataFrameByCssSelector(url, css_selector)
-    #firtRowDf = df[df.columns[-5:]].head(1)
-
+    try:
+        df = Utils.GetDataFrameByCssSelector(url, css_selector)
+    except:
+        time.sleep(random.randint(20, 30))
+        df = Utils.GetDataFrameByCssSelector(url, css_selector)
+    
     # 取前兩列後面倒數6欄資料
     firtRowDf = df.iloc[0,-6:]
     #print(firtRowDf)
