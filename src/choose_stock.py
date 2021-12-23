@@ -82,6 +82,10 @@ def GetChampionStock(op):
         sum_df = pd.DataFrame()
         for stockId in ['1229', '1231', '1409', '1474', '1514', '1515', '1587', '2020', '2069', '2324', '2347', '2352', '2385', '2417', '2458', '2520', '2546', '2881', '3005', '3044', '3209', '3706', '5515', '8112', '8150', '8213', '9945']: #'5515', '2020', '2546', '2881', '2385', '2069', '2458', '2347', '3005', '3706', '1229', '1231', '3044'
  
+            stockInfo_df = basicStockInfo_df[basicStockInfo_df['證券代號'] == stockId]
+            stockInfo_df.reset_index(drop=True, inplace=True)
+            print(stockInfo_df)
+            
             Sleep()
             transaction_df = GetTransaction(stockId)
             print(transaction_df)
@@ -98,4 +102,4 @@ def GetChampionStock(op):
 # 1 產生過濾清單
 # 2 抓出股票明細資料
 # 3 日常籌碼面資料
-GetChampionStock(2)
+GetChampionStock(3)
