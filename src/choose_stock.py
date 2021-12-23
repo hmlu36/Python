@@ -31,6 +31,9 @@ import csv
 6. 本業收益（營業利益率／稅前淨利率） > 60 %
 7. ROE > 10
 '''
+def Sleep():
+    time.sleep(random.randint(30, 60))
+
 def GetChampionStock(op):
     # 過濾清單
     if op == 1:
@@ -42,25 +45,25 @@ def GetChampionStock(op):
     if op == 2:
         basicStockInfo_df = GetBasicStockInfo()
         sum_df = pd.DataFrame()
-        for stockId in ['1474','1514','1515','1587','2020','2069','2347','2458','2520','2546','2881','3706','5515','8112','8150','8213']: #'5515', '2020', '2546', '2881', '2385', '2069', '2458', '2347', '3005', '3706', '1229', '1231', '3044'
+        for stockId in ['2385', '3005', '4974', '6186']: #'5515', '2020', '2546', '2881', '2385', '2069', '2458', '2347', '3005', '3706', '1229', '1231', '3044'
             print(stockId)
             
             stockInfo_df = basicStockInfo_df[basicStockInfo_df['證券代號'] == stockId]
             stockInfo_df.reset_index(drop=True, inplace=True)
             print(stockInfo_df)
             
+            Sleep()
             finDetail_df = GetFinDetail(stockId)
             print(finDetail_df)
 
-            time.sleep(random.randint(20, 30))
             PE_df = GetPE(stockId)
             print(PE_df)
 
-            time.sleep(random.randint(20, 30))
+            Sleep()
             transaction_df = GetTransaction(stockId)
             print(transaction_df)
             
-            time.sleep(random.randint(20, 30))
+            Sleep()
             dividend_df = GetDividend(stockId)
             print(dividend_df)
             
