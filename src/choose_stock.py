@@ -75,7 +75,27 @@ def GetChampionStock(op):
 
         #將列合併入dataframe
         sum_df.to_csv('彙整清單.csv',encoding='utf_8_sig')
+        
+    # 日常籌碼面資料
+    if op == 3:
+        basicStockInfo_df = GetBasicStockInfo()
+        sum_df = pd.DataFrame()
+        for stockId in ['1229', '1231', '1409', '1474', '1514', '1515', '1587', '2020', '2069', '2324', '2347', '2352', '2385', '2417', '2458', '2520', '2546', '2881', '3005', '3044', '3209', '3706', '5515', '8112', '8150', '8213', '9945']: #'5515', '2020', '2546', '2881', '2385', '2069', '2458', '2347', '3005', '3706', '1229', '1231', '3044'
+ 
+            Sleep()
+            transaction_df = GetTransaction(stockId)
+            print(transaction_df)
+
+            temp_df = pd.concat([stockInfo_df, transaction_df], axis=1)
+            print(temp_df)
             
+            # 合併所有欄位成一列
+            sum_df = pd.concat([sum_df, temp_df], axis=0)
+
+        #將列合併入dataframe
+        sum_df.to_csv('籌碼面資料.csv',encoding='utf_8_sig')
+        
 # 1 產生過濾清單
 # 2 抓出股票明細資料
+# 3 日常籌碼面資料
 GetChampionStock(2)
