@@ -16,9 +16,10 @@ def GetDistribution():
     df['key2']=(df.groupby('證券代號').cumcount()+1)
     s = df.set_index(['資料日期','證券代號','key2']).unstack().sort_index(level=1,axis=1)
     s.columns=s.columns.map('{0[0]}_{0[1]}'.format)
-
-    s.to_csv('股東分布資料.csv',encoding='utf_8_sig')
+    s = s.iloc[2:]
+    #s.to_csv('股東分布資料.csv',encoding='utf_8_sig')
     print(s)
+    
     distributionRange = ['1-999','1,000-5,000','5,001-10,000','10,001-15,000','15,001-20,000','20,001-30,000','30,001-40,000','40,001-50,000','50,001-100,000','100,001-200,000','200,001-400,000','400,001-600,000','600,001-800,000','800,001-1,000,000','1,000,001', '差異數調整', '合計']
    
     newTitle = ['資料日期','證券代號'] + [distribution + title for distribution in distributionRange for title in ['人數','比例','持股分級','股數']]
@@ -30,7 +31,7 @@ def GetDistribution():
     extractTitle.insert(0, '證券代號')
     print(extractTitle)
     print(s)
-    s = s[extractTitle]
+    s = s[s[extractTitle]]
     s.to_csv('股東分布資料.csv',encoding='utf_8_sig')
 
 GetDistribution()
