@@ -56,7 +56,18 @@ https://www.wealth.com.tw/articles/bccd3b22-e0fa-4613-8436-d58aea0849fc
 https://github.com/rex-chien/ithome-scrapy
 https://chenchenhouse.com/goodinfo/
 
+籌碼集中度
+http://asp.peicheng.com.tw/main/report/dream_report/%E7%B1%8C%E7%A2%BC%E9%9B%86%E4%B8%AD%E5%BA%A610%E6%97%A5%E6%8E%92%E8%A1%8C.htm
 
+基本面
+http://asp.peicheng.com.tw/main/report/dream_report/%E5%9F%BA%E6%9C%AC%E9%9D%A2%E6%8E%92%E8%A1%8C.htm
+
+平均股利率選股法
+http://asp.peicheng.com.tw/main/report/report_r5all.html
+
+
+主力、散戶持有股數
+https://ithelp.ithome.com.tw/articles/10205455
 
 **選股條件：**
 一．基本面
