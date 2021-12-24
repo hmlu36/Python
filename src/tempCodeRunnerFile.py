@@ -1,1 +1,0 @@
-Utils.GetDataFrameValueByLabel(df, '獲利能力', header)
