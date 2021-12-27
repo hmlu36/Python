@@ -65,7 +65,6 @@ http://asp.peicheng.com.tw/main/report/dream_report/%E5%9F%BA%E6%9C%AC%E9%9D%A2%
 平均股利率選股法
 http://asp.peicheng.com.tw/main/report/report_r5all.html
 
-
 主力、散戶持有股數
 https://ithelp.ithome.com.tw/articles/10205455
 
@@ -94,3 +93,9 @@ https://ithelp.ithome.com.tw/articles/10205455
     ２．法人持續買超天數　＞　２天
     董監持股高，對於公司有信心
     三大法人持續買超二天以上，至少短時間看好
+
+圖形辨識
+https://lufor129.medium.com/pytesseract-%E8%BE%A8%E8%AD%98%E5%9C%96%E7%89%87%E4%B8%AD%E7%9A%84%E6%96%87%E5%AD%97-b1024f678fac
+
+
+https://github.com/coldnew/twse-captcha-solver
