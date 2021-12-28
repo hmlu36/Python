@@ -45,7 +45,7 @@ def GetChampionStock(op):
     if op == 2:
         basicStockInfo_df = GetBasicStockInfo()
         sum_df = pd.DataFrame()
-        for stockId in ['1231', '2385', '3005', '4974', '6186']: #'5515', '2020', '2546', '2881', '2385', '2069', '2458', '2347', '3005', '3706', '1229', '1231', '3044'
+        for stockId in ['3231','1109','2356','6024','8213','6184','6201','3015','2107','6189','2392','6112','9924','2616']: #'5515', '2020', '2546', '2881', '2385', '2069', '2458', '2347', '3005', '3706', '1229', '1231', '3044'
             print(stockId)
             
             stockInfo_df = basicStockInfo_df[basicStockInfo_df['證券代號'] == stockId]
@@ -104,4 +104,4 @@ def GetChampionStock(op):
 # 3 日排程 - 籌碼面資料
 # 4 週排程 - 大戶、本益比
 # 5 季排程 - 財務資料
-GetChampionStock(3)
+GetChampionStock(2)

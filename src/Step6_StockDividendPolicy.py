@@ -54,7 +54,6 @@ def GetDividend(stockId):
     data = pd.to_numeric(df['＞1千張'], errors='coerce').dropna(how='any',axis=0).head(3)
     return ' / '.join(map(str, list(data)))
 '''
-'''
-df = GetDividend('1229')
+
+df = GetDividend('2356')
 print(df)
-'''
