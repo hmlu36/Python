@@ -93,8 +93,8 @@ except:
 #根據參數viewstate, eventvalidation
 #得到個股卷商交易資料"date"
 #----------------------------------------------------------------------------------
-img_url = re.search('CaptchaImage.*guid+\S*\w', res.text)
-#print(img_url)
+img_url = re.search( 'CaptchaImage.*guid+\S*\w', res.text).group()
+print(img_url)
 
 captcha = UtilsCaptcha.clean_captcha(UtilsCaptcha.request_captcha(img_url))
 print (pytesseract.image_to_string(captcha).upper())

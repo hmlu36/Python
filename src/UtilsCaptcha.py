@@ -15,7 +15,8 @@ https://github.com/hhschu/Captcha_OCR/blob/master/TWSE%20Captcha%20OCR%20Challen
 
 _errstr = "Mode is unknown or incompatible with input array shape."
 
-def request_captcha(img_url = str()):
+def request_captcha(url):
+    '''
     # Where our captcha is at.
     base_url = 'http://bsr.twse.com.tw/bshtm/'
     print('img_url:' + str(img_url))
@@ -27,8 +28,12 @@ def request_captcha(img_url = str()):
         img_url = soup.findAll('img')[1]['src']
     
     # Request the captch and write it to disk.
+    print('img_url:' + base_url + str(img_url))
     res = requests.get(base_url + str(img_url))
-    
+    '''
+    print(url)
+    img = bytes()
+    res = requests.get(url)
     if res.status_code == 200:
         img = res.content
         with open(f'./captcha/check.png', 'wb') as handler:
@@ -131,11 +136,9 @@ def toimage(arr, high=255, low=0, cmin=None, cmax=None, pal=None,
     if np.iscomplexobj(data):
         raise ValueError("Cannot convert a complex-valued array.")
     shape = list(data.shape)
-    valid = len(shape) == 2 or ((len(shape) == 3) and
-                                ((3 in shape) or (4 in shape)))
+    valid = len(shape) == 2 or ((len(shape) == 3) and ((3 in shape) or (4 in shape)))
     if not valid:
-        raise ValueError("'arr' does not have a suitable array shape for "
-                         "any mode.")
+        raise ValueError("'arr' does not have a suitable array shape for any mode.")
     if len(shape) == 2:
         shape = (shape[1], shape[0])  # columns show up first
         if mode == 'F':
@@ -246,10 +249,13 @@ def clean_captcha(captcha):
     print('after:')
     display(captcha)
     
-    return captcha
+    return re.sub('[^0-9A-Z]+', '', image_to_string(captcha).upper())
+
 
 '''
-captcha = clean_captcha(request_captcha())
+url = 'https://bsr.twse.com.tw/bshtm/CaptchaImage.aspx?guid=a19c42c3-9496-4b9c-8928-ec4974395d4a'
+img = request_captcha(url)
+captcha = clean_captcha(img)
 print(image_to_string(captcha).upper())
-print (re.sub('[^0-9A-Z]+', '', image_to_string(captcha).upper()))
 '''
+
