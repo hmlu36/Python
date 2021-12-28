@@ -47,7 +47,11 @@ def PostDataFrameByCssSelector(url_root, payload, css_selector):
 def BeautifulSoup2DataFrame(rawData, css_selector):
     soup = BeautifulSoup(rawData.text, "html.parser")
     data = soup.select_one(css_selector)
-    dfs = pd.read_html(data.prettify())
+    try:
+        dfs = pd.read_html(data.prettify())
+    except:
+        return pd.DataFrame()
+        
     #print(dfs)
     if len(dfs[0]) > 1:
         return dfs[0]
