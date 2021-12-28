@@ -3,6 +3,8 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import UtilsCaptcha
+from PIL import Image
+from io import BytesIO
 
 def GetChip(stockId):
     base_url = 'http://bsr.twse.com.tw/bshtm/'

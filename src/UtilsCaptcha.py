@@ -37,7 +37,7 @@ def request_captcha(url):
     if res.status_code == 200:
         img = res.content
         with open(f'./captcha/check.png', 'wb') as handler:
-         handler.write(img)
+            handler.write(img)
     else:
         print('error')
 
