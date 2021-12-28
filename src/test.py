@@ -8,6 +8,7 @@ import os
 import timer
 import pytesseract
 from PIL import Image
+import UtilsCaptcha
 
 #參考 https://github.com/Pregaine/stock/blob/master/01_Day%20process/%E5%88%B8%E5%95%86%E5%88%86%E9%BB%9E/%E6%8D%89%E5%8F%96%E5%8D%B7%E5%95%86%E8%B2%B7%E8%B3%A3.py
 # https://ithelp.ithome.com.tw/articles/10227263
@@ -92,15 +93,8 @@ except:
 #根據參數viewstate, eventvalidation
 #得到個股卷商交易資料"date"
 #----------------------------------------------------------------------------------
-key = re.search('CaptchaImage.*guid+\S*\w', res.text )
-print(key)
+img_url = re.search('CaptchaImage.*guid+\S*\w', res.text)
+#print(img_url)
 
-res = rs.get( 'http://bsr.twse.com.tw/bshtm/' + key.group(), stream = True, verify = False )
-
-f = open('check.png', 'wb')
-shutil.copyfileobj( res.raw, f )
-f.close
-img = Image.open("check.png")
-#img.show()
-text = pytesseract.image_to_string(img, lang="chi_tra+eng")
-print('辨識結果:' + text)
+captcha = UtilsCaptcha.clean_captcha(UtilsCaptcha.request_captcha(img_url))
+print (pytesseract.image_to_string(captcha).upper())

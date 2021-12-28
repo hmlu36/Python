@@ -15,19 +15,24 @@ https://github.com/hhschu/Captcha_OCR/blob/master/TWSE%20Captcha%20OCR%20Challen
 
 _errstr = "Mode is unknown or incompatible with input array shape."
 
-def request_captcha():
+def request_captcha(img_url = str()):
     # Where our captcha is at.
     base_url = 'http://bsr.twse.com.tw/bshtm/'
-    page = requests.get(base_url + 'bsMenu.aspx')
-    
-    # Get the capthca on TWSE's website. It's the second image on the page.
-    soup = BeautifulSoup(page.content, 'html.parser')
-    img_url = soup.findAll('img')[1]['src']
+    print('img_url:' + str(img_url))
+    if not img_url:
+        page = requests.get(base_url + 'bsMenu.aspx')
+        
+        # Get the capthca on TWSE's website. It's the second image on the page.
+        soup = BeautifulSoup(page.content, 'html.parser')
+        img_url = soup.findAll('img')[1]['src']
     
     # Request the captch and write it to disk.
-    img = requests.get(base_url + img_url)
-    if img.status_code == 200:
-        img = img.content
+    res = requests.get(base_url + str(img_url))
+    
+    if res.status_code == 200:
+        img = res.content
+        with open(f'./captcha/check.png', 'wb') as handler:
+         handler.write(img)
     else:
         print('error')
 
@@ -100,7 +105,6 @@ def bytescale(data, cmin=None, cmax=None, high=255, low=0):
     bytedata = (data - cmin) * scale + low
     return (bytedata.clip(low, high) + 0.5).astype(np.uint8)
 
-
 def toimage(arr, high=255, low=0, cmin=None, cmax=None, pal=None,
             mode=None, channel_axis=None):
     """Takes a numpy array and returns a PIL image.
@@ -141,7 +145,7 @@ def toimage(arr, high=255, low=0, cmin=None, cmax=None, pal=None,
         if mode in [None, 'L', 'P']:
             bytedata = bytescale(data, high=high, low=low,
                                  cmin=cmin, cmax=cmax)
-            image = Image.frombytes('L', shape, bytedata.tostring())
+            image = Image.frombytes('L', shape, bytedata.tobytes())
             if pal is not None:
                 image.putpalette(np.asarray(pal, dtype=np.uint8).tostring())
                 # Becomes a mode='P' automagically.
@@ -244,5 +248,8 @@ def clean_captcha(captcha):
     
     return captcha
 
+'''
 captcha = clean_captcha(request_captcha())
+print(image_to_string(captcha).upper())
 print (re.sub('[^0-9A-Z]+', '', image_to_string(captcha).upper()))
+'''
