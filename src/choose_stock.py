@@ -108,4 +108,4 @@ def GetChampionStock(op):
 # 3 日排程 - 籌碼面資料
 # 4 週排程 - 大戶、本益比
 # 5 季排程 - 財務資料
-GetChampionStock(2)
+GetChampionStock(3)
