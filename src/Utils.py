@@ -40,7 +40,7 @@ def PostDataFrameByCssSelector(url_root, payload, css_selector):
     }
 
     rawData = requests.post(url, headers=headers)
-    rawData.encoding = 'utf-8'
+    #rawData.encoding = 'utf-8'
     return BeautifulSoup2DataFrame(rawData, css_selector)
 
 # BeautifulSoup資料轉成DataFrame
