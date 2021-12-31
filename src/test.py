@@ -8,14 +8,21 @@ from BrowserUserAgent import GetHeader
 
 def GetDistribution(stockId):
     url = 'https://www.tdcc.com.tw/smWeb/QryStockAjax.do'
+    url_index = 'https://www.tdcc.com.tw/smWeb/QryStock.jsp'
+    rawData = requests.get(url_index, headers=GetHeader())
+    #print(rawData.text)
+    soup = BeautifulSoup(rawData.text, 'html.parser')
+    data = soup.select_one('#scaDates')
+    print(data)
+    '''
     today = datetime.today()
     dateFormat = '%Y/%m/%d'
     startDateStr = (today - timedelta(days=30)).strftime(dateFormat)
     endDateStr = today.strftime(dateFormat)
-    print('startDate:' + startDateStr + ', endDate:' + endDateStr)
     # 產生日期區間
     datePeriod = pd.date_range(startDateStr, endDateStr, freq='W-FRI')[::-1]
-    tempDate = datePeriod[0].strftime('%Y%m%d')
+    print('startDate:' + startDateStr + ', endDate:' + endDateStr + ', loopDate:' + datePeriod[0])
+    tempDate = datePeriod[2].strftime('%Y%m%d')
 
     payload = {
         'scaDates': tempDate,
@@ -46,25 +53,30 @@ def GetDistribution(stockId):
     df = df[['NUM_OF_PEOPLE', 'PER_CENT_RT']].T
     print(df.iloc[0:1, 0:9])
     people100 = df.iloc[0:1, 0:9].astype(int).sum(axis=1)
-    #print(people100)
+    print(people100)
     people100_10000 = df.iloc[0:1, 9:14].astype(int).sum(axis=1)
-    #print(people100_10000)
+    print(people100_10000)
 
     print(df.iloc[0:1, 14:15])
     people10000 = df.iloc[0:1, 14:15].astype(int).sum(axis=1)
     print(people10000)
     #df['100-1000張人數'] = df[['1-999', '1000-5000', '5001-10000', '10001-15000', '15001-20000', '20001-30000', '30001-40000', '40001-50000', '50001-100000']].sum(axis=1)
-
+    '''
+    '''
     data = []
-    for index, option in enumerate(['int','float']):
+    for rowIndex, option in enumerate(['int','float']):
         lastCnt = 0
         for cnt in [9, 14, 15]:
-            #print('index:' + str(index) + ', cnt:' + str(cnt))
-            sum = df.iloc[index: index+1, lastCnt : cnt].astype(option).sum(axis=1)
+            print('index:' + str(rowIndex) + ', lastCnt:' + str(lastCnt) + ', cnt:' + str(cnt) )
+            df_row = df.iloc[rowIndex: rowIndex+1, lastCnt : cnt]
+            print(df_row)
+            sum = df_row.astype(option).sum(axis=1)
             data.append(sum)
             lastCnt = cnt
 
     print(data)
+    '''
+    df=pd.DataFrame()
     return df
 
 df = GetDistribution('8112')
