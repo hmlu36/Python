@@ -46,7 +46,7 @@ def GetChampionStock(op):
     if op == 2:
         basicStockInfo_df = GetBasicStockInfo()
         sum_df = pd.DataFrame()
-        for stockId in ['6026']: #'5515', '2020', '2546', '2881', '2385', '2069', '2458', '2347', '3005', '3706', '1229', '1231', '3044'
+        for stockId in ['6277', '6261', '6115']: #'5515', '2020', '2546', '2881', '2385', '2069', '2458', '2347', '3005', '3706', '1229', '1231', '3044'
             print(stockId)
             
             stockInfo_df = basicStockInfo_df[basicStockInfo_df['證券代號'] == stockId]
@@ -67,13 +67,14 @@ def GetChampionStock(op):
             Sleep()
             dividend_df = GetDividend(stockId)
             print(dividend_df)
-
+            
+            '''
             Sleep()
             distribution_df = GetDistribution(stockId)
             print(distribution_df)
-            
+            '''
             # 合併所有欄位成一列
-            temp_df = pd.concat([stockInfo_df, transaction_df, PE_df, finDetail_df, dividend_df, distribution_df], axis=1)
+            temp_df = pd.concat([stockInfo_df, transaction_df, PE_df, finDetail_df, dividend_df], axis=1)
             print(temp_df)
 
             #將列合併入dataframe
@@ -113,4 +114,4 @@ def GetChampionStock(op):
 # 3 日排程 - 籌碼面資料
 # 4 週排程 - 大戶、本益比
 # 5 季排程 - 財務資料
-GetChampionStock(2)
+GetChampionStock(3)
