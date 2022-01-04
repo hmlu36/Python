@@ -46,7 +46,7 @@ def GetChampionStock(op):
     if op == 2:
         basicStockInfo_df = GetBasicStockInfo()
         sum_df = pd.DataFrame()
-        for stockId in ['6115']: #'5515', '2020', '2546', '2881', '2385', '2069', '2458', '2347', '3005', '3706', '1229', '1231', '3044'
+        for stockId in ['2467']: #'5515', '2020', '2546', '2881', '2385', '2069', '2458', '2347', '3005', '3706', '1229', '1231', '3044'
             print(stockId)
             
             stockInfo_df = basicStockInfo_df[basicStockInfo_df['證券代號'] == stockId]
