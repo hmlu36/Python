@@ -46,7 +46,7 @@ def GetChampionStock(op):
     if op == 2:
         basicStockInfo_df = GetBasicStockInfo()
         sum_df = pd.DataFrame()
-        for stockId in ['6277', '6261', '6115']: #'5515', '2020', '2546', '2881', '2385', '2069', '2458', '2347', '3005', '3706', '1229', '1231', '3044'
+        for stockId in ['6115']: #'5515', '2020', '2546', '2881', '2385', '2069', '2458', '2347', '3005', '3706', '1229', '1231', '3044'
             print(stockId)
             
             stockInfo_df = basicStockInfo_df[basicStockInfo_df['證券代號'] == stockId]
@@ -68,13 +68,13 @@ def GetChampionStock(op):
             dividend_df = GetDividend(stockId)
             print(dividend_df)
             
-            '''
+            
             Sleep()
             distribution_df = GetDistribution(stockId)
             print(distribution_df)
-            '''
+            
             # 合併所有欄位成一列
-            temp_df = pd.concat([stockInfo_df, transaction_df, PE_df, finDetail_df, dividend_df], axis=1)
+            temp_df = pd.concat([stockInfo_df, transaction_df, PE_df, finDetail_df, dividend_df, distribution_df], axis=1)
             print(temp_df)
 
             #將列合併入dataframe
@@ -89,7 +89,7 @@ def GetChampionStock(op):
     # 日常籌碼面資料
     if op == 3:
         basicStockInfo_df = GetBasicStockInfo()
-        sum_df = pd.DataFrame()
+        #sum_df = pd.DataFrame()
         for stockId in ['1229', '1231', '1409', '1474', '1514', '1515', '1587', '2020', '2069', '2324', '2347', '2352', '2385', '2417', '2458', '2520', '2546', '2881', '3005', '3044', '3209', '3702','3706', '5515', '6257', '8112', '8150', '8213', '8215']:
  
             stockInfo_df = basicStockInfo_df[basicStockInfo_df['證券代號'] == stockId]
@@ -103,15 +103,16 @@ def GetChampionStock(op):
             temp_df = pd.concat([stockInfo_df, transaction_df], axis=1)
             print(temp_df)
             
+            temp_df.to_csv('籌碼面資料.csv', mode='a', header=False, encoding='utf_8_sig')
             # 合併所有欄位成一列
-            sum_df = pd.concat([sum_df, temp_df], axis=0)
+            #sum_df = pd.concat([sum_df, temp_df], axis=0)
 
         #將列合併入dataframe
-        sum_df.to_csv('籌碼面資料.csv',encoding='utf_8_sig')
+        #sum_df.to_csv('籌碼面資料.csv',encoding='utf_8_sig')
         
 # 1 產生過濾清單
 # 2 抓出股票明細資料
 # 3 日排程 - 籌碼面資料
 # 4 週排程 - 大戶、本益比
 # 5 季排程 - 財務資料
-GetChampionStock(3)
+GetChampionStock(2)

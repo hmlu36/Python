@@ -101,13 +101,14 @@ def GetDistribution(stockId):
         #print(row)
         sum_df = sum_df.append(row, ignore_index=True)
 
+    #將dataframe資料轉成 / 串起來
     data = {}
     for column in sum_df.columns.values:
         #print(column + ', data:' + '/'.join(sum_df[column].astype(str)))
         data.update({column : '  /  '.join(sum_df[column].astype(str))})
 
     df = pd.DataFrame([data])
-    print(df)
+    #print(df)
     return df
 
 '''
