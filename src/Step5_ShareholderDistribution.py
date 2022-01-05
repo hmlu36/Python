@@ -151,7 +151,6 @@ def GetDistribution(stockId):
     # print(df)
     return df
 
-
 #總表
 #GetDistributionSummaryTable()
 # 個股(含歷程)

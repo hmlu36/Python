@@ -9,7 +9,7 @@ from Step1_BasicStockInfo import GetBasicStockInfo
 from Step2_FinDetail import GetFinDetail
 from Step3_K_ChartFlow import GetPE
 from Step4_K_Chart import GetTransaction
-from Step5_ShareholderDistribution2 import GetDistribution
+from Step5_ShareholderDistribution import GetDistribution
 from Step6_StockDividendPolicy import GetDividend
 import csv
 

@@ -24,6 +24,7 @@ def GetDirectorSharehold():
             print(df)
             #df.columns = df.columns.get_level_values(1)
 
+    sum_df = sum_df[sum_df.ne(sum_df.columns).any(1)]
     sum_df.to_csv('董監持股比例.csv',encoding='utf_8_sig')
 
 GetDirectorSharehold()
