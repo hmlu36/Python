@@ -6,6 +6,10 @@ from datetime import datetime, timedelta
 import re
 from BrowserUserAgent import GetHeader
 from fake_useragent import UserAgent
+import random
+import Utils
+import time
+
 
 def GetDistribution(stockId):
     url = 'https://www.tdcc.com.tw/smWeb/QryStockAjax.do'
@@ -118,36 +122,18 @@ def GetDistribution(stockId):
     return df
 
 
-def GetDirectorSharehold2(stockId):
-    url = 'https://goodinfo.tw/tw/StockList.asp?SHEET=董監持股&MARKET_CAT=熱門排行&INDUSTRY_CAT=全體董監持股比例'
-    rawData = requests.get(url, headers=GetHeader())
-    rawData.encoding = 'utf-8'
-    print(rawData.text)
-
 def GetDirectorSharehold(stockId):
-    url = 'https://goodinfo.tw/tw/StockList.asp?SHEET=%E8%91%A3%E7%9B%A3%E6%8C%81%E8%82%A1&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E5%85%A8%E9%AB%94%E8%91%A3%E7%9B%A3%E6%8C%81%E8%82%A1%E6%AF%94%E4%BE%8B&RANK=5'
-    url = f'https://goodinfo.tw/tw/StockList.asp'
-    payload = {
-        'SEARCH_WORD': '',
-        'SHEET': '董監持股',
-        'SHEET2': '',
-        'MARKET_CAT': '熱門排行',
-        'INDUSTRY_CAT': '全體董監持股比例(%)@@全體董監@@持股比例(%)',
-        'STOCK_CODE': '',
-        'RPT_TIME': '最新資料',
-        'STEP': 'DATA',
-        'RANK':	5
-    }
-
-    response = requests.get(url, headers=GetHeader())
-    cookies = response.cookies
-    print(cookies.items)
-
-    rawData = requests.post(url, data=payload, cookies=cookies, headers={'user-agent': UserAgent().random, 'Referer': 'https://goodinfo.tw/'})
-    print(rawData.text)
+    url = 'https://goodinfo.tw/tw/StockList.asp?SHEET=董監持股&MARKET_CAT=熱門排行&INDUSTRY_CAT=全體董監持股比例'
+    cssSelector = '#divStockList'
+    try:
+        df = Utils.GetDataFrameByCssSelector(url, cssSelector)
+        print(df)
+        df.columns = df.columns.get_level_values(1)
+    except:
+        time.sleep(random.randint(20, 30))
 
 
-GetDirectorSharehold2('2330')
+GetDirectorSharehold('2330')
 
 '''
 df = GetDistribution('8112')
