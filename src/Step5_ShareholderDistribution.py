@@ -7,7 +7,7 @@ import random
 import time
 import requests
 
-def GetDistributionSummaryTable():
+def WriteData():
     url='https://smart.tdcc.com.tw/opendata/getOD.ashx?id=1-5'
     #url = 'TDCC_OD_1-5.csv'
     df = pd.read_csv(url)
@@ -48,8 +48,8 @@ def GetDistributionSummaryTable():
            '1000張以上人數', '1000張以上比例']]
 
     print(s)
-    #s.to_csv('股東分布資料.csv',encoding='utf_8_sig')
-    return s
+    s.to_csv('Download\Weekly\股東分布資料.csv',encoding='utf_8_sig')
+    
 
     
 def GetDistribution(stockId):
@@ -124,14 +124,12 @@ def GetDistribution(stockId):
 
             for rangeIndex, (rangeKey, rangeValue) in enumerate(rangeDicts.items()):
                 #print('previousCnt:' + str(previousCnt) + ', rangeValue:' + str(rangeValue))
-                sum = df[typeKey].iloc[previousCnt: rangeValue].astype(
-                    typeValue).sum(axis=0)
+                sum = df[typeKey].iloc[previousCnt: rangeValue].astype(typeValue).sum(axis=0)
                 # 有小數時, 四捨五入小數第二位
                 sum = round(sum, 0 if typeValue == 'int' else 2)
 
                 # print(sum)
-                header = rangeKey + ('人數' if typeKey ==
-                                     'NUM_OF_PEOPLE' else '比例')
+                header = rangeKey + ('人數' if typeKey == 'NUM_OF_PEOPLE' else '比例')
                 row.update({header: sum})
                 if rangeIndex == len(rangeDicts) - 1:
                     previousCnt = rangeValue + 1
@@ -152,7 +150,8 @@ def GetDistribution(stockId):
     return df
 
 #總表
-#GetDistributionSummaryTable()
+#WriteData()
+
 # 個股(含歷程)
-df = GetDistribution('8112')
-print(df)
+#df = GetDistribution('8112')
+#print(df)

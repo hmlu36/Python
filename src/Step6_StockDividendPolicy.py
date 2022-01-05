@@ -55,5 +55,7 @@ def GetDividend(stockId):
     return ' / '.join(map(str, list(data)))
 '''
 
+'''
 df = GetDividend('2356')
 print(df)
+'''
