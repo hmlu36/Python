@@ -45,6 +45,9 @@ def GetDistribution():
            '401-800張人數', '401-800張比例', 
            '801-1000張人數', '801-1000張比例', 
            '1000張以上人數', '1000張以上比例']]
-    s.to_csv('股東分布資料.csv',encoding='utf_8_sig')
+
+    print(s)
+    #s.to_csv('股東分布資料.csv',encoding='utf_8_sig')
+    return s
 
 GetDistribution()
