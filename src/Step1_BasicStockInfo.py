@@ -44,10 +44,23 @@ def GetDailyExchangeReport(filter):
         
 # 取出每日收盤價
 def GetDailyExchange():
+    '''
     url = 'https://quality.data.gov.tw/dq_download_json.php?nid=11549&md5_url=da96048521360db9f23a2b47c9c31155'
     data = requests.get(url).json()
     df = pd.DataFrame(data)
     df = df[['證券代號', '收盤價']]
+    '''
+    
+    url = 'https://stock.wespai.com/p/29980'
+    css_selector = '#txtFinBody'
+    try:
+        df = Utils.GetDataFrameByCssSelector(url, css_selector)
+    except:        
+        time.sleep(random.randint(20, 30))
+        df = Utils.GetDataFrameByCssSelector(url, css_selector)
+    #print(df)
+
+    
     return df
 
 # 資本額

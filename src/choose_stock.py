@@ -46,16 +46,17 @@ def GetChampionStock(op):
         competitors.to_csv('Data\Temp\過濾清單.csv',encoding='utf_8_sig')
 
     if op == 1:   
-        basicStockInfo_df = GetBasicStockInfo()
+        basicStockInfo_df = GetBasicStockInfo(True)
         
-        for stockId in ['2477']:
-            PE_df = GetPE(stockId)
-            print(PE_df)
-            
+        for stockId in ['5533','2891','3036','2505','2816','2905','2461','2885','1513','3033','9945','3702','1904','3022','1776','3028','2535','2353','1308','3048','3312','2387','1305','1604']:
+           
             Sleep()
             stockInfo_df = basicStockInfo_df[basicStockInfo_df['證券代號'] == stockId]
             stockInfo_df.reset_index(drop=True, inplace=True)
             print(stockInfo_df)
+            
+            PE_df = GetPE(stockId)
+            print(PE_df)
 
             temp_df = pd.concat([stockInfo_df, PE_df], axis=1)
             temp_df.to_csv('Data\Temp\過濾清單(含本益比).csv', mode='a', header=False, encoding='utf_8_sig')
@@ -135,10 +136,10 @@ def GetChampionStock(op):
         directorSharehold.WriteData()
           
 # 0 產生過濾清單(本益比、殖利率、淨值比、收盤價、全體董監持股、股東分布人數)
-# 1 產生過濾清單(同0含本益比)
+# 1 產生過濾清單(本益比、殖利率、淨值比、收盤價、全體董監持股、股東分布人數、本益比)
 # 2 抓出股票明細資料
 # 3 日排程 - 籌碼面資料
 # 4 週排程 - 大戶、本益比
 # 5 月排程 - 董監比例
 # 6 季排程 - 財務資料
-GetChampionStock(0)
+GetChampionStock(3)
