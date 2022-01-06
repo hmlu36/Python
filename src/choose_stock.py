@@ -5,6 +5,8 @@ from io import StringIO
 from decimal import Decimal
 import random
 
+import requests
+
 from Step1_BasicStockInfo import GetBasicStockInfo
 from Step2_FinDetail import GetFinDetail
 from Step3_K_ChartFlow import GetPE
@@ -36,12 +38,28 @@ import csv
 def Sleep():
     time.sleep(random.randint(30, 60))
 
+
 def GetChampionStock(op):
     # 過濾清單
-    if op == 1:
+    if op == 0:
         competitors = GetBasicStockInfo(True)
         #print(competitors)
         competitors.to_csv('Data\Temp\過濾清單.csv',encoding='utf_8_sig')
+
+    if op == 1:   
+        basicStockInfo_df = GetBasicStockInfo()
+        
+        for stockId in ['2477']:
+            PE_df = GetPE(stockId)
+            print(PE_df)
+            
+            Sleep()
+            stockInfo_df = basicStockInfo_df[basicStockInfo_df['證券代號'] == stockId]
+            stockInfo_df.reset_index(drop=True, inplace=True)
+            print(stockInfo_df)
+
+            temp_df = pd.concat([stockInfo_df, PE_df], axis=1)
+            temp_df.to_csv('Data\Temp\過濾清單(含本益比).csv', mode='a', header=False, encoding='utf_8_sig')
 
     # 明細資料
     if op == 2:
@@ -117,10 +135,11 @@ def GetChampionStock(op):
     if op == 5:
         directorSharehold.WriteData()
           
-# 1 產生過濾清單
+# 0 產生過濾清單
+# 1 產生過濾清單(含本益比)
 # 2 抓出股票明細資料
 # 3 日排程 - 籌碼面資料
 # 4 週排程 - 大戶、本益比
 # 5 月排程 - 董監比例
 # 6 季排程 - 財務資料
-GetChampionStock(1)
+GetChampionStock(0)

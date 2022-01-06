@@ -33,7 +33,7 @@ def GetDailyExchangeReport(filter):
         #errors = 'coerce'：是因為本益比千位數有逗號，若改成value會出錯，這個指令是讓出錯的地方以NaN型式取代
         PBR = pd.to_numeric(stockdf['淨值比'], errors='coerce') < 0.8  # 找到股價淨值比小於0.7的股票
         PER = pd.to_numeric(stockdf['本益比'], errors='coerce') < 10  # 找到本益比小於10的股票
-        DividendYield = pd.to_numeric(stockdf['殖利率'].replace('-', 0), errors='coerce') > 5  # 殖利率 > 5
+        DividendYield = pd.to_numeric(stockdf['殖利率'].replace('-', 0), errors='coerce') > 3  # 殖利率 > 3
 
         candidate = stockdf[(PER & DividendYield)]  # 綜合以上兩者，選出兩者皆符合的股票
         #print(candidate)
@@ -41,6 +41,16 @@ def GetDailyExchangeReport(filter):
     else:
         return stockdf
 
+        
+# 取出每日收盤價
+def GetDailyExchange():
+    url = 'https://quality.data.gov.tw/dq_download_json.php?nid=11549&md5_url=da96048521360db9f23a2b47c9c31155'
+    data = requests.get(url).json()
+    df = pd.DataFrame(data)
+    df = df[['證券代號', '收盤價']]
+    return df
+
+# 資本額
 def GetStockCapital(filter):
     df = pd.read_csv('https://mopsfin.twse.com.tw/opendata/t187ap03_L.csv')
     # print(df)
@@ -78,6 +88,10 @@ def GetBasicStockInfo(filter=False):
     mergeDf.insert(1, "證券名稱", column_to_move)
     #print(mergeDf)
 
+    if filter:
+        dailyExhange_df = GetDailyExchange()
+        mergeDf = pd.merge(mergeDf, dailyExhange_df, on='證券代號')
+
     # 董監持股比例
     directShareHold_df = pd.read_csv('Data\Monthly\董監持股比例.csv')
     directShareHold_df = directShareHold_df.rename(columns = {'代號':'證券代號', '全體  董監  持股  (%)':'全體董監持股(%)'})
@@ -95,7 +109,8 @@ def GetBasicStockInfo(filter=False):
     
     return mergeDf
 
-
+'''
 # 測試
 df = GetBasicStockInfo()
 print(df)
+'''
