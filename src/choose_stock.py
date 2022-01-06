@@ -38,7 +38,6 @@ import csv
 def Sleep():
     time.sleep(random.randint(30, 60))
 
-
 def GetChampionStock(op):
     # 過濾清單
     if op == 0:
@@ -135,8 +134,8 @@ def GetChampionStock(op):
     if op == 5:
         directorSharehold.WriteData()
           
-# 0 產生過濾清單
-# 1 產生過濾清單(含本益比)
+# 0 產生過濾清單(本益比、殖利率、淨值比、收盤價、全體董監持股、股東分布人數)
+# 1 產生過濾清單(同0含本益比)
 # 2 抓出股票明細資料
 # 3 日排程 - 籌碼面資料
 # 4 週排程 - 大戶、本益比
