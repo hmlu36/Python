@@ -41,7 +41,7 @@ def GetChampionStock(op):
     if op == 1:
         competitors = GetBasicStockInfo(True)
         #print(competitors)
-        competitors.to_csv('過濾清單.csv',encoding='utf_8_sig')
+        competitors.to_csv('Data\Temp\過濾清單.csv',encoding='utf_8_sig')
 
     # 明細資料
     if op == 2:
@@ -123,4 +123,4 @@ def GetChampionStock(op):
 # 4 週排程 - 大戶、本益比
 # 5 月排程 - 董監比例
 # 6 季排程 - 財務資料
-GetChampionStock(4)
+GetChampionStock(1)
