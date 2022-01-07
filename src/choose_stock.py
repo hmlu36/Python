@@ -48,7 +48,7 @@ def GetChampionStock(op):
     if op == 1:   
         basicStockInfo_df = GetBasicStockInfo(True)
         
-        for stockId in ['8215']:
+        for stockId in ['2477','2915','1608','2809','5469','1313','2357','1304','2855','5533','2891','3036','2505','2816','2905','2461','2885','1513','3033','9945','3702','1904','3022','1776','3028','2535','2353','1308','3048','3312','2387','1305','1604']:
             PE_df = GetPE(stockId)
             print(PE_df)
             
@@ -64,7 +64,7 @@ def GetChampionStock(op):
     if op == 2:
         basicStockInfo_df = GetBasicStockInfo()
         sum_df = pd.DataFrame()
-        for stockId in ['2477']: #'5515', '2020', '2546', '2881', '2385', '2069', '2458', '2347', '3005', '3706', '1229', '1231', '3044'
+        for stockId in ['1313','1304','3033','1776','3028','1308','3048','3312','2387','1305','1604']:
             print(stockId)
             
             stockInfo_df = basicStockInfo_df[basicStockInfo_df['證券代號'] == stockId]
@@ -86,7 +86,6 @@ def GetChampionStock(op):
             dividend_df = GetDividend(stockId)
             print(dividend_df)
             
-            
             Sleep()
             distribution_df = shareholderDistribution.GetDistribution(stockId)
             print(distribution_df)
@@ -99,7 +98,7 @@ def GetChampionStock(op):
             #sum_df = pd.concat([sum_df, temp_df], axis=0)
             
             # 每列寫入csv檔, 不含表頭
-            temp_df.to_csv('彙整清單.csv', mode='a', header=False, encoding='utf_8_sig')
+            temp_df.to_csv('Data\Temp\彙整清單.csv', mode='a', header=False, encoding='utf_8_sig')
         
         # 寫入csv檔
         #sum_df.to_csv('彙整清單.csv', encoding='utf_8_sig')
@@ -108,7 +107,7 @@ def GetChampionStock(op):
     if op == 3:
         basicStockInfo_df = GetBasicStockInfo()
         #sum_df = pd.DataFrame()
-        for stockId in ['1229', '1231', '1409', '1474', '1514', '1515', '2020', '2069', '2324', '2347', '2352', '2385', '2417', '2458', '2520', '2546', '2881', '3005', '3044', '3209', '3702','3706', '5515', '6257', '8112', '8150', '8213', '8215', '2467']:
+        for stockId in ['1229', '1231', '1409', '1474', '1514', '2020', '2069', '2324', '2347', '2352', '2385', '2417', '2458', '2520', '2546', '2881', '3005', '3044', '3209', '3702','3706', '5515', '6257', '8112', '8150', '8213', '8215', '2467']:
  
             stockInfo_df = basicStockInfo_df[basicStockInfo_df['證券代號'] == stockId]
             stockInfo_df.reset_index(drop=True, inplace=True)
