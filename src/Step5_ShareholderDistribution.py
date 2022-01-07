@@ -146,12 +146,16 @@ def GetDistribution(stockId):
         data.update({column: '  /  '.join(sum_df[column].astype(str))})
 
     df = pd.DataFrame([data])
-    # print(df)
+    df = df[['100張以下比例', '100-1000張比例', '1000張以上比例', '1000張以上人數']]
+          
+    #df.to_csv('股東分布.csv', encoding='utf_8_sig')
+    print(df)
     return df
 
 #總表
 #WriteData()
-
+'''
 # 個股(含歷程)
-#df = GetDistribution('8112')
-#print(df)
+df = GetDistribution('2477')
+print(df)
+'''

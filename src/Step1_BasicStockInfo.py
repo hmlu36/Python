@@ -44,23 +44,11 @@ def GetDailyExchangeReport(filter):
         
 # 取出每日收盤價
 def GetDailyExchange():
-    '''
-    url = 'https://quality.data.gov.tw/dq_download_json.php?nid=11549&md5_url=da96048521360db9f23a2b47c9c31155'
-    data = requests.get(url).json()
-    df = pd.DataFrame(data)
+    url = 'https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&type=ALLBUT0999'
+    jsonData = requests.get(url).json()
+    #print(jsonData)
+    df = pd.DataFrame(jsonData["data9"], columns=jsonData["fields9"])
     df = df[['證券代號', '收盤價']]
-    '''
-    
-    url = 'https://stock.wespai.com/p/29980'
-    css_selector = '#txtFinBody'
-    try:
-        df = Utils.GetDataFrameByCssSelector(url, css_selector)
-    except:        
-        time.sleep(random.randint(20, 30))
-        df = Utils.GetDataFrameByCssSelector(url, css_selector)
-    #print(df)
-
-    
     return df
 
 # 資本額
@@ -93,34 +81,34 @@ def GetBasicStockInfo(filter=False):
 
     # merge dataframe
     # ref: http://violin-tao.blogspot.com/2017/06/pandas-2-concat-merge.html
-    mergeDf = pd.merge(capital, exchangeReport, on='證券代號')
+    merge_df = pd.merge(capital, exchangeReport, on='證券代號')
 
     # move column in pandas dataframe
     # ref https://stackoverflow.com/questions/35321812/move-column-in-pandas-dataframe
-    column_to_move = mergeDf.pop("證券名稱")
-    mergeDf.insert(1, "證券名稱", column_to_move)
-    #print(mergeDf)
+    column_to_move = merge_df.pop("證券名稱")
+    merge_df.insert(1, "證券名稱", column_to_move)
+    #print(merge_df)
 
     if filter:
         dailyExhange_df = GetDailyExchange()
-        mergeDf = pd.merge(mergeDf, dailyExhange_df, on='證券代號')
+        merge_df = pd.merge(merge_df, dailyExhange_df, on='證券代號')
 
-    # 董監持股比例
-    directShareHold_df = pd.read_csv('Data\Monthly\董監持股比例.csv')
-    directShareHold_df = directShareHold_df.rename(columns = {'代號':'證券代號', '全體  董監  持股  (%)':'全體董監持股(%)'})
-    #print(directShareHold_df)
-    directShareHold_df = directShareHold_df[['證券代號', '全體董監持股(%)']].astype(str)
-    mergeDf = pd.merge(mergeDf, directShareHold_df, on='證券代號')
+        # 董監持股比例
+        directShareHold_df = pd.read_csv('Data\Monthly\董監持股比例.csv')
+        directShareHold_df = directShareHold_df.rename(columns = {'代號':'證券代號', '全體  董監  持股  (%)':'全體董監持股(%)'})
+        #print(directShareHold_df)
+        directShareHold_df = directShareHold_df[['證券代號', '全體董監持股(%)']].astype(str)
+        merge_df = pd.merge(merge_df, directShareHold_df, on='證券代號')
 
-    # 股東分布資料
-    shareHoder_df = pd.read_csv('Data\Weekly\股東分布資料.csv')
-    shareHoder_df['100-1000張人數'] = shareHoder_df[['101-200張人數', '201-400張人數', '401-800張人數', '801-1000張人數']].sum(axis=1)
-    shareHoder_df['100-1000張比例'] = shareHoder_df[['101-200張人數', '201-400張人數', '401-800張人數', '801-1000張人數']].sum(axis=1)
-    shareHoder_df = shareHoder_df[['證券代號', '100張以下人數', '100張以下比例', '100-1000張人數', '100-1000張比例', '1000張以上人數', '1000張以上比例']].astype(str)
-    mergeDf = pd.merge(mergeDf, shareHoder_df, on='證券代號')
+        # 股東分布資料
+        shareHoder_df = pd.read_csv('Data\Weekly\股東分布資料.csv')
+        shareHoder_df['100-1000張人數'] = shareHoder_df[['101-200張人數', '201-400張人數', '401-800張人數', '801-1000張人數']].sum(axis=1)
+        shareHoder_df['100-1000張比例'] = shareHoder_df[['101-200張人數', '201-400張人數', '401-800張人數', '801-1000張人數']].sum(axis=1)
+        shareHoder_df = shareHoder_df[['證券代號', '100張以下人數', '100張以下比例', '100-1000張人數', '100-1000張比例', '1000張以上人數', '1000張以上比例']].astype(str)
+        merge_df = pd.merge(merge_df, shareHoder_df, on='證券代號')
 
     
-    return mergeDf
+    return merge_df
 
 '''
 # 測試
