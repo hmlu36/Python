@@ -60,23 +60,29 @@ def DownloadVolume(stockId):
         if resp.status_code != 200:
             print('任務失敗: %d' % resp.status_code)
             exit(1)
-
+            
         soup = BeautifulSoup(resp.text, 'lxml')
-        nodes = soup.select('#HyperLink_DownloadCSV')
-        if len(nodes) == 0:
-            print('任務失敗，沒有下載連結')
-            exit(1)
+        errorMessage = soup.select('#Label_ErrorMsg')[0].get_text()
+        print(errorMessage)
+        
+        if errorMessage != '驗證碼錯誤!': 
+            nodes = soup.select('#HyperLink_DownloadCSV')
+            if len(nodes) == 0:
+                print('任務失敗，沒有下載連結')
+                exit(1)
+            
+            # 下載分點進出 CSV
+            resp = session.get(f'{base_url}/bsContent.aspx')
+            if resp.status_code != 200:
+                print('任務失敗，無法下載分點進出 CSV')
+                exit(1)
+            # print(resp.text)
 
-        # 下載分點進出 CSV
-        resp = session.get(f'{base_url}/bsContent.aspx')
-        if resp.status_code != 200:
-            print('任務失敗，無法下載分點進出 CSV')
+            # 寫檔案
+            fileContent = resp.text.replace('�W', '')
+            Utils.WriteFile(f'{path}\{stockId}.csv', fileContent)
+        else:
             exit(1)
-        # print(resp.text)
-
-        # 寫檔案
-        fileContent = resp.text.replace('�W', '')
-        Utils.WriteFile(f'{path}\{stockId}.csv', fileContent)
 
 def GetVolumeIndicator(stockId):
     #print(f'{path}\{stockId}.csv')
@@ -90,8 +96,7 @@ def GetVolumeIndicator(stockId):
     df = pd.DataFrame(data, columns=['序號', '券商', '價格', '買進股數', '賣出股數']).dropna()
     df['買進股數'] = df['買進股數'].astype(int)
     df['賣出股數'] = df['賣出股數'].astype(int)
-    #df.to_csv('Data\Daily\Chip\8112_test.csv',encoding='utf_8_sig')
-    #print()
+    df.to_csv(f'Data\Daily\Chip\{stockId}_籌碼資料.csv',encoding='utf_8_sig')
     #print(df.sort_values('賣出股數', ascending=False).head(15))
     #print(df)
     
@@ -122,7 +127,6 @@ def GetVolumeIndicator(stockId):
 def GetVolume(stockId):
     error_count = 0
     max_error_count = 10 #最多10次
-
     while error_count < max_error_count:
         try:
             DownloadVolume(stockId)
@@ -133,6 +137,8 @@ def GetVolume(stockId):
             error_count = error_count + 1
             print(f'錯誤次數{error_count}')
         
+'''
 #df = GetVolumeIndicator('8112')
-df = GetVolume('8112')
+df = GetVolume('2069')
 print(df)
+'''

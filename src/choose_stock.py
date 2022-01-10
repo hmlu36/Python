@@ -13,6 +13,7 @@ from Step3_K_ChartFlow import GetPE
 from Step4_K_Chart import GetTransaction
 import Step5_ShareholderDistribution as shareholderDistribution
 from Step6_StockDividendPolicy import GetDividend
+from Step7_VolumnData import GetVolume
 import Step8_DirectorSharehold as directorSharehold
 import csv
 
@@ -107,7 +108,8 @@ def GetChampionStock(op):
     if op == 3:
         basicStockInfo_df = GetBasicStockInfo()
         #sum_df = pd.DataFrame()
-        for stockId in ['1229','1231','1409','1304','1305','1308','1313','1474','1604','1776','2020','2069','2324','2347','2352','2385','2387','2417','2458','2467','2520','2546','2881','3005','3028','3033','3044','3048','3209','3312','3702','3706','5515','6257','8112','8150','8213','8215']:
+        stocks = ['1229','1231','1409','1304','1305','1308','1313','1474','1604','1776','2020','2069','2324','2347','2352','2385','2387','2417','2458','2467','2520','2546','2881','3005','3028','3033','3044','3048','3209','3312','3702','3706','5515','6257','8112','8150','8213','8215']
+        for stockId in stocks:
  
             stockInfo_df = basicStockInfo_df[basicStockInfo_df['證券代號'] == stockId]
             stockInfo_df.reset_index(drop=True, inplace=True)
@@ -116,8 +118,10 @@ def GetChampionStock(op):
             Sleep()
             transaction_df = GetTransaction(stockId)
             print(transaction_df)
+            
+            volume_df = GetVolume(stockId)
 
-            temp_df = pd.concat([stockInfo_df, transaction_df], axis=1)
+            temp_df = pd.concat([stockInfo_df, transaction_df, volume_df], axis=1)
             print(temp_df)
             
             temp_df.to_csv('Data\Daily\籌碼面資料.csv', mode='a', header=False, encoding='utf_8_sig')

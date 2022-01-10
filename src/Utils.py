@@ -7,14 +7,21 @@ from BrowserUserAgent import GetHeader
 from fake_useragent import UserAgent
 from urllib.parse import urlencode
 import os
+import errno
 
 def GetDataByXPath(htmlInfo, XPath):
     return htmlInfo.xpath(re.sub(r'/tbody([[]\\d[]])?', '', XPath) + '/text()')[0]
 
-def WriteFile(path, content):
+def WriteFile(filePath, content):
     # 建立資料夾, 如果資料夾不存在時 
-    os.makedirs(path, exist_ok=True)
-    with open(path, 'w') as file:
+    if not os.path.exists(os.path.dirname(filePath)):
+        try:
+            os.makedirs(os.path.dirname(filePath))
+        except OSError as exc: # Guard against race condition
+            if exc.errno != errno.EEXIST:
+                raise
+
+    with open(filePath, 'w') as file:
         file.write(content)
 
 def GetYearBetween(startDateStr, endDate=datetime.today()):
