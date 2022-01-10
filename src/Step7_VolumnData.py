@@ -1,3 +1,4 @@
+import Utils
 import numpy as np
 import pandas as pd
 import requests
@@ -5,7 +6,6 @@ from bs4 import BeautifulSoup
 from BrowserUserAgent import GetHeader
 import UtilsCaptcha
 import json
-import os
 import time
 import random
 from functools import reduce
@@ -20,7 +20,7 @@ import operator
 base_url = 'https://bsr.twse.com.tw/bshtm'
 path = f'Data\Daily\Chip'
 
-def DownloadChip(stockId):
+def DownloadVolume(stockId):
     session = requests.Session()
     headers = GetHeader()
     response = session.get(f'{base_url}/bsMenu.aspx', headers=headers)
@@ -75,10 +75,8 @@ def DownloadChip(stockId):
         # print(resp.text)
 
         # 寫檔案
-        # 建立資料夾, 如果資料夾不存在時 
-        os.makedirs(path, exist_ok=True)
-        with open(f'{path}\{stockId}.csv', 'w') as file:
-            file.write(resp.text.replace('�W', ''))
+        fileContent = resp.text.replace('�W', '')
+        Utils.WriteFile(f'{path}\{stockId}.csv', fileContent)
 
 def GetVolumeIndicator(stockId):
     #print(f'{path}\{stockId}.csv')
@@ -121,20 +119,20 @@ def GetVolumeIndicator(stockId):
 
     return pd.DataFrame([[overBuy, volumeFloatRate]], columns=['超額買超', '籌碼集中度'])
 
-def GetVolumn(stockId):
+def GetVolume(stockId):
     error_count = 0
-    max_error_count = 5 #最多五次
+    max_error_count = 10 #最多10次
 
     while error_count < max_error_count:
         try:
-            DownloadChip(stockId)
+            DownloadVolume(stockId)
             return GetVolumeIndicator(stockId)
             #執行成功, 跳出迴圈
         except:
-            time.sleep(random.randint(10, 20))
+            time.sleep(random.randint(1, 5))
             error_count = error_count + 1
             print(f'錯誤次數{error_count}')
         
 #df = GetVolumeIndicator('8112')
-df = GetVolumn('1515')
+df = GetVolume('8112')
 print(df)

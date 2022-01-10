@@ -6,9 +6,16 @@ import requests
 from BrowserUserAgent import GetHeader
 from fake_useragent import UserAgent
 from urllib.parse import urlencode
+import os
 
 def GetDataByXPath(htmlInfo, XPath):
     return htmlInfo.xpath(re.sub(r'/tbody([[]\\d[]])?', '', XPath) + '/text()')[0]
+
+def WriteFile(path, content):
+    # 建立資料夾, 如果資料夾不存在時 
+    os.makedirs(path, exist_ok=True)
+    with open(path, 'w') as file:
+        file.write(content)
 
 def GetYearBetween(startDateStr, endDate=datetime.today()):
     date_format = "%Y%m%d"
