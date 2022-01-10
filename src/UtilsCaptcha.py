@@ -15,7 +15,7 @@ https://github.com/hhschu/Captcha_OCR/blob/master/TWSE%20Captcha%20OCR%20Challen
 
 _errstr = "Mode is unknown or incompatible with input array shape."
 
-def request_captcha(url):
+def GetCaptcha(url):
     '''
     # Where our captcha is at.
     base_url = 'http://bsr.twse.com.tw/bshtm/'
@@ -36,7 +36,7 @@ def request_captcha(url):
     res = requests.get(url)
     if res.status_code == 200:
         img = res.content
-        with open(f'./captcha/check.png', 'wb') as handler:
+        with open(f'Data\Temp\Captcha\check.png', 'wb') as handler:
             handler.write(img)
     else:
         print('error')
@@ -221,7 +221,7 @@ def toimage(arr, high=255, low=0, cmin=None, cmax=None, pal=None,
     image = Image.frombytes(mode, shape, strdata)
     return image
 
-def clean_captcha(captcha):
+def DecodeCaptcha(captcha):
     # Convert the image file to a Numpy array and read it into a OpenCV file.
     captcha = np.asarray(bytearray(captcha), dtype="uint8")
     captcha = cv2.imdecode(captcha, cv2.IMREAD_GRAYSCALE)

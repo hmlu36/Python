@@ -120,7 +120,7 @@ def GetChampionStock(op):
             temp_df = pd.concat([stockInfo_df, transaction_df], axis=1)
             print(temp_df)
             
-            temp_df.to_csv('籌碼面資料.csv', mode='a', header=False, encoding='utf_8_sig')
+            temp_df.to_csv('Data\Daily\籌碼面資料.csv', mode='a', header=False, encoding='utf_8_sig')
             # 合併所有欄位成一列
             #sum_df = pd.concat([sum_df, temp_df], axis=0)
 
