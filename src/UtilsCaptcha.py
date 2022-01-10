@@ -227,8 +227,8 @@ def DecodeCaptcha(captcha):
     captcha = cv2.imdecode(captcha, cv2.IMREAD_GRAYSCALE)
     
     # Let's first see what the original image looks like.
-    print('before:')
-    display(toimage(captcha))
+    #print('before:')
+    #display(toimage(captcha))
     
     # Convert the captcha to black and white.
     (thresh, captcha) = cv2.threshold(captcha, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
@@ -246,8 +246,8 @@ def DecodeCaptcha(captcha):
     captcha = toimage(captcha)
     
     # Check the result of our cleaning process
-    print('after:')
-    display(captcha)
+    #print('after:')
+    #display(captcha)
     
     return re.sub('[^0-9A-Z]+', '', image_to_string(captcha).upper())
 
