@@ -6,6 +6,8 @@ import pandas as pd
 import random
 import time
 import requests
+import os
+
 
 def WriteData():
     url='https://smart.tdcc.com.tw/opendata/getOD.ashx?id=1-5'
@@ -48,7 +50,7 @@ def WriteData():
            '1000張以上人數', '1000張以上比例']]
 
     print(s)
-    s.to_csv('Download\Weekly\股東分布資料.csv',encoding='utf_8_sig')
+    s.to_csv(f'{Utils.GetRootPath()}\Data\Weekly\股東分布資料.csv',encoding='utf_8_sig')
     
 
     
@@ -149,7 +151,7 @@ def GetDistribution(stockId):
     df = df[['100張以下比例', '100-1000張比例', '1000張以上比例', '1000張以上人數']]
           
     #df.to_csv('股東分布.csv', encoding='utf_8_sig')
-    print(df)
+    #print(df)
     return df
 
 #總表

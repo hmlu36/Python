@@ -99,3 +99,7 @@ https://lufor129.medium.com/pytesseract-%E8%BE%A8%E8%AD%98%E5%9C%96%E7%89%87%E4%
 
 
 https://github.com/coldnew/twse-captcha-solver
+
+
+# 沒有管理員權限如何安裝python
+https://smlpoints.com/notes-python3-install-portable-version.html

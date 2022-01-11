@@ -4,9 +4,7 @@ import Utils
 import pandas as pd
 import random
 import time
-
-def GetDirectorSharehold():
-    return 1
+import os
 
 def WriteData():    
     cssSelector = '#divStockList'
@@ -28,7 +26,7 @@ def WriteData():
             #df.columns = df.columns.get_level_values(1)
 
     # 去除重複標頭
-    sum_df[sum_df.ne(sum_df.columns).any(1)].to_csv('Download\Monthly\董監持股比例.csv',encoding='utf_8_sig')
+    sum_df[sum_df.ne(sum_df.columns).any(1)].to_csv(f'{Utils.GetRootPath()}\Data\Monthly\董監持股比例.csv',encoding='utf_8_sig')
 
 '''
 GetDirectorSharehold()

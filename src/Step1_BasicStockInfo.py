@@ -12,6 +12,8 @@ import re
 from lxml import etree
 from decimal import Decimal
 from datetime import datetime, timedelta
+import os
+import Utils
 
 def GetDailyExchangeReport(filter):
     # ----------------- （１）評估價值是否被低估？（股票價格不會太貴） -------------
@@ -94,14 +96,14 @@ def GetBasicStockInfo(filter=False):
         merge_df = pd.merge(merge_df, dailyExhange_df, on='證券代號')
 
         # 董監持股比例
-        directShareHold_df = pd.read_csv('Data\Monthly\董監持股比例.csv')
+        directShareHold_df = pd.read_csv(f'{Utils.GetRootPath()}\Data\Monthly\董監持股比例.csv')
         directShareHold_df = directShareHold_df.rename(columns = {'代號':'證券代號', '全體  董監  持股  (%)':'全體董監持股(%)'})
         #print(directShareHold_df)
         directShareHold_df = directShareHold_df[['證券代號', '全體董監持股(%)']].astype(str)
         merge_df = pd.merge(merge_df, directShareHold_df, on='證券代號')
 
         # 股東分布資料
-        shareHoder_df = pd.read_csv('Data\Weekly\股東分布資料.csv')
+        shareHoder_df = pd.read_csv(f'{Utils.GetRootPath()}\Data\Weekly\股東分布資料.csv')
         shareHoder_df['100-1000張人數'] = shareHoder_df[['101-200張人數', '201-400張人數', '401-800張人數', '801-1000張人數']].sum(axis=1)
         shareHoder_df['100-1000張比例'] = shareHoder_df[['101-200張人數', '201-400張人數', '401-800張人數', '801-1000張人數']].sum(axis=1)
         shareHoder_df = shareHoder_df[['證券代號', '100張以下人數', '100張以下比例', '100-1000張人數', '100-1000張比例', '1000張以上人數', '1000張以上比例']].astype(str)

@@ -9,6 +9,9 @@ from urllib.parse import urlencode
 import os
 import errno
 
+def GetRootPath():
+    return os.path.dirname(os.path.dirname(os.path.abspath(__file__))) 
+
 def GetDataByXPath(htmlInfo, XPath):
     return htmlInfo.xpath(re.sub(r'/tbody([[]\\d[]])?', '', XPath) + '/text()')[0]
 

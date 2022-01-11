@@ -7,6 +7,7 @@ from BrowserUserAgent import GetHeader
 import UtilsCaptcha
 import json
 import time
+from datetime import date
 import random
 from functools import reduce
 import operator
@@ -18,7 +19,8 @@ import operator
 # https://blog.cnyes.com/my/uniroselee/article2270853
 
 base_url = 'https://bsr.twse.com.tw/bshtm'
-path = f'Data\Daily\Chip'
+path = f'{Utils.GetRootPath()}\Data\Daily\Chip'
+todayStr = date.today().strftime("%Y%m%d")
 
 def DownloadVolume(stockId):
     session = requests.Session()
@@ -33,7 +35,7 @@ def DownloadVolume(stockId):
 
         img = UtilsCaptcha.GetCaptcha(f'{base_url}/{img_url}')
         captcha = UtilsCaptcha.DecodeCaptcha(img)
-        print('captcha:' + captcha)
+        print('captcha: ' + captcha)
 
         params = {}
 
@@ -63,9 +65,8 @@ def DownloadVolume(stockId):
             
         soup = BeautifulSoup(resp.text, 'lxml')
         errorMessage = soup.select('#Label_ErrorMsg')[0].get_text()
-        print(errorMessage)
         
-        if errorMessage != '驗證碼錯誤!': 
+        if not errorMessage: 
             nodes = soup.select('#HyperLink_DownloadCSV')
             if len(nodes) == 0:
                 print('任務失敗，沒有下載連結')
@@ -76,13 +77,14 @@ def DownloadVolume(stockId):
             if resp.status_code != 200:
                 print('任務失敗，無法下載分點進出 CSV')
                 exit(1)
-            # print(resp.text)
+
+            #print(resp.text)
 
             # 寫檔案
             fileContent = resp.text.replace('�W', '')
             Utils.WriteFile(f'{path}\{stockId}.csv', fileContent)
         else:
-            exit(1)
+            print('錯誤訊息: ' + errorMessage)
 
 def GetVolumeIndicator(stockId):
     #print(f'{path}\{stockId}.csv')
@@ -96,7 +98,7 @@ def GetVolumeIndicator(stockId):
     df = pd.DataFrame(data, columns=['序號', '券商', '價格', '買進股數', '賣出股數']).dropna()
     df['買進股數'] = df['買進股數'].astype(int)
     df['賣出股數'] = df['賣出股數'].astype(int)
-    df.to_csv(f'Data\Daily\Chip\{stockId}_籌碼資料.csv',encoding='utf_8_sig')
+    df.to_csv(f'{path}\{stockId}_籌碼資料_{todayStr}.csv',encoding='utf_8_sig')
     #print(df.sort_values('賣出股數', ascending=False).head(15))
     #print(df)
     
@@ -132,13 +134,12 @@ def GetVolume(stockId):
             DownloadVolume(stockId)
             return GetVolumeIndicator(stockId)
             #執行成功, 跳出迴圈
-        except:
+        except Exception as e:
+            print(str(e))
             time.sleep(random.randint(1, 5))
             error_count = error_count + 1
             print(f'錯誤次數{error_count}')
-        
-'''
+
 #df = GetVolumeIndicator('8112')
-df = GetVolume('2069')
-print(df)
-'''
+#df = GetVolume('2069')
+#print(df)
