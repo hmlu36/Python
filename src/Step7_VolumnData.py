@@ -61,31 +61,31 @@ def DownloadVolume(stockId):
         resp = session.post(f'{base_url}/bsMenu.aspx', data=params, headers=headers)
         if resp.status_code != 200:
             print('任務失敗: %d' % resp.status_code)
-            exit(1)
+            return False
             
         soup = BeautifulSoup(resp.text, 'lxml')
         errorMessage = soup.select('#Label_ErrorMsg')[0].get_text()
+        print('錯誤訊息: ' + errorMessage)
         
         if not errorMessage: 
             nodes = soup.select('#HyperLink_DownloadCSV')
             if len(nodes) == 0:
                 print('任務失敗，沒有下載連結')
-                exit(1)
+                return False
             
             # 下載分點進出 CSV
             resp = session.get(f'{base_url}/bsContent.aspx')
             if resp.status_code != 200:
                 print('任務失敗，無法下載分點進出 CSV')
-                exit(1)
+                return False
 
             #print(resp.text)
 
             # 寫檔案
             fileContent = resp.text.replace('�W', '')
             Utils.WriteFile(f'{path}\{stockId}.csv', fileContent)
-        else:
-            print('錯誤訊息: ' + errorMessage)
-
+            
+        return True
 def GetVolumeIndicator(stockId):
     #print(f'{path}\{stockId}.csv')
     # 讀取檔案, 根據,, 切割字串
@@ -130,16 +130,18 @@ def GetVolume(stockId):
     error_count = 0
     max_error_count = 10 #最多10次
     while error_count < max_error_count:
+        success = DownloadVolume(stockId)
         try:
-            DownloadVolume(stockId)
-            return GetVolumeIndicator(stockId)
-            #執行成功, 跳出迴圈
+            if success:
+                return GetVolumeIndicator(stockId)
+            else:
+                time.sleep(random.randint(1, 5))
+                error_count = error_count + 1
+                print(f'錯誤次數{error_count}')
+                
         except Exception as e:
             print(str(e))
-            time.sleep(random.randint(1, 5))
-            error_count = error_count + 1
-            print(f'錯誤次數{error_count}')
-
+            
 #df = GetVolumeIndicator('8112')
-#df = GetVolume('2069')
+#df = GetVolume('1604')
 #print(df)

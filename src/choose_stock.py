@@ -39,10 +39,10 @@ import Utils
 '''
 
 stocks = [
-        '1229','1231','1409','1304','1305','1308','1313','1474','1604','1776',
+        '1229','1231','1409','1304','1305','1308','1313','1515','1474','1604','1776',
         '2020','2069','2324','2347','2352','2385','2387','2417','2458','2467',
         '2520','2546','2881','3005','3028','3033','3044','3048','3209','3312',
-        '3702','3706','5515','6257','8112','8150','8213','8215'
+        '3702','3706','6257','8112','8150','8213'
         ]
 
 
@@ -76,7 +76,7 @@ def GetChampionStock(op):
         basicStockInfo_df = GetBasicStockInfo()
         #sum_df = pd.DataFrame()
 
-        for stockId in ['1313','1304','3033','1776','3028','1308','3048','3312','2387','1305','1604']:
+        for stockId in ['1515']:
             print(stockId)
             
             stockInfo_df = basicStockInfo_df[basicStockInfo_df['證券代號'] == stockId]
@@ -94,6 +94,9 @@ def GetChampionStock(op):
             transaction_df = GetTransaction(stockId)
             print(transaction_df)
             
+            volume_df = GetVolume(stockId)
+            print(volume_df)
+            
             Sleep()
             dividend_df = GetDividend(stockId)
             print(dividend_df)
@@ -103,7 +106,7 @@ def GetChampionStock(op):
             print(distribution_df)
             
             # 合併所有欄位成一列
-            temp_df = pd.concat([stockInfo_df, transaction_df, PE_df, finDetail_df, dividend_df, distribution_df], axis=1)
+            temp_df = pd.concat([stockInfo_df, transaction_df, volume_df, PE_df, distribution_df, finDetail_df, dividend_df], axis=1)
             print(temp_df)
 
             #將列合併入dataframe
@@ -131,6 +134,7 @@ def GetChampionStock(op):
             print(transaction_df)
             
             volume_df = GetVolume(stockId)
+            print(volume_df)
 
             temp_df = pd.concat([stockInfo_df, transaction_df, volume_df], axis=1)
             print(temp_df)
@@ -172,4 +176,4 @@ def GetChampionStock(op):
 # 4 週排程 - 大戶、本益比
 # 5 月排程 - 董監比例
 # 6 季排程 - 財務資料
-GetChampionStock(3)
+GetChampionStock(2)
