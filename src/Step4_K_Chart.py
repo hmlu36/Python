@@ -50,6 +50,21 @@ def GetTransaction(stockId):
             
             #print(header.replace(' ', ''))
             #print(entry)
+            
+            if header == '收盤':
+                data = [x.strip() for x in entry.split('/')]
+                if float(data[0]) > float(data[1]) and float(data[0]) > float(data[2]):
+                    entry = '👍' + entry
+                elif float(data[0]) < float(data[3]):
+                    entry = '👎' + entry
+
+            # 成交量 > 5ma 3倍
+            if header == '張數':
+                data = [x.strip() for x in entry.split('/')]
+                if(float(data[0]) / float(data[1]) > 3.0):
+                    entry = '🏆' + entry
+                    
+
             dict.update({header.replace(' ', '') + '(' +  'ma / '.join(map(str, smaPeroids)) + 'ma)': str(entry)})
         except:
             dict.update({header.replace(' ', '') + '(' +  'ma / '.join(map(str, smaPeroids)) + 'ma)': ''})

@@ -103,3 +103,6 @@ https://github.com/coldnew/twse-captcha-solver
 
 # 沒有管理員權限如何安裝python
 https://smlpoints.com/notes-python3-install-portable-version.html
+
+# 投本比、外本比
+https://nico-invest.com/2019/03/19/chip/

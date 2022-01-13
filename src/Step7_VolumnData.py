@@ -108,6 +108,9 @@ def GetVolumeIndicator(stockId):
     top1Sell = df['賣出股數'].max()
     # 超額買超 = TOP 1 買超 / TOP 1 賣超
     overBuy = round(top1Buy / top1Sell, 2)
+                
+    if overBuy > 2.0:
+        overBuy = '🏆' + overBuy
     print('top1Buy:' + str(top1Buy) + ', top1Sell:' + str(top1Sell) + ', overBuy:' + str(overBuy));
     
     # 買方的前 15 名買超量 
@@ -119,10 +122,12 @@ def GetVolumeIndicator(stockId):
     #print('top15Buy:' + str(top15Buy) + ', top15Sell:' + str(top15Sell) + ', volumeFloat:' + str(volumeFloat))
     
     # 總成交量
-    totalVolume1 = df['買進股數'].sum()
+    totalVolume = df['買進股數'].sum()
     # 籌碼集中度(%) = 籌碼集中 ÷ 總成交量
-    volumeFloatRate = round(volumeFloat / totalVolume1 * 100, 2)
-    print('totalVolume:' + str(totalVolume1) + ', volumeFloat:' + str(volumeFloat) + ', volumeFloatRate:' + str(volumeFloatRate))
+    volumeFloatRate = round(volumeFloat / totalVolume * 100, 2)
+    if volumeFloatRate > 20:
+        volumeFloatRate = '🏆' + str(volumeFloatRate)
+    print('totalVolume:' + str(totalVolume) + ', volumeFloat:' + str(volumeFloat) + ', volumeFloatRate:' + str(volumeFloatRate))
 
     return pd.DataFrame([[overBuy, volumeFloatRate]], columns=['超額買超', '籌碼集中度'])
 
@@ -141,7 +146,9 @@ def GetVolume(stockId):
                 
         except Exception as e:
             print(str(e))
-            
+
+'''
 #df = GetVolumeIndicator('8112')
-#df = GetVolume('1604')
-#print(df)
+df = GetVolume('1604')
+print(df)
+'''
