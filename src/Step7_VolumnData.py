@@ -113,12 +113,14 @@ def DownloadVolume(stockId):
             data = soup.select_one('table')
             df = pd.read_html(data.prettify())[0]
             df.columns=['序號', '券商', '價格', '買進股數', '賣出股數']
-            df.dropna()
+            df.dropna(subset=['券商'],inplace=True) # 移除空白列
             df['買進股數'] = df['買進股數'].astype(int)
             df['賣出股數'] = df['賣出股數'].astype(int)
             print(df)
+            
              # 寫檔案
-            df.to_csv(f'{path}\{receive_date}\{stockId}.csv',encoding='utf_8_sig')
+            df.to_csv(f'{path}\{receive_date}\{stockId}.csv',encoding='utf_8_sig') 
+            
             return { 
                 'success' : True,
                 'receive_date': receive_date,
@@ -155,13 +157,15 @@ def GetVolumeIndicator(result, stockId):
     print('receive_date:' + result["receive_date"])
     # TOP 1 買超 = 買最多股票的券商 買多少
     top1Buy = df['買進股數'].max()
+    
     # TOP 1 賣超 = 賣最多股票的券商 賣多少
     top1Sell = df['賣出股數'].max()
     # 超額買超 = TOP 1 買超 / TOP 1 賣超
     overBuy = round(top1Buy / top1Sell, 2)
                 
     if overBuy > 2.0:
-        overBuy = '🏆' + overBuy
+        overBuy = '🏆' + str(overBuy)
+        
     print('top1Buy:' + str(top1Buy) + ', top1Sell:' + str(top1Sell) + ', overBuy:' + str(overBuy));
     
     # 買方的前 15 名買超量 
@@ -201,6 +205,6 @@ def GetVolume(stockId):
 
 '''
 #df = GetVolumeIndicator('8112')
-df = GetVolume('1604')
+df = GetVolume('1231')
 print(df)
 '''
