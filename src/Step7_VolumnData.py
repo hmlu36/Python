@@ -21,7 +21,15 @@ import os
 
 base_url = 'https://bsr.twse.com.tw/bshtm'
 path = f'{Utils.GetRootPath()}\Data\Daily\Chip'
-todayStr = date.today().strftime("%Y%m%d")
+
+#交易日期
+receive_date = ''
+
+#成交筆數
+trade_rec = 0
+
+#成交金額
+trade_amt = 0
 
 def DownloadVolume(stockId):
     session = requests.Session()
@@ -66,9 +74,11 @@ def DownloadVolume(stockId):
             
         soup = BeautifulSoup(resp.text, 'lxml')
         errorMessage = soup.select('#Label_ErrorMsg')[0].get_text()
-        print('錯誤訊息: ' + errorMessage)
-        
-        if not errorMessage: 
+
+        if errorMessage: 
+            print('錯誤訊息: ' + errorMessage)
+            return False
+        else :
             nodes = soup.select('#HyperLink_DownloadCSV')
             if len(nodes) == 0:
                 print('任務失敗，沒有下載連結')
@@ -78,19 +88,49 @@ def DownloadVolume(stockId):
             resp = session.get(f'{base_url}/bsContent.aspx')
             if resp.status_code != 200:
                 print('任務失敗，無法下載分點進出 CSV')
-                return False
+                return { 'success' : False }
 
             #print(resp.text)
+            resp = session.get(f'{base_url}/bsContent.aspx?v=t')
+            soup = BeautifulSoup(resp.text, 'html.parser')
 
-            # 寫檔案
-            fileContent = resp.text.replace('�W', '')
-            Utils.WriteFile(f'{path}\{todayStr}\{stockId}.csv', fileContent)
+            #交易日期
+            receive_date = soup.select_one('#receive_date').text.replace('/', '').strip()
+
+            #成交筆數
+            trade_rec = soup.select_one('#trade_rec').text.strip()
+
+            #成交金額
+            trade_amt = soup.select_one('#trade_amt').text.strip()
             
-        return True
-def GetVolumeIndicator(stockId):
+            print('receive_date:' + receive_date + ', trade_rec:' + trade_rec + ', trade_amt:' + trade_amt)
+
+            #重組table(取出class有column_value_price_2, column_value_price_3)
+            trs = soup.find_all("tr", {"class": ["column_value_price_2", "column_value_price_3"]})
+            #print(str(trs))
+
+            soup = BeautifulSoup(f'<table>{str(trs)}</table', 'html.parser')
+            data = soup.select_one('table')
+            df = pd.read_html(data.prettify())[0]
+            df.columns=['序號', '券商', '價格', '買進股數', '賣出股數']
+            df.dropna()
+            df['買進股數'] = df['買進股數'].astype(int)
+            df['賣出股數'] = df['賣出股數'].astype(int)
+            print(df)
+             # 寫檔案
+            df.to_csv(f'{path}\{receive_date}\{stockId}.csv',encoding='utf_8_sig')
+            return { 
+                'success' : True,
+                'receive_date': receive_date,
+                'trade_rec': trade_rec,
+                'trade_amt': trade_amt
+            }
+            
+def GetVolumeIndicator(result, stockId):
+    '''
     #print(f'{path}\{stockId}.csv')
     # 讀取檔案, 根據,, 切割字串
-    lines = [line.strip().split(",,") for line in open(f'{path}\{todayStr}\{stockId}.csv', 'r')]
+    lines = [line.strip().split(',,') for line in open(f'{path}\{receive_date}\{stockId}.csv', 'r')]
     # flat list in list 
     data = reduce(operator.concat, lines)[7:]
     #print(data)
@@ -99,18 +139,20 @@ def GetVolumeIndicator(stockId):
     df = pd.DataFrame(data, columns=['序號', '券商', '價格', '買進股數', '賣出股數']).dropna()
     df['買進股數'] = df['買進股數'].astype(int)
     df['賣出股數'] = df['賣出股數'].astype(int)
-    df.to_csv(f'{path}\{todayStr}\{stockId}_籌碼資料.csv',encoding='utf_8_sig')
+    df.to_csv(f'{path}\{receive_date}\{stockId}_籌碼資料.csv',encoding='utf_8_sig')
 
     # 刪除檔案
     # 重新命名整理後的檔案
     try:
-        os.remove(f'{path}\{todayStr}\{stockId}.csv')
-        os.rename(f'{path}\{todayStr}\{stockId}_籌碼資料.csv', f'{path}\{todayStr}\{stockId}.csv')
+        os.remove(f'{path}\{receive_date}\{stockId}.csv')
+        os.rename(f'{path}\{receive_date}\{stockId}_籌碼資料.csv', f'{path}\{receive_date}\{stockId}.csv')
     except OSError as e:
         print(e)
     #print(df.sort_values('賣出股數', ascending=False).head(15))
     #print(df)
-    
+    '''
+    df = pd.read_csv(f'{path}\{result["receive_date"]}\{stockId}.csv')
+    print('receive_date:' + result["receive_date"])
     # TOP 1 買超 = 買最多股票的券商 買多少
     top1Buy = df['買進股數'].max()
     # TOP 1 賣超 = 賣最多股票的券商 賣多少
@@ -144,10 +186,11 @@ def GetVolume(stockId):
     error_count = 0
     max_error_count = 10 #最多10次
     while error_count < max_error_count:
-        success = DownloadVolume(stockId)
+        result = DownloadVolume(stockId)
+        print(result)
         try:
-            if success:
-                return GetVolumeIndicator(stockId)
+            if result['success']:
+                return GetVolumeIndicator(result, stockId)
             else:
                 time.sleep(random.randint(1, 5))
                 error_count = error_count + 1
@@ -156,7 +199,8 @@ def GetVolume(stockId):
         except Exception as e:
             print(str(e))
 
-
+'''
 #df = GetVolumeIndicator('8112')
 df = GetVolume('1604')
 print(df)
+'''

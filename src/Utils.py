@@ -24,7 +24,7 @@ def WriteFile(filePath, content):
             if exc.errno != errno.EEXIST:
                 raise
 
-    with open(filePath, 'w') as file:
+    with open(filePath, 'w', encoding='utf-8-sig') as file:
         file.write(content)
 
 def GetYearBetween(startDateStr, endDate=datetime.today()):

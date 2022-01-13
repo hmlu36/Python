@@ -106,3 +106,6 @@ https://smlpoints.com/notes-python3-install-portable-version.html
 
 # 投本比、外本比
 https://nico-invest.com/2019/03/19/chip/
+
+# 籌碼大戶 - 含金量分析表
+https://www.cmoney.tw/app/ItemContent.aspx?id=1689&
