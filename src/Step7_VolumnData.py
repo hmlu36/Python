@@ -11,6 +11,7 @@ from datetime import date
 import random
 from functools import reduce
 import operator
+import os
 
 # 參考 
 # https://gist.github.com/CMingTseng/79447ccb2bb41e4bd8ec36d020fccab9
@@ -83,13 +84,13 @@ def DownloadVolume(stockId):
 
             # 寫檔案
             fileContent = resp.text.replace('�W', '')
-            Utils.WriteFile(f'{path}\{stockId}.csv', fileContent)
+            Utils.WriteFile(f'{path}\{todayStr}\{stockId}.csv', fileContent)
             
         return True
 def GetVolumeIndicator(stockId):
     #print(f'{path}\{stockId}.csv')
     # 讀取檔案, 根據,, 切割字串
-    lines = [line.strip().split(",,") for line in open(f'{path}\{stockId}.csv', 'r')]
+    lines = [line.strip().split(",,") for line in open(f'{path}\{todayStr}\{stockId}.csv', 'r')]
     # flat list in list 
     data = reduce(operator.concat, lines)[7:]
     #print(data)
@@ -98,7 +99,15 @@ def GetVolumeIndicator(stockId):
     df = pd.DataFrame(data, columns=['序號', '券商', '價格', '買進股數', '賣出股數']).dropna()
     df['買進股數'] = df['買進股數'].astype(int)
     df['賣出股數'] = df['賣出股數'].astype(int)
-    df.to_csv(f'{path}\{stockId}_籌碼資料_{todayStr}.csv',encoding='utf_8_sig')
+    df.to_csv(f'{path}\{todayStr}\{stockId}_籌碼資料.csv',encoding='utf_8_sig')
+
+    # 刪除檔案
+    # 重新命名整理後的檔案
+    try:
+        os.remove(f'{path}\{todayStr}\{stockId}.csv')
+        os.rename(f'{path}\{todayStr}\{stockId}_籌碼資料.csv', f'{path}\{todayStr}\{stockId}.csv')
+    except OSError as e:
+        print(e)
     #print(df.sort_values('賣出股數', ascending=False).head(15))
     #print(df)
     
@@ -147,8 +156,7 @@ def GetVolume(stockId):
         except Exception as e:
             print(str(e))
 
-'''
+
 #df = GetVolumeIndicator('8112')
 df = GetVolume('1604')
 print(df)
-'''
