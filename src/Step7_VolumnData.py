@@ -180,8 +180,12 @@ def GetVolumeIndicator(result, stockId):
     totalVolume = df['買進股數'].sum()
     # 籌碼集中度(%) = 籌碼集中 ÷ 總成交量
     volumeFloatRate = round(volumeFloat / totalVolume * 100, 2)
+    prefixIcon = ''
     if volumeFloatRate > 20:
-        volumeFloatRate = '🏆' + str(volumeFloatRate)
+        prefixIcon = '🏆'
+    elif volumeFloatRate < -10:
+        prefixIcon = '⚠️' 
+    volumeFloatRate = prefixIcon + str(volumeFloatRate)
     print('totalVolume:' + str(totalVolume) + ', volumeFloat:' + str(volumeFloat) + ', volumeFloatRate:' + str(volumeFloatRate))
 
     return pd.DataFrame([[overBuy, volumeFloatRate]], columns=['超額買超', '籌碼集中度'])
@@ -203,8 +207,6 @@ def GetVolume(stockId):
         except Exception as e:
             print(str(e))
 
-'''
 #df = GetVolumeIndicator('8112')
-df = GetVolume('1231')
+df = GetVolume('2609')
 print(df)
-'''
