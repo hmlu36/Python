@@ -12,6 +12,7 @@ import random
 from functools import reduce
 import operator
 import os
+import errno
 
 # 參考 
 # https://gist.github.com/CMingTseng/79447ccb2bb41e4bd8ec36d020fccab9
@@ -116,10 +117,18 @@ def DownloadVolume(stockId):
             df.dropna(subset=['券商'],inplace=True) # 移除空白列
             df['買進股數'] = df['買進股數'].astype(int)
             df['賣出股數'] = df['賣出股數'].astype(int)
-            print(df)
+            #print(df)
             
-             # 寫檔案
-            df.to_csv(f'{path}\{receive_date}\{stockId}.csv',encoding='utf_8_sig') 
+            # 寫檔案
+            filePath = f'{path}\{receive_date}\{stockId}.csv'
+            # 建立資料夾, 如果資料夾不存在時 
+            if not os.path.exists(os.path.dirname(filePath)):
+                try:
+                    os.makedirs(os.path.dirname(filePath))
+                except OSError as exc: # Guard against race condition
+                    if exc.errno != errno.EEXIST:
+                        raise
+            df.to_csv(filePath,encoding='utf_8_sig') 
             
             return { 
                 'success' : True,
