@@ -78,12 +78,12 @@ def DownloadVolume(stockId):
 
         if errorMessage: 
             print('錯誤訊息: ' + errorMessage)
-            return False
+            return { 'success' : False }
         else :
             nodes = soup.select('#HyperLink_DownloadCSV')
             if len(nodes) == 0:
                 print('任務失敗，沒有下載連結')
-                return False
+                return { 'success' : False }
             
             # 下載分點進出 CSV
             resp = session.get(f'{base_url}/bsContent.aspx')
