@@ -13,8 +13,9 @@ from Step3_K_ChartFlow import GetPE
 from Step4_K_Chart import GetTransaction
 import Step5_ShareholderDistribution as shareholderDistribution
 from Step6_StockDividendPolicy import GetDividend
-from Step7_VolumnData import GetVolume
+from Step7_VolumeData import GetVolume
 import Step8_DirectorSharehold as directorSharehold
+import Step9_DailyTopVolume as dailyTopVolume
 import csv
 import Utils
 
@@ -85,37 +86,39 @@ def GetChampionStock(op):
             stockInfo_df.reset_index(drop=True, inplace=True)
             print(stockInfo_df)
             
-            Sleep()
-            finDetail_df = GetFinDetail(stockId)
-            print(finDetail_df)
+            
+            if not stockInfo_df.empty:
+                Sleep()
+                finDetail_df = GetFinDetail(stockId)
+                print(finDetail_df)
 
-            PE_df = GetPE(stockId)
-            print(PE_df)
+                PE_df = GetPE(stockId)
+                print(PE_df)
 
-            Sleep()
-            transaction_df = GetTransaction(stockId)
-            print(transaction_df)
-            
-            volume_df = GetVolume(stockId)
-            print(volume_df)
-            
-            Sleep()
-            dividend_df = GetDividend(stockId)
-            print(dividend_df)
-            
-            Sleep()
-            distribution_df = shareholderDistribution.GetDistribution(stockId)
-            print(distribution_df)
-            
-            # 合併所有欄位成一列
-            temp_df = pd.concat([stockInfo_df, transaction_df, volume_df, PE_df, distribution_df, finDetail_df, dividend_df], axis=1)
-            print(temp_df)
+                Sleep()
+                transaction_df = GetTransaction(stockId)
+                print(transaction_df)
+                
+                volume_df = GetVolume(stockId)
+                print(volume_df)
+                
+                Sleep()
+                dividend_df = GetDividend(stockId)
+                print(dividend_df)
+                
+                Sleep()
+                distribution_df = shareholderDistribution.GetDistribution(stockId)
+                print(distribution_df)
+                
+                # 合併所有欄位成一列
+                temp_df = pd.concat([stockInfo_df, transaction_df, volume_df, PE_df, distribution_df, finDetail_df, dividend_df], axis=1)
+                print(temp_df)
 
-            #將列合併入dataframe
-            #sum_df = pd.concat([sum_df, temp_df], axis=0)
-            
-            # 每列寫入csv檔, 不含表頭
-            temp_df.to_csv(f'{Utils.GetRootPath()}\Data\Temp\彙整清單.csv', mode='a', header=False, encoding='utf_8_sig')
+                #將列合併入dataframe
+                #sum_df = pd.concat([sum_df, temp_df], axis=0)
+                
+                # 每列寫入csv檔, 不含表頭
+                temp_df.to_csv(f'{Utils.GetRootPath()}\Data\Temp\彙整清單.csv', mode='a', header=False, encoding='utf_8_sig')
         
         # 寫入csv檔
         #sum_df.to_csv('彙整清單.csv', encoding='utf_8_sig')
@@ -131,19 +134,20 @@ def GetChampionStock(op):
             stockInfo_df.reset_index(drop=True, inplace=True)
             print(stockInfo_df)
             
-            Sleep()
-            transaction_df = GetTransaction(stockId)
-            print(transaction_df)
-            
-            volume_df = GetVolume(stockId)
-            print(volume_df)
+            if not stockInfo_df.empty:
+                Sleep()
+                transaction_df = GetTransaction(stockId)
+                print(transaction_df)
+                
+                volume_df = GetVolume(stockId)
+                print(volume_df)
 
-            temp_df = pd.concat([stockInfo_df, transaction_df, volume_df], axis=1)
-            print(temp_df)
-            
-            temp_df.to_csv(f'{Utils.GetRootPath()}\Data\Daily\籌碼面資料.csv', mode='a', header=False, encoding='utf_8_sig')
-            # 合併所有欄位成一列
-            #sum_df = pd.concat([sum_df, temp_df], axis=0)
+                temp_df = pd.concat([stockInfo_df, transaction_df, volume_df], axis=1)
+                print(temp_df)
+                
+                temp_df.to_csv(f'{Utils.GetRootPath()}\Data\Daily\籌碼面資料.csv', mode='a', header=False, encoding='utf_8_sig')
+                # 合併所有欄位成一列
+                #sum_df = pd.concat([sum_df, temp_df], axis=0)
 
         #將列合併入dataframe
         #sum_df.to_csv('籌碼面資料.csv',encoding='utf_8_sig')
@@ -170,6 +174,27 @@ def GetChampionStock(op):
     
     if op == 5:
         directorSharehold.WriteData()
+
+        
+    if op == 7:
+        basicStockInfo_df = GetBasicStockInfo()
+        topVolumeStocks = dailyTopVolume.GetTopVolume()[:100]
+
+        for stockId in topVolumeStocks:
+            print(stockId)
+ 
+            stockInfo_df = basicStockInfo_df[basicStockInfo_df['證券代號'] == stockId]
+            stockInfo_df.reset_index(drop=True, inplace=True)
+            print(stockInfo_df)
+            
+            if not stockInfo_df.empty:
+                volume_df = GetVolume(stockId)
+                print(volume_df)
+
+                temp_df = pd.concat([stockInfo_df, volume_df], axis=1)
+                print(temp_df)
+                
+                temp_df.to_csv(f'{Utils.GetRootPath()}\Data\Daily\異常籌碼資料.csv', mode='a', header=False, encoding='utf_8_sig')
           
 # 0 產生過濾清單(本益比、殖利率、淨值比、收盤價、全體董監持股、股東分布人數)
 # 1 產生過濾清單(同0含本益比)
@@ -178,4 +203,5 @@ def GetChampionStock(op):
 # 4 週排程 - 大戶、本益比
 # 5 月排程 - 董監比例
 # 6 季排程 - 財務資料
-GetChampionStock(4)
+# 7 日排程 - 異常買入
+GetChampionStock(7)

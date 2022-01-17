@@ -71,7 +71,7 @@ def DownloadVolume(stockId):
         resp = session.post(f'{base_url}/bsMenu.aspx', data=params, headers=headers)
         if resp.status_code != 200:
             print('任務失敗: %d' % resp.status_code)
-            return False
+            return { 'success' : False }
             
         soup = BeautifulSoup(resp.text, 'lxml')
         errorMessage = soup.select('#Label_ErrorMsg')[0].get_text()
@@ -163,16 +163,26 @@ def GetVolumeIndicator(result, stockId):
     #print(df)
     '''
     df = pd.read_csv(f'{path}\{result["receive_date"]}\{stockId}.csv')
-    print('receive_date:' + result["receive_date"])
+    
     # TOP 1 買超 = 買最多股票的券商 買多少
     top1Buy = df['買進股數'].max()
-    
+
     # TOP 1 賣超 = 賣最多股票的券商 賣多少
     top1Sell = df['賣出股數'].max()
     # 超額買超 = TOP 1 買超 / TOP 1 賣超
     overBuy = round(top1Buy / top1Sell, 2)
+
+    # 重押比例 > 30%
+    top1BuyPercent = (top1Buy / 1000) / float(result['trade_rec'].replace(',', ''))
+    print("top1BuyPercent:" + str(top1BuyPercent))
+    allInSecurities = ''
+    if (top1BuyPercent) > 0.3:
+        mainSecurities = df[df['買進股數'] == df['買進股數'].max()]['券商'].values[0]
+        print('主要券商:' + mainSecurities)
+        allInSecurities = mainSecurities + ' (' + str(round(top1BuyPercent * 100, 3)) + '%) ' 
                 
-    if overBuy > 2.0:
+    # 買超張數 > 500, 買超異常4倍                
+    if overBuy > 4.0 and (top1Buy / 1000 > 500):
         overBuy = '🏆' + str(overBuy)
         
     print('top1Buy:' + str(top1Buy) + ', top1Sell:' + str(top1Sell) + ', overBuy:' + str(overBuy));
@@ -190,6 +200,8 @@ def GetVolumeIndicator(result, stockId):
     # 籌碼集中度(%) = 籌碼集中 ÷ 總成交量
     volumeFloatRate = round(volumeFloat / totalVolume * 100, 2)
     prefixIcon = ''
+
+    # 籌碼集中度 > 20%
     if volumeFloatRate > 20:
         prefixIcon = '🏆'
     elif volumeFloatRate < -10:
@@ -197,15 +209,14 @@ def GetVolumeIndicator(result, stockId):
     volumeFloatRate = prefixIcon + str(volumeFloatRate)
     print('totalVolume:' + str(totalVolume) + ', volumeFloat:' + str(volumeFloat) + ', volumeFloatRate:' + str(volumeFloatRate))
 
-    return pd.DataFrame([[overBuy, volumeFloatRate]], columns=['超額買超', '籌碼集中度'])
+    return pd.DataFrame([[overBuy, allInSecurities, volumeFloatRate]], columns=['超額買超', '重押券商', '籌碼集中度'])
 
 def GetVolume(stockId):
     error_count = 0
     max_error_count = 10 #最多10次
     while error_count < max_error_count:
-        result = DownloadVolume(stockId)
-        print(result)
         try:
+            result = DownloadVolume(stockId)
             if result['success']:
                 return GetVolumeIndicator(result, stockId)
             else:
@@ -218,6 +229,6 @@ def GetVolume(stockId):
 
 '''
 #df = GetVolumeIndicator('8112')
-df = GetVolume('2609')
+df = GetVolume('1316')
 print(df)
 '''

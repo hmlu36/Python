@@ -6,6 +6,4 @@ urllib3
 
 opencv-python
 pytesseract
-tesseract
-tesseract-ocr
-IPython
+pyinstaller
