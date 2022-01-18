@@ -184,6 +184,8 @@ def GetVolumeIndicator(result, stockId):
     # 買超張數 > 500, 買超異常4倍                
     if overBuy > 4.0 and (top1Buy / 1000 > 500):
         overBuy = '🏆' + str(overBuy)
+    elif overBuy < 0.25 and (top1Sell / 1000 > 500):
+        overBuy = '⚠️' + str(overBuy)
         
     print('top1Buy:' + str(top1Buy) + ', top1Sell:' + str(top1Sell) + ', overBuy:' + str(overBuy));
     

@@ -1,34 +1,39 @@
-#!/usr/bin/env python3
-# coding=UTF-8
-import math
 import requests
-from bs4 import BeautifulSoup
 import pandas as pd
+import numpy as np
+#https://www.finlab.tw/python-%E8%B2%A1%E5%A0%B1%E7%88%AC%E8%9F%B2-1-%E7%B6%9C%E5%90%88%E6%90%8D%E7%9B%8A%E8%A1%A8/
 
-# 下載網頁內容
-header = {'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36'}
+def financial_statement(year, season, type='綜合損益彙總表'):
 
-VAL_S = 8        #股本範圍起
-VAL_E = 15        #股本範圍迄
+    if year >= 1000:
+        year -= 1911
 
-url = 'https://goodinfo.tw/StockInfo/StockList.asp?MARKET_CAT=%E8%87%AA%E8%A8%82%E7%AF%A9%E9%81%B8&INDUSTRY_CAT=%E6%88%91%E7%9A%84%E6%A2%9D%E4%BB%B6&FILTER_ITEM0=K%E5%80%BC+%28%E6%9C%88%29&FILTER_VAL_S0=0&FILTER_VAL_E0=20&FILTER_ITEM1=D%E5%80%BC+%28%E6%9C%88%29&FILTER_VAL_S1=0&FILTER_VAL_E1=20&FILTER_ITEM2=%E9%80%A3%E7%BA%8C%E9%85%8D%E7%99%BC%E7%8F%BE%E9%87%91%E8%82%A1%E5%88%A9%E6%AC%A1%E6%95%B8&FILTER_VAL_S2=5&FILTER_VAL_E2=20&FILTER_ITEM3=%E7%B4%AF%E5%AD%A3%E2%80%93EPS%28%E5%85%83%29&FILTER_VAL_S3=1&FILTER_VAL_E3=5&FILTER_ITEM4=---%E8%AB%8B%E9%81%B8%E6%93%87%E9%81%8E%E6%BF%BE%E6%A2%9D%E4%BB%B6---&FILTER_VAL_S4=&FILTER_VAL_E4=&FILTER_ITEM5=---%E8%AB%8B%E9%81%B8%E6%93%87%E9%81%8E%E6%BF%BE%E6%A2%9D%E4%BB%B6---&FILTER_VAL_S5=&FILTER_VAL_E5=&FILTER_ITEM6=---%E8%AB%8B%E9%81%B8%E6%93%87%E9%81%8E%E6%BF%BE%E6%A2%9D%E4%BB%B6---&FILTER_VAL_S6=&FILTER_VAL_E6=&FILTER_ITEM7=---%E8%AB%8B%E9%81%B8%E6%93%87%E9%81%8E%E6%BF%BE%E6%A2%9D%E4%BB%B6---&FILTER_VAL_S7=&FILTER_VAL_E7=&FILTER_ITEM8=---%E8%AB%8B%E9%81%B8%E6%93%87%E9%81%8E%E6%BF%BE%E6%A2%9D%E4%BB%B6---&FILTER_VAL_S8=&FILTER_VAL_E8=&FILTER_RULE0=---%E8%AB%8B%E6%8C%87%E5%AE%9A%E9%81%B8%E8%82%A1%E6%A2%9D%E4%BB%B6---&FILTER_RULE1=---%E8%AB%8B%E6%8C%87%E5%AE%9A%E9%81%B8%E8%82%A1%E6%A2%9D%E4%BB%B6---&FILTER_RULE2=---%E8%AB%8B%E6%8C%87%E5%AE%9A%E9%81%B8%E8%82%A1%E6%A2%9D%E4%BB%B6---&FILTER_RULE3=---%E8%AB%8B%E6%8C%87%E5%AE%9A%E9%81%B8%E8%82%A1%E6%A2%9D%E4%BB%B6---&FILTER_RULE4=---%E8%AB%8B%E6%8C%87%E5%AE%9A%E9%81%B8%E8%82%A1%E6%A2%9D%E4%BB%B6---&FILTER_RULE5=---%E8%AB%8B%E6%8C%87%E5%AE%9A%E9%81%B8%E8%82%A1%E6%A2%9D%E4%BB%B6---&FILTER_RANK0=---%E8%AB%8B%E6%8C%87%E5%AE%9A%E6%8E%92%E5%90%8D%E6%A2%9D%E4%BB%B6---&FILTER_RANK1=---%E8%AB%8B%E6%8C%87%E5%AE%9A%E6%8E%92%E5%90%8D%E6%A2%9D%E4%BB%B6---&FILTER_RANK2=---%E8%AB%8B%E6%8C%87%E5%AE%9A%E6%8E%92%E5%90%8D%E6%A2%9D%E4%BB%B6---&FILTER_SHEET=%E5%B9%B4%E7%8D%B2%E5%88%A9%E8%83%BD%E5%8A%9B&FILTER_SHEET2=%E7%8D%B2%E5%88%A9%E8%83%BD%E5%8A%9B&FILTER_MARKET=%E4%B8%8A%E5%B8%82%2F%E4%B8%8A%E6%AB%83&FILTER_QUERY=%E6%9F%A5++%E8%A9%A2'
-print(url)
+    if type == '綜合損益彙總表':
+        url = 'https://mops.twse.com.tw/mops/web/ajax_t163sb04'
+    elif type == '資產負債彙總表':
+        url = 'https://mops.twse.com.tw/mops/web/ajax_t163sb05'
+    elif type == '營益分析彙總表':
+        url = 'https://mops.twse.com.tw/mops/web/ajax_t163sb06'
+    else:
+        print('type does not match')
 
-rt = requests.get(url , headers = header)
+    r = requests.post(url, {
+        'encodeURIComponent':1,
+        'step':1,
+        'firstin':1,
+        'off':1,
+        'TYPEK':'sii',
+        'year':str(year),
+        'season':str(season),
+    })
 
-# 確認是否下載成功
-# 以 BeautifulSoup 解析 HTML 程式碼
-    rt.encoding = 'utf-8'
-    soup = BeautifulSoup(rt.text, 'html.parser')
-    df = pd.read_html(str(soup))
+    r.encoding = 'utf8'
+    dfs = pd.read_html(r.text, header=None)
 
-    df = df[17] # Jupyter 測試出來是第17是我們要的 table 
-    df = df[1:] # 只要一列之後
-    df = df[df['代號'].apply(lambda x: str(x).isdigit())] # 刪除非數字的列
-    df = df.reset_index(col_level=1, drop=True) # 因為 drop 後需 index 重新reset 
+    return pd.concat(dfs[1:], axis=0, sort=False)\
+             .set_index(['公司代號'])\
+             .apply(lambda s: pd.to_numeric(s, errors='ceorce'))
 
-    df['成交'] = df['成交'].astype('float') # 把 str 轉成 float 型態才能sort
-    df = df.sort_values(by='成交', ascending=1)
-    df = df.reset_index(col_level=1, drop=True) # 因為 sort 後需 index 重新reset 
-    df.to_html('goodinfo.html')
-    print(df)
+
+df = financial_statement(109, 3)
+print(df)

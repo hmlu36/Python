@@ -113,3 +113,7 @@ https://www.cmoney.tw/app/ItemContent.aspx?id=1689&
 https://goodinfo.tw/tw/StockList.asp?SEARCH_WORD=&MARKET_CAT=熱門排行&INDUSTRY_CAT=成交張數 (高→低)@@成交張數@@由高→低&STOCK_CODE=&RANK=99999&STEP=DATA&SHEET=法人買賣_三大
 
 https://goodinfo.tw/tw/StockList.asp?SEARCH_WORD=&MARKET_CAT=熱門排行&INDUSTRY_CAT=成交張數 (高→低)@@成交張數@@由高→低&STOCK_CODE=&RANK=99999&STEP=DATA&SHEET=資券增減統計_券資比
+
+
+# 量化投資與機器學習研究
+https://ithelp.ithome.com.tw/users/20103419/ironman/1647
