@@ -216,6 +216,6 @@ def GetVolume(stockId):
 
 '''
 #df = GetVolumeIndicator('8112')
-df = GetVolume('2488')
+df = GetVolume('1604')
 print(df)
 '''
