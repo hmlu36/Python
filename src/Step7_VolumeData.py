@@ -150,6 +150,9 @@ def GetVolumeIndicator(result, stockId):
     top1Sell = df['賣出股數'].max()
     # 超額買超 = TOP 1 買超 / TOP 1 賣超
     overBuy = round(top1Buy / top1Sell, 2)
+    
+    # 總成交量
+    totalVolume = df['買進股數'].sum() / 1000
 
     # 重押比例 > 30%
     top1BuyPercent = (top1Buy / 1000) / float(result['trade_rec'].replace(',', ''))
@@ -160,34 +163,34 @@ def GetVolumeIndicator(result, stockId):
         print('主要券商:' + mainSecurities)
         allInSecurities = mainSecurities + ' (' + str(round(top1BuyPercent * 100, 3)) + '%) ' 
                 
-    # 買超張數 > 500, 買超異常4倍                
-    if overBuy > 4.0 and (top1Buy / 1000 > 500):
-        overBuy = '🏆' + str(overBuy)
-    elif overBuy < 0.25 and (top1Sell / 1000 > 500):
-        overBuy = '⚠️' + str(overBuy)
+    # 買超張數 > 500, 買超異常4倍  
+    if totalVolume > 500:              
+        if overBuy > 4.0 and (top1Buy / 1000 > 500):
+            overBuy = '🏆' + str(overBuy)
+        elif overBuy < 0.25 and (top1Sell / 1000 > 500):
+            overBuy = '⚠️' + str(overBuy)
         
     print('top1Buy:' + str(top1Buy) + ', top1Sell:' + str(top1Sell) + ', overBuy:' + str(overBuy));
     
     # 買方的前 15 名買超量 
-    top15Buy = df.sort_values('買進股數', ascending=False).head(15)['買進股數'].sum()
+    top15Buy = df.sort_values('買進股數', ascending=False).head(15)['買進股數'].sum() / 1000
     # 賣方的前 15 名賣超量
-    top15Sell = df.sort_values('賣出股數', ascending=False).head(15)['賣出股數'].sum()
+    top15Sell = df.sort_values('賣出股數', ascending=False).head(15)['賣出股數'].sum() / 1000
     # 前15名買賣超量 = 買方的前 15 名買超量 - 賣方的前 15 名賣超量
     top15Volume = top15Buy - top15Sell
     #print('top15Buy:' + str(top15Buy) + ', top15Sell:' + str(top15Sell) + ', volumeFloat:' + str(volumeFloat))
     
-    # 總成交量
-    totalVolume = df['買進股數'].sum()
 
     # 前15名買賣超量集中度(%) = 前15名買賣超量 ÷ 總成交量
     top15VolumeRate = round(top15Volume / totalVolume * 100, 2)
     prefixIcon = ''
 
     # 前15卷商籌碼集中度 > 20%
-    if top15VolumeRate > 20:
-        prefixIcon = '🏆'
-    elif top15VolumeRate < -10:
-        prefixIcon = '⚠️' 
+    if totalVolume > 500:
+        if top15VolumeRate > 20:
+            prefixIcon = '🏆'
+        elif top15VolumeRate < -10:
+            prefixIcon = '⚠️' 
     top15VolumeRate = prefixIcon + str(top15VolumeRate)
     print('totalVolume:' + str(totalVolume) + ', top15Volume:' + str(top15Volume) + ', top15VolumeRate:' + str(top15VolumeRate))
 
@@ -216,6 +219,6 @@ def GetVolume(stockId):
 
 '''
 #df = GetVolumeIndicator('8112')
-df = GetVolume('8150')
+df = GetVolume('1525')
 print(df)
 '''
