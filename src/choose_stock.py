@@ -1,6 +1,7 @@
 
 import pandas as pd
 import time
+from datetime import date
 from io import StringIO
 from decimal import Decimal
 import random
@@ -194,7 +195,7 @@ def GetChampionStock(op):
                 temp_df = pd.concat([stockInfo_df, volume_df], axis=1)
                 print(temp_df)
                 
-                temp_df.to_csv(f'{Utils.GetRootPath()}\Data\Daily\異常籌碼資料.csv', mode='a', header=False, encoding='utf_8_sig')
+                temp_df.to_csv(f'{Utils.GetRootPath()}\Data\Daily\異常籌碼資料_{date.today().strftime("%Y%m%d")}.csv', mode='a', header=False, encoding='utf_8_sig')
           
 # 0 產生過濾清單(本益比、殖利率、淨值比、收盤價、全體董監持股、股東分布人數)
 # 1 產生過濾清單(同0含本益比)
@@ -204,4 +205,4 @@ def GetChampionStock(op):
 # 5 月排程 - 董監比例
 # 6 季排程 - 財務資料
 # 7 日排程 - 異常買入
-GetChampionStock(3)
+GetChampionStock(7)
