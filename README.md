@@ -117,3 +117,13 @@ https://goodinfo.tw/tw/StockList.asp?SEARCH_WORD=&MARKET_CAT=熱門排行&INDUST
 
 # 量化投資與機器學習研究
 https://ithelp.ithome.com.tw/users/20103419/ironman/1647
+
+# KD指標
+KD指標是運用RSV (Raw Stochastic Value) 的加權移動平均來計算的，RSV的中文叫「未成熟隨機值」，RSV數據的意思是目前股價與過去n天相比屬於強勢或弱勢，是指今日收盤價與近n天的最高價接近的程度。
+
+RSV>=100表示今日價格大於等於近n天的最高價。
+
+RSV<100表示今日價格小於近n天的最高價。
+
+RSV公式= (今日收盤價 – 最近N天最低價) ÷ (最近N天最高價 – 最近N天最低價) × 100
+https://www.oanda.com/bvi-ft/lab-education/technical_analysis/use_kd/

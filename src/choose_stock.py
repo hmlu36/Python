@@ -41,7 +41,7 @@ import Utils
 '''
 
 stocks = [
-        '1229','1231','1409','1304','1305','1308','1313','1474','1515','1604', '1776',
+        '1229','1231','1409','1304','1305','1308','1313','1474','1515','1604',
         '2020','2069','2324','2347',
         '2352','2385','2387','2417','2458','2467', '2488',
         '2520','2546','2881','3005','3028','3033','3044','3048',
@@ -171,7 +171,7 @@ def GetChampionStock(op):
             temp_df = pd.concat([PE_df, distribution_df], axis=1)
             print(temp_df)
 
-            temp_df.to_csv(f'{Utils.GetRootPath()}\Data\\Weekly\股東分布_本益比.csv', mode='a', header=False, encoding='utf_8_sig')
+            temp_df.to_csv(f'{Utils.GetRootPath()}\Data\\Weekly\股東分布_本益比_{date.today().strftime("%Y%m%d")}.csv', mode='a', header=False, encoding='utf_8_sig')
     
     if op == 5:
         directorSharehold.WriteData()
@@ -205,4 +205,4 @@ def GetChampionStock(op):
 # 5 月排程 - 董監比例
 # 6 季排程 - 財務資料
 # 7 日排程 - 異常買入
-GetChampionStock(3)
+GetChampionStock(4)
