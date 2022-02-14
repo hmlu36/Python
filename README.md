@@ -127,3 +127,13 @@ RSV<100表示今日價格小於近n天的最高價。
 
 RSV公式= (今日收盤價 – 最近N天最低價) ÷ (最近N天最高價 – 最近N天最低價) × 100
 https://www.oanda.com/bvi-ft/lab-education/technical_analysis/use_kd/
+
+
+#如何查詢金融股的資本適足率、逾放比率與呆帳覆蓋率
+https://stocksardine.com/%EF%BC%88%E6%95%99%E5%AD%B8-%E5%A6%82%E4%BD%95%E6%9F%A5%E8%A9%A2%E9%87%91%E8%9E%8D%E8%82%A1%E7%9A%84%E8%B3%87%E6%9C%AC%E9%81%A9%E8%B6%B3%E7%8E%87%E3%80%81%E9%80%BE%E6%94%BE%E6%AF%94%E7%8E%87%E8%88%87/
+
+# 本國銀行之資本適足率
+https://stocksardine.com/%EF%BC%88%E6%95%99%E5%AD%B8-%E5%A6%82%E4%BD%95%E6%9F%A5%E8%A9%A2%E9%87%91%E8%9E%8D%E8%82%A1%E7%9A%84%E8%B3%87%E6%9C%AC%E9%81%A9%E8%B6%B3%E7%8E%87%E3%80%81%E9%80%BE%E6%94%BE%E6%AF%94%E7%8E%87%E8%88%87/
+
+# 本國銀行逾放等財務資料揭露
+https://www.banking.gov.tw/ch/home.jsp?id=591&parentpath=0,590&mcustomize=multimessage_view.jsp&dataserno=201202130001&dtable=Disclosure

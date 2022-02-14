@@ -8,6 +8,7 @@ from fake_useragent import UserAgent
 from urllib.parse import urlencode
 import os
 import errno
+import pathlib
 
 def GetRootPath():
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__))) 
@@ -75,3 +76,11 @@ def BeautifulSoup2DataFrame(rawData, css_selector):
     if len(dfs[1]) > 1:
         return dfs[1]
     return dfs
+
+def delete_folder(path) :
+    for sub in path.iterdir() :
+        if sub.is_dir() :
+            delete_folder(sub)
+        else :
+            sub.unlink()
+    path.rmdir() # if you just want to delete the dir content but not the dir itself, remove this line
