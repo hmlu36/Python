@@ -155,8 +155,8 @@ def GetVolumeIndicator(result, stockId):
     totalVolume = df['買進股數'].sum() / 1000
 
     # 重押比例 > 30%
-    top1BuyPercent = (top1Buy / 1000) / float(result['trade_rec'].replace(',', ''))
-    print("top1BuyPercent:" + str(top1BuyPercent))
+    top1BuyPercent = (top1Buy / 1000) / totalVolume
+
     allInSecurities = ''
     if (top1BuyPercent) > 0.3:
         mainSecurities = df[df['買進股數'] == df['買進股數'].max()]['券商'].values[0]
@@ -177,8 +177,8 @@ def GetVolumeIndicator(result, stockId):
     # 賣方的前 15 名賣超量
     top15Sell = df.sort_values('賣出股數', ascending=False).head(15)['賣出股數'].sum() / 1000
     # 前15名買賣超量 = 買方的前 15 名買超量 - 賣方的前 15 名賣超量
-    top15Volume = top15Buy - top15Sell
-    #print('top15Buy:' + str(top15Buy) + ', top15Sell:' + str(top15Sell) + ', volumeFloat:' + str(volumeFloat))
+    top15Volume = round(top15Buy - top15Sell, 3)
+    print('top15Buy:' + str(top15Buy) + ', top15Sell:' + str(top15Sell) + ', top15Volume:' + str(top15Volume))
     
 
     # 前15名買賣超量集中度(%) = 前15名買賣超量 ÷ 總成交量
@@ -198,8 +198,9 @@ def GetVolumeIndicator(result, stockId):
     # 買賣家數差 = 買進券商數 - 賣出券商數
     buySecuritiesCount = np.count_nonzero(df['買進股數'])
     sellSecuritiesCount = np.count_nonzero(df['賣出股數'])
+    buySecuritiesDiff = buySecuritiesCount - sellSecuritiesCount
     print('buySecuritiesCount:' + str(buySecuritiesCount) + ', sellSecuritiesCount:' + str(sellSecuritiesCount))
-    return pd.DataFrame([[overBuy, allInSecurities, top15VolumeRate]], columns=['超額買超', '重押券商', '前15卷商籌碼集中度'])
+    return pd.DataFrame([[overBuy, allInSecurities, top15VolumeRate, buySecuritiesDiff]], columns=['超額買超', '重押券商', '前15卷商籌碼集中度', '買賣家數差'])
 
 def GetVolume(stockId):
     error_count = 0
@@ -217,8 +218,7 @@ def GetVolume(stockId):
         except Exception as e:
             print(str(e))
 
-'''
+
 #df = GetVolumeIndicator('8112')
-df = GetVolume('1525')
+df = GetVolume('3257')
 print(df)
-'''
