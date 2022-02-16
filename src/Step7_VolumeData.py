@@ -218,7 +218,8 @@ def GetVolume(stockId):
         except Exception as e:
             print(str(e))
 
-
+'''
 #df = GetVolumeIndicator('8112')
 df = GetVolume('3257')
 print(df)
+'''

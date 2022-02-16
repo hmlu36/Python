@@ -1,13 +1,11 @@
 
 import pandas as pd
-import time
+from datetime import datetime, timedelta
 from datetime import date
 from io import StringIO
 from decimal import Decimal
 import random
-
 import sys
-
 from Step1_BasicStockInfo import GetBasicStockInfo
 from Step2_FinDetail import GetFinDetail
 from Step3_K_ChartFlow import GetPE
@@ -19,6 +17,7 @@ import Step8_DirectorSharehold as directorSharehold
 import Step9_DailyTopVolume as dailyTopVolume
 import csv
 import Utils
+import pathlib
 
 '''
 選股條件：
@@ -199,8 +198,12 @@ def GetChampionStock(op):
                 
                 temp_df.to_csv(f'{Utils.GetRootPath()}\Data\Daily\異常籌碼資料_{date.today().strftime("%Y%m%d")}.csv', mode='a', header=False, encoding='utf_8_sig')
           
-        # 刪除暫存檔案          
-        Utils.delete_folder(f'{Utils.GetRootPath()}\Data\Daily\Chip\{date.today().strftime("%Y%m%d")}')
+        # 刪除暫存檔案
+        try:
+            folderPath = pathlib.Path(f'{Utils.GetRootPath()}\Data\Daily\Chip\{(date.today() - timedelta(days=1)).strftime("%Y%m%d")}')
+            Utils.delete_folder(folderPath)
+        except Exception as ex:
+            print(ex)
 # 0 產生過濾清單(本益比、殖利率、淨值比、收盤價、全體董監持股、股東分布人數)
 # 1 產生過濾清單(同0含本益比)
 # 2 抓出股票明細資料

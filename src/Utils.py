@@ -8,7 +8,6 @@ from fake_useragent import UserAgent
 from urllib.parse import urlencode
 import os
 import errno
-import pathlib
 
 def GetRootPath():
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__))) 
