@@ -126,6 +126,8 @@ RSV>=100表示今日價格大於等於近n天的最高價。
 RSV<100表示今日價格小於近n天的最高價。
 
 RSV公式= (今日收盤價 – 最近N天最低價) ÷ (最近N天最高價 – 最近N天最低價) × 100
+今天K值= 昨天K值 × 2/3 +今天RSV × 1/3
+今天D值= 昨天D值 × 2/3 +今天K值 × 1/3
 https://www.oanda.com/bvi-ft/lab-education/technical_analysis/use_kd/
 
 
