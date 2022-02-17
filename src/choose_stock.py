@@ -204,6 +204,7 @@ def GetChampionStock(op):
             Utils.delete_folder(folderPath)
         except Exception as ex:
             print(ex)
+            
 # 0 產生過濾清單(本益比、殖利率、淨值比、收盤價、全體董監持股、股東分布人數)
 # 1 產生過濾清單(同0含本益比)
 # 2 抓出股票明細資料
