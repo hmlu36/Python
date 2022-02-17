@@ -158,11 +158,12 @@ def GetVolumeIndicator(result, stockId):
     top1BuyPercent = (top1Buy / 1000) / totalVolume
 
     allInSecurities = ''
-    if (top1BuyPercent) > 0.3:
-        mainSecurities = df[df['買進股數'] == df['買進股數'].max()]['券商'].values[0]
-        print('主要券商:' + mainSecurities)
-        allInSecurities = mainSecurities + ' (' + str(round(top1BuyPercent * 100, 3)) + '%) ' 
-                
+    if totalVolume > 100: #大於100張才計算
+        if (top1BuyPercent) > 0.3:
+            mainSecurities = df[df['買進股數'] == df['買進股數'].max()]['券商'].values[0]
+            print('主要券商:' + mainSecurities)
+            allInSecurities = mainSecurities + ' (' + str(round(top1BuyPercent * 100, 3)) + '%) ' 
+                    
     # 買超張數 > 500, 買超異常4倍  
     if totalVolume > 500:              
         if overBuy > 4.0 and (top1Buy / 1000 > 500):
