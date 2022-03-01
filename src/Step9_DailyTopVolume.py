@@ -23,10 +23,11 @@ def GetTopVolume():
 
     df.columns = df.columns.get_level_values(0)
     df = df.drop_duplicates(keep=False, inplace=False)
-    gain = pd.to_numeric(df['漲跌  價'], errors='coerce') > 0
+    #gain = pd.to_numeric(df['漲跌  價'], errors='coerce') > 0
     #market = df['市  場'] == '市'
     length = df['代號'].astype(str).map(len) == 4
-    df = df[gain & length]
+    #df = df[gain & length]
+    df = df[length]
     df.to_csv(f'{Utils.GetRootPath()}\Data\Daily\日成交張數創近期新高日數.csv', encoding='utf_8_sig')
     return df['代號'].values
     # 去除重複標頭
