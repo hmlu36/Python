@@ -81,7 +81,7 @@ def GetChampionStock(op):
         basicStockInfo_df = GetBasicStockInfo()
         #sum_df = pd.DataFrame()
 
-        for stockId in ['3231']:
+        for stockId in ['9930']:
             print(stockId)
             
             stockInfo_df = basicStockInfo_df[basicStockInfo_df['證券代號'] == stockId]
