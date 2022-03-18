@@ -21,8 +21,7 @@ import random
 def GetFinHeaders():
     return ['毛利率', '營業利益率', '股東權益報酬率  (年預估)', '稅前淨利率', '稅後淨利率', '總資產週轉率', '本業收益', '每股營業現金流量', '每股自由現金流量', '財報評分']
 
-
-def GetFinDetail(stockId):
+def GetFinData(stockId):
     url = f'https://goodinfo.tw/StockInfo/StockFinDetail.asp?RPT_CAT=XX_M_QUAR_ACC&STOCK_ID={stockId}'
     css_selector = '#txtFinBody'
     try:
@@ -31,7 +30,10 @@ def GetFinDetail(stockId):
         time.sleep(random.randint(20, 30))
         df = Utils.GetDataFrameByCssSelector(url, css_selector)
     #print(df)
+    return df
 
+def GetFinDetail(stockId):
+    df = GetFinData(stockId)
     dict = {}
 
     headers = GetFinHeaders()
@@ -55,6 +57,22 @@ def GetFinDetail(stockId):
     
     return df
 
+    
+'''
+盈餘再投資比率
+
+公式：
+當季長期投資和固定資產 - 4年前同期長期投資和固定資產 / 近16季稅後淨利總和
+
+盈餘再投資比率代表：
+企業近4年來在長期投資、固定資產的增加幅度，相對於近4年獲利總和大小。 
+由於長期投資、固定資產的投資金額龐大，如果企業自身獲利不足以支應， 
+則資金上將出現龐大缺口，財務壓力上升。 
+因此盈餘再投資比率過高，則代表企業的投資金額遠高於自身獲利能力，財務和周轉風險上升。 
+此比率為洪瑞泰在其著作"巴菲特選股魔法書"中所創，書中建議低於80%財務較為穩健；高於200%則企業財務風險過高，投資人應避開。
+'''
+def GetBonusReinvestmentRate(stockId):
+    df = GetFinData(stockId)
 '''
 # 測試
 data = GetFinDetail("8150")

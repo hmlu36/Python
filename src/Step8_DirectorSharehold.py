@@ -15,6 +15,7 @@ def WriteData():
         print(url)
 
         try:
+            time.sleep(random.randint(5, 10))
             df = Utils.GetDataFrameByCssSelector(url, cssSelector)
             print(df)
             sum_df = pd.concat([sum_df, df], axis=0)

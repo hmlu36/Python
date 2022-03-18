@@ -98,14 +98,11 @@ def GetDistribution(stockId):
         tb = soup.select('.mt')[1]
         all_data = []
         for tr in tb.select('tr'):
-            rdata = [td.text.replace("\u3000", "").replace(
-                ",", "").strip() for td in tr.select('td')]
+            rdata = [td.text.replace("\u3000", "").replace(",", "").strip() for td in tr.select('td')]
             all_data.append(rdata)
 
-        ls_head = ['SEQ', 'LV_DESC', 'NUM_OF_PEOPLE',
-                   'STOCK_SHARES', 'PER_CENT_RT']
-        df = pd.DataFrame(all_data[1:len(all_data)-1],
-                          columns=ls_head)  # 最後一筆合計資料不要
+        ls_head = ['SEQ', 'LV_DESC', 'NUM_OF_PEOPLE', 'STOCK_SHARES', 'PER_CENT_RT']
+        df = pd.DataFrame(all_data[1:len(all_data)-1], columns=ls_head)  # 最後一筆合計資料不要
         # df.to_csv('股東分布資料.csv',encoding='utf_8_sig')
         # df = pd.DataFrame(all_data[1:], columns=ls_head)	#最後一筆合計資料不要
         # print(df)

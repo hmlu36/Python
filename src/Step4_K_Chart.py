@@ -53,10 +53,12 @@ def GetTransaction(stockId):
             
             if header == '收盤':
                 data = [x.strip() for x in entry.split('/')]
+                prefixIcon = ''
                 if float(data[0]) > float(data[1]) and float(data[0]) > float(data[2]):
-                    entry = '👍' + entry
+                    prefixIcon = '👍' 
                 elif float(data[0]) < float(data[3]):
-                    entry = '👎' + entry
+                    prefixIcon = '👎'
+                entry = prefixIcon + entry
 
             # 成交量 > 5ma 3倍
             if header == '張數':

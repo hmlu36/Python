@@ -71,19 +71,19 @@ def DownloadVolume(stockId):
         resp = session.post(f'{base_url}/bsMenu.aspx', data=params, headers=headers)
         if resp.status_code != 200:
             print('任務失敗: %d' % resp.status_code)
-            return False
+            return { 'success' : False }
             
         soup = BeautifulSoup(resp.text, 'lxml')
         errorMessage = soup.select('#Label_ErrorMsg')[0].get_text()
 
         if errorMessage: 
             print('錯誤訊息: ' + errorMessage)
-            return False
+            return { 'success' : False }
         else :
             nodes = soup.select('#HyperLink_DownloadCSV')
             if len(nodes) == 0:
                 print('任務失敗，沒有下載連結')
-                return False
+                return { 'success' : False }
             
             # 下載分點進出 CSV
             resp = session.get(f'{base_url}/bsContent.aspx')
@@ -117,6 +117,9 @@ def DownloadVolume(stockId):
             df.dropna(subset=['券商'],inplace=True) # 移除空白列
             df['買進股數'] = df['買進股數'].astype(int)
             df['賣出股數'] = df['賣出股數'].astype(int)
+            
+            # 去掉中文和空白
+            df["券商"] = df['券商'].replace(regex=r'[\u4e00-\u9fa5]',value='').replace(regex=r' +$',value='') 
             #print(df)
             
             # 寫檔案
@@ -138,74 +141,74 @@ def DownloadVolume(stockId):
             }
             
 def GetVolumeIndicator(result, stockId):
-    '''
-    #print(f'{path}\{stockId}.csv')
-    # 讀取檔案, 根據,, 切割字串
-    lines = [line.strip().split(',,') for line in open(f'{path}\{receive_date}\{stockId}.csv', 'r')]
-    # flat list in list 
-    data = reduce(operator.concat, lines)[7:]
-    #print(data)
-    data = [entry.split(',') for entry in data]
-    #print(data)
-    df = pd.DataFrame(data, columns=['序號', '券商', '價格', '買進股數', '賣出股數']).dropna()
-    df['買進股數'] = df['買進股數'].astype(int)
-    df['賣出股數'] = df['賣出股數'].astype(int)
-    df.to_csv(f'{path}\{receive_date}\{stockId}_籌碼資料.csv',encoding='utf_8_sig')
-
-    # 刪除檔案
-    # 重新命名整理後的檔案
-    try:
-        os.remove(f'{path}\{receive_date}\{stockId}.csv')
-        os.rename(f'{path}\{receive_date}\{stockId}_籌碼資料.csv', f'{path}\{receive_date}\{stockId}.csv')
-    except OSError as e:
-        print(e)
-    #print(df.sort_values('賣出股數', ascending=False).head(15))
-    #print(df)
-    '''
     df = pd.read_csv(f'{path}\{result["receive_date"]}\{stockId}.csv')
-    print('receive_date:' + result["receive_date"])
+    
     # TOP 1 買超 = 買最多股票的券商 買多少
     top1Buy = df['買進股數'].max()
-    
+
     # TOP 1 賣超 = 賣最多股票的券商 賣多少
     top1Sell = df['賣出股數'].max()
     # 超額買超 = TOP 1 買超 / TOP 1 賣超
     overBuy = round(top1Buy / top1Sell, 2)
-                
-    if overBuy > 2.0:
-        overBuy = '🏆' + str(overBuy)
+    
+    # 總成交量
+    totalVolume = df['買進股數'].sum() / 1000
+
+    # 重押比例 > 30%
+    top1BuyPercent = (top1Buy / 1000) / totalVolume
+
+    allInSecurities = ''
+    if totalVolume > 100: #大於100張才計算
+        if (top1BuyPercent) > 0.3:
+            mainSecurities = df[df['買進股數'] == df['買進股數'].max()]['券商'].values[0]
+            print('主要券商:' + mainSecurities)
+            allInSecurities = mainSecurities + ' (' + str(round(top1BuyPercent * 100, 3)) + '%) ' 
+                    
+    # 買超張數 > 500, 買超異常4倍  
+    if totalVolume > 500:              
+        if overBuy > 4.0 and (top1Buy / 1000 > 500):
+            overBuy = '🏆' + str(overBuy)
+        elif overBuy < 0.25 and (top1Sell / 1000 > 500):
+            overBuy = '⚠️' + str(overBuy)
         
     print('top1Buy:' + str(top1Buy) + ', top1Sell:' + str(top1Sell) + ', overBuy:' + str(overBuy));
     
     # 買方的前 15 名買超量 
-    top15Buy = df.sort_values('買進股數', ascending=False).head(15)['買進股數'].sum()
+    top15Buy = df.sort_values('買進股數', ascending=False).head(15)['買進股數'].sum() / 1000
     # 賣方的前 15 名賣超量
-    top15Sell = df.sort_values('賣出股數', ascending=False).head(15)['賣出股數'].sum()
-    # 籌碼集中 = 買方的前 15 名買超量 - 賣方的前 15 名賣超量
-    volumeFloat = top15Buy - top15Sell
-    #print('top15Buy:' + str(top15Buy) + ', top15Sell:' + str(top15Sell) + ', volumeFloat:' + str(volumeFloat))
+    top15Sell = df.sort_values('賣出股數', ascending=False).head(15)['賣出股數'].sum() / 1000
+    # 前15名買賣超量 = 買方的前 15 名買超量 - 賣方的前 15 名賣超量
+    top15Volume = round(top15Buy - top15Sell, 3)
+    print('top15Buy:' + str(top15Buy) + ', top15Sell:' + str(top15Sell) + ', top15Volume:' + str(top15Volume))
     
-    # 總成交量
-    totalVolume = df['買進股數'].sum()
-    # 籌碼集中度(%) = 籌碼集中 ÷ 總成交量
-    volumeFloatRate = round(volumeFloat / totalVolume * 100, 2)
-    prefixIcon = ''
-    if volumeFloatRate > 20:
-        prefixIcon = '🏆'
-    elif volumeFloatRate < -10:
-        prefixIcon = '⚠️' 
-    volumeFloatRate = prefixIcon + str(volumeFloatRate)
-    print('totalVolume:' + str(totalVolume) + ', volumeFloat:' + str(volumeFloat) + ', volumeFloatRate:' + str(volumeFloatRate))
 
-    return pd.DataFrame([[overBuy, volumeFloatRate]], columns=['超額買超', '籌碼集中度'])
+    # 前15名買賣超量集中度(%) = 前15名買賣超量 ÷ 總成交量
+    top15VolumeRate = round(top15Volume / totalVolume * 100, 2)
+    prefixIcon = ''
+
+    # 前15卷商籌碼集中度 > 20%
+    if totalVolume > 500:
+        if top15VolumeRate > 20:
+            prefixIcon = '🏆'
+        elif top15VolumeRate < -10:
+            prefixIcon = '⚠️' 
+    top15VolumeRate = prefixIcon + str(top15VolumeRate)
+    print('totalVolume:' + str(totalVolume) + ', top15Volume:' + str(top15Volume) + ', top15VolumeRate:' + str(top15VolumeRate))
+
+
+    # 買賣家數差 = 買進券商數 - 賣出券商數
+    buySecuritiesCount = np.count_nonzero(df['買進股數'])
+    sellSecuritiesCount = np.count_nonzero(df['賣出股數'])
+    buySecuritiesDiff = buySecuritiesCount - sellSecuritiesCount
+    print('buySecuritiesCount:' + str(buySecuritiesCount) + ', sellSecuritiesCount:' + str(sellSecuritiesCount))
+    return pd.DataFrame([[overBuy, allInSecurities, top15VolumeRate, buySecuritiesDiff]], columns=['超額買超', '重押券商', '前15卷商籌碼集中度', '買賣家數差'])
 
 def GetVolume(stockId):
     error_count = 0
     max_error_count = 10 #最多10次
     while error_count < max_error_count:
-        result = DownloadVolume(stockId)
-        print(result)
         try:
+            result = DownloadVolume(stockId)
             if result['success']:
                 return GetVolumeIndicator(result, stockId)
             else:
@@ -216,6 +219,8 @@ def GetVolume(stockId):
         except Exception as e:
             print(str(e))
 
+'''
 #df = GetVolumeIndicator('8112')
-df = GetVolume('2609')
+df = GetVolume('3257')
 print(df)
+'''

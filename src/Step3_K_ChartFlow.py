@@ -20,14 +20,17 @@ def GetPE(stockId):
     css_selector = '#divK_ChartFlowDetail'
     try:
         df = Utils.GetDataFrameByCssSelector(url, css_selector)
+        # 取前兩列後面倒數6欄資料
+        firtRowDf = df.iloc[0,-6:]
+        #print(firtRowDf)
     except:
         time.sleep(random.randint(20, 30))
         df = Utils.GetDataFrameByCssSelector(url, css_selector)
+        
+        # 取前兩列後面倒數6欄資料
+        firtRowDf = df.iloc[0,-6:]
+        #print(firtRowDf)
     
-    # 取前兩列後面倒數6欄資料
-    firtRowDf = df.iloc[0,-6:]
-    #print(firtRowDf)
-
     #dataframe轉成dictionary 參考 https://stackoverflow.com/questions/45452935/pandas-how-to-get-series-to-dict
     dictionaries = [dict(key=re.findall(r'[0-9]+[.]?[0-9]*', str(k))[0], value=v) for k, v in firtRowDf.items()]
     #print(data)
