@@ -20,4 +20,4 @@ def crawler(StockID):
       f.write(canvas_png)
   driver.close()
 
-crawler('1101')
+crawler('1515')
