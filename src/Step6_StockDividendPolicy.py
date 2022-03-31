@@ -54,29 +54,41 @@ def GetDividend(stockId):
 
 def GetAllDividend():    
     cssSelector = '#divStockList'
+    
+    for rankIndex in range(0, 6):
+        
+        url = f'https://goodinfo.tw/tw/StockList.asp?SHEET=股利政策&MARKET_CAT=熱門排行&INDUSTRY_CAT=合計股利&RANK={str(rankIndex)}'
+        print(url)
+        
+        # 休息10~20秒
+        time.sleep(random.randint(10, 20))
 
-    url = f'https://goodinfo.tw/tw/StockList.asp?SHEET=%E8%82%A1%E5%88%A9%E6%94%BF%E7%AD%96&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E5%90%88%E8%A8%88%E8%82%A1%E5%88%A9'
-    print(url)
+        try:
+            df = Utils.GetDataFrameByCssSelector(url, cssSelector)
+            #return df
+        except:
+            time.sleep(random.randint(20, 30))
+            df = Utils.GetDataFrameByCssSelector(url, cssSelector)
+            print(df)
+            #df.columns = df.columns.get_level_values(1)
 
-    try:
-        df = Utils.GetDataFrameByCssSelector(url, cssSelector)
-        #return df
-    except:
-        time.sleep(random.randint(20, 30))
-        df = Utils.GetDataFrameByCssSelector(url, cssSelector)
+        df.columns = df.columns.get_level_values(0)
+        df = df.drop_duplicates(keep=False, inplace=False) #移除重複標題
+        #gain = pd.to_numeric(df['漲跌  價'], errors='coerce') > 0
+        #market = df['市  場'] == '市'
         print(df)
-        #df.columns = df.columns.get_level_values(1)
+        length = df['代號'].astype(str).map(len) == 4
+        #df = df[gain & length]
+        df = df[length]
 
-    df.columns = df.columns.get_level_values(0)
-    df = df.drop_duplicates(keep=False, inplace=False)
-    #gain = pd.to_numeric(df['漲跌  價'], errors='coerce') > 0
-    #market = df['市  場'] == '市'
-    length = df['代號'].astype(str).map(len) == 4
-    #df = df[gain & length]
-    df = df[length]
-    df.to_csv(f'{Utils.GetRootPath()}\Data\Yearly\合計股利.csv', encoding='utf_8_sig')
-    # 去除重複標頭
-    #sum_df[sum_df.ne(sum_df.columns).any(1)].to_csv(f'{Utils.GetRootPath()}\Data\Monthly\董監持股比例.csv',encoding='utf_8_sig')
+        filePath = f'{Utils.GetRootPath()}\Data\Yearly\合計股利.csv'
+        if rankIndex == 0:
+            df.to_csv(filePath, encoding='utf_8_sig')
+        else:
+            df.to_csv(filePath, mode='a', header=False, encoding='utf_8_sig')
+        # 去除重複標頭
+        #sum_df[sum_df.ne(sum_df.columns).any(1)].to_csv(f'{Utils.GetRootPath()}\Data\Monthly\董監持股比例.csv',encoding='utf_8_sig')
+
     print('執行完成')
 
 '''
@@ -89,4 +101,4 @@ df = GetDividend('2356')
 print(df)
 '''
 
-GetAllDividend()
+# GetAllDividend()
