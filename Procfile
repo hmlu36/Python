@@ -1,1 +1,1 @@
-clock: python src/main.py
+web: gunicorn wsgi:app
