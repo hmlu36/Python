@@ -1,6 +1,9 @@
 - 查看 python 版本
   pip debug --verbose
 
+- 安裝檔案
+pip install -r requirements.text
+
 * ORM - Pony
   https://www.blog.pythonlibrary.org/2014/07/21/python-101-an-intro-to-pony-orm/
   https://leonh.gitbooks.io/pony-orm/content/4-Relationships.html
