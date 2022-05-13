@@ -2,7 +2,7 @@
   pip debug --verbose
 
 - 安裝檔案
-pip install -r requirements.text
+pip install -r requirements.txt
 
 * ORM - Pony
   https://www.blog.pythonlibrary.org/2014/07/21/python-101-an-intro-to-pony-orm/

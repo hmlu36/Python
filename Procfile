@@ -1,2 +1,2 @@
-pip install -r requirements.text
+pip install -r requirements.txt
 worker: python main.py
