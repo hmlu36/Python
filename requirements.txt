@@ -7,9 +7,10 @@ urllib3
 opencv-python
 pytesseract
 pyinstaller
+
 uvicorn
 fastapi
-dnspython==1.16.0
-httptools==0.0.13
-uvloop==0.12.2
-websockets==9.1 
+httptools
+uvloop
+websockets
+httptools
