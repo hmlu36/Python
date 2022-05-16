@@ -2,7 +2,10 @@
   pip debug --verbose
 
 - 安裝檔案
-pip install -r requirements.txt
+  pip install -r requirements.txt
+
+- heroku set Config Vars
+heroku config:set DB_PASSWORD=secret -a [heroku-app-name]
 
 * ORM - Pony
   https://www.blog.pythonlibrary.org/2014/07/21/python-101-an-intro-to-pony-orm/

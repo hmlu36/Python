@@ -14,3 +14,5 @@ httptools
 uvloop
 websockets
 httptools
+requests
+python-dotenv
