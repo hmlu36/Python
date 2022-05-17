@@ -6,17 +6,17 @@ from io import StringIO
 from decimal import Decimal
 import random
 import sys
-from Step1_BasicStockInfo import GetBasicStockInfo
-from Step2_FinDetail import GetFinDetail
-from Step3_K_ChartFlow import GetPE
-from Step4_K_Chart import GetTransaction
-import Step5_ShareholderDistribution as shareholderDistribution
-from Step6_StockDividendPolicy import GetDividend
-from Step7_VolumeData import GetVolume
-import Step8_DirectorSharehold as directorSharehold
-import Step9_DailyTopVolume as dailyTopVolume
+from src.Step1_BasicStockInfo import GetBasicStockInfo
+from src.Step2_FinDetail import GetFinDetail
+from src.Step3_K_ChartFlow import GetPE
+from src.Step4_K_Chart import GetTransaction
+import src.Step5_ShareholderDistribution as shareholderDistribution
+from src.Step6_StockDividendPolicy import GetDividend
+from src.Step7_VolumeData import GetVolume
+import src.Step8_DirectorSharehold as directorSharehold
+import src.Step9_DailyTopVolume as dailyTopVolume
 import csv
-import Utils
+import src.Utils as Utils
 import pathlib
 
 '''
@@ -59,9 +59,9 @@ def GetChampionStock(op):
     # 過濾清單
     if op == 0:
         competitors = GetBasicStockInfo(True)
-        # print(competitors)
-        competitors.to_csv(
-            f'{Utils.GetRootPath()}\Data\Temp\過濾清單.csv', encoding='utf_8_sig')
+        print(competitors)
+        competitors.to_csv(f'{Utils.GetRootPath()}\Data\Temp\過濾清單.csv', encoding='utf_8_sig')
+        return true
 
     if op == 1:
         basicStockInfo_df = GetBasicStockInfo(True)
@@ -223,4 +223,4 @@ def GetChampionStock(op):
 # 5 月排程 - 董監比例
 # 6 季排程 - 財務資料
 # 7 日排程 - 異常買入
-GetChampionStock(3)
+#GetChampionStock(0)

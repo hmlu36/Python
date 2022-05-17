@@ -1,10 +1,10 @@
-import Utils
+import src.Utils as Utils
 import numpy as np
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-from BrowserUserAgent import GetHeader
-import UtilsCaptcha
+from src.BrowserUserAgent import GetHeader
+import src.UtilsCaptcha
 import json
 import time
 from datetime import date

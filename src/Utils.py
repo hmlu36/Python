@@ -3,7 +3,7 @@ from datetime import datetime
 import pandas as pd
 from bs4 import BeautifulSoup
 import requests
-from BrowserUserAgent import GetHeader
+from src.BrowserUserAgent import GetHeader
 from fake_useragent import UserAgent
 from urllib.parse import urlencode
 import os
