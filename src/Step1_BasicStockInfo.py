@@ -13,9 +13,9 @@ from lxml import etree
 from decimal import Decimal
 from datetime import datetime, timedelta
 import os
-import src.Utils as Utils
+import Utils as Utils
 
-def GetDailyExchangeReport(filter):
+async def GetDailyExchangeReport(filter):
     # ----------------- （１）評估價值是否被低估？（股票價格不會太貴） -------------
     ########## 去公開資訊觀測站，把本益比、股價淨值比爬下來 ##########
     url = f'https://www.twse.com.tw/exchangeReport/BWIBBU_d?response=json&date=&selectType=&_={str(time.time())}'

@@ -6,17 +6,17 @@ from io import StringIO
 from decimal import Decimal
 import random
 import sys
-from src.Step1_BasicStockInfo import GetBasicStockInfo
-from src.Step2_FinDetail import GetFinDetail
-from src.Step3_K_ChartFlow import GetPE
-from src.Step4_K_Chart import GetTransaction
-import src.Step5_ShareholderDistribution as shareholderDistribution
-from src.Step6_StockDividendPolicy import GetDividend
-from src.Step7_VolumeData import GetVolume
-import src.Step8_DirectorSharehold as directorSharehold
-import src.Step9_DailyTopVolume as dailyTopVolume
+from Step1_BasicStockInfo import GetBasicStockInfo
+from Step2_FinDetail import GetFinDetail
+from Step3_K_ChartFlow import GetPE
+from Step4_K_Chart import GetTransaction
+import Step5_ShareholderDistribution as shareholderDistribution
+from Step6_StockDividendPolicy import GetDividend
+from Step7_VolumeData import GetVolume
+import Step8_DirectorSharehold as directorSharehold
+import Step9_DailyTopVolume as dailyTopVolume
 import csv
-import src.Utils as Utils
+import Utils as Utils
 import pathlib
 
 '''

@@ -1,7 +1,7 @@
 import pandas as pd
-import src.Utils as Utils
+import Utils as Utils
 import re
-from src.BrowserUserAgent import GetHeader
+from BrowserUserAgent import GetHeader
 import requests
 from bs4 import BeautifulSoup
 import random

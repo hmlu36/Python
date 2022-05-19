@@ -16,3 +16,6 @@ websockets
 httptools
 requests
 python-dotenv
+
+certifi
+python-certifi-win32

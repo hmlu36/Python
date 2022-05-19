@@ -1,10 +1,10 @@
-import src.Utils as Utils
+import Utils as Utils
 import numpy as np
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-from src.BrowserUserAgent import GetHeader
-import src.UtilsCaptcha
+from BrowserUserAgent import GetHeader
+import UtilsCaptcha
 import json
 import time
 from datetime import date
@@ -13,6 +13,7 @@ from functools import reduce
 import operator
 import os
 import errno
+
 
 # 參考 
 # https://gist.github.com/CMingTseng/79447ccb2bb41e4bd8ec36d020fccab9

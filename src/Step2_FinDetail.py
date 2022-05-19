@@ -1,7 +1,7 @@
 import pandas as pd
 from decimal import Decimal
-import src.Utils as Utils
-from src.BrowserUserAgent import GetHeader
+import Utils as Utils
+from BrowserUserAgent import GetHeader
 import requests
 from bs4 import BeautifulSoup
 import time

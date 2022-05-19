@@ -1,7 +1,7 @@
 from fake_useragent import UserAgent
-from src.BrowserUserAgent import GetHeader
+from BrowserUserAgent import GetHeader
 from bs4 import BeautifulSoup
-import src.Utils as Utils
+import Utils as Utils
 import pandas as pd
 import random
 import time
