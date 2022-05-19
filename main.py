@@ -10,6 +10,7 @@ from src.choose_stock import GetChampionStock
 import src.Utils
 import pathlib
 
+from routers import items
 
 #load_dotenv()
 #BASE_ID = os.environ.get("BASE_ID")
@@ -38,11 +39,15 @@ def root():
     return {"message": "Hello World!"}
 
 
+app.include_router(items.router)
+
+
+'''
 @app.get("/GetStockInfo/{op}")
 def GetStockInfo(op):
    results = GetChampionStock(op)
    return {"message": results}
-
+'''
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)

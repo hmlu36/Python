@@ -7,6 +7,14 @@
 - heroku set Config Vars
 heroku config:set DB_PASSWORD=secret -a [heroku-app-name]
 
+- FastAPI Swagger UI
+localhost:port/docs
+- OpenAPI and JSON Schema
+localhost:port/openapi.json
+
+- fastapi tutorial
+https://fastapi.tiangolo.com/tutorial/
+
 * ORM - Pony
   https://www.blog.pythonlibrary.org/2014/07/21/python-101-an-intro-to-pony-orm/
   https://leonh.gitbooks.io/pony-orm/content/4-Relationships.html
