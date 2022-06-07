@@ -6,8 +6,8 @@ import os
 from dotenv import load_dotenv
 
 
-from src.choose_stock import GetChampionStock
-import src.Utils
+from app.choose_stock import GetChampionStock
+import app.Utils
 import pathlib
 
 from routers import items
@@ -42,12 +42,12 @@ def root():
 app.include_router(items.router)
 
 
-'''
+
 @app.get("/GetStockInfo/{op}")
 def GetStockInfo(op):
    results = GetChampionStock(op)
    return {"message": results}
-'''
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)
