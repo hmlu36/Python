@@ -3,3 +3,5 @@ libxrender1
 libfontconfig1
 libice6
 libsm1
+libxext-dev
+libsm6
