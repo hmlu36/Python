@@ -21,3 +21,5 @@ python-dotenv
 
 certifi
 python-certifi-win32
+seaborn
+pandas_datareader
