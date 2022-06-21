@@ -2,6 +2,9 @@
     "python.pythonPath": "C:\\Users\\joshua.lu\\AppData\\Local\\Programs\\Python\\Python39\\python.exe",
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": true,
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": ["--line-length", "180"],
+    "python.linting.enabled": true
     "options": {
         "env": {
             "PYTHONIOENCODING":"utf-8"
