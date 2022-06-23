@@ -73,8 +73,16 @@ def GetFinDetail(stockId):
 '''
 def GetBonusReinvestmentRate(stockId):
     df = GetFinData(stockId)
-'''
+
+
+def GetFinDetail2():
+    url = "https://mops.twse.com.tw/mops/web/ajax_t163sb05"
+    df = Utils.GetFromMops(url)
+    print(df)
+    
 # 測試
+'''
 data = GetFinDetail("8150")
 print(data)
 '''
+GetFinDetail2()

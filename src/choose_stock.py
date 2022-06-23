@@ -87,63 +87,15 @@ def GetChampionStock(op):
         print(df)
         
         df.update(df.apply(lambda x: pd.to_numeric(x, errors='coerce')))
-        df['營業收入'] = df['營業收入'].astype(float) / 100
         
         cond1 = df['毛利率'] > 30
         cond2 = df['營業利益率'] > 30
         cond3 = df['本益比'] < 15
+        cond3 = df['資本額'] > 15
         df = df[cond1 & cond2 & cond3]
         print(df)
+        
         df.to_csv(f"{Utils.GetRootPath()}\Data\Temp\過濾清單.csv", encoding="utf_8_sig")
-
-    if op == 1:
-        basicStockInfo_df = GetBasicStockInfo(True)
-
-        for stockId in [
-            "2477",
-            "2915",
-            "1608",
-            "2809",
-            "5469",
-            "1313",
-            "2357",
-            "1304",
-            "2855",
-            "5533",
-            "2891",
-            "3036",
-            "2505",
-            "2816",
-            "2905",
-            "2461",
-            "2885",
-            "1513",
-            "3033",
-            "9945",
-            "3702",
-            "1904",
-            "3022",
-            "1776",
-            "3028",
-            "2535",
-            "2353",
-            "1308",
-            "3048",
-            "3312",
-            "2387",
-            "1305",
-            "1604",
-        ]:
-            PE_df = GetPE(stockId)
-            print(PE_df)
-
-            Sleep()
-            stockInfo_df = basicStockInfo_df[basicStockInfo_df["證券代號"] == stockId]
-            stockInfo_df.reset_index(drop=True, inplace=True)
-            print(stockInfo_df)
-
-            temp_df = pd.concat([stockInfo_df, PE_df], axis=1)
-            temp_df.to_csv(f"{Utils.GetRootPath()}\Data\Temp\過濾清單(含本益比).csv", mode="a", header=False, encoding="utf_8_sig")
 
     # 明細資料
     if op == 2:

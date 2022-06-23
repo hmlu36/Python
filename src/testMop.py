@@ -23,9 +23,20 @@ import requests
 '''
 
 
-def financial_statement(year, season):
+def financial_statement(year, season, type):
     if year >= 1000:
         year -= 1911
+
+        
+    if type == '綜合損益':
+        url = 'https://mops.twse.com.tw/mops/web/ajax_t163sb04'
+    elif type == '資產負債':
+        url = 'https://mops.twse.com.tw/mops/web/ajax_t163sb05'
+    elif type == '營益分析':
+        url = 'https://mops.twse.com.tw/mops/web/ajax_t163sb06'
+    else:
+        print('type does not match')
+
 
     url = 'https://mops.twse.com.tw/mops/web/ajax_t163sb06'
     form_data = {
@@ -47,16 +58,19 @@ def financial_statement(year, season):
         df_table = pd.read_html(response.text)
         print(df_table)
         df = df_table[0]
-        #df.columns = df.columns.get_level_values(0)
-        #print(df.columns)
+        df.columns = df.columns.get_level_values(0)
+        print(df.columns)
         df = df.drop_duplicates(keep=False, inplace=False)
-
+        '''
         df.columns = ['公司代號', '公司名稱', '營業收入', '毛利率', '營業利益率', '稅前純益率', '稅後純益率']
         df['營業收入'] = df['營業收入'].astype(float) / 100
         df.update(df.apply(lambda x : pd.to_numeric(x,errors='coerce')))
+        '''
         return df
 
     return pd.DataFrame()
+
+
 
 temp_date = date(2022, 3, 1)
 now = date.today()
@@ -95,7 +109,7 @@ elif  temp_date <= q4_day and temp_date > q3_day:
 print(roc_year)
 print(season)
 
-stock = financial_statement(111, 3)
+stock = financial_statement(111, 1, '資產負債')
 print(stock)
 '''
 cond1 = stock['毛利率'] > 30

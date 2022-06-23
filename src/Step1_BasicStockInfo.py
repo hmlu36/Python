@@ -72,72 +72,21 @@ def GetStockCapital(filter):
     df[["公司代號", "成立日期", "上市日期"]] = df[["公司代號", "成立日期", "上市日期"]].astype(str)
     # rename dataframe specific column name
     # ref: https://stackoverflow.com/questions/20868394/changing-a-specific-column-name-in-pandas-dataframe
-    return df[["公司代號", "公司名稱", "實收資本額", "成立日期", "上市日期"]].rename(columns={"公司代號": "證券代號"})
+    df["實收資本額"] = pd.to_numeric(df["實收資本額"], downcast="float") / 100000000
+    return df[["公司代號", "公司名稱", "實收資本額", "成立日期", "上市日期"]].rename(columns={"公司代號": "證券代號", "實收資本額": "資本額"})
     # print(data)
     # return data
 
 
 # 營利率
 def GetOperatingMargin():
-    # 判斷是哪個年度第幾季
-    # 參考: https://www.nstock.tw/author/article?id=184
-    now = date.today()
-    current_year = now.year
-    roc_year = current_year - 1911
-    season = 0
-
-    last_q4_day = date(current_year, 3, 31)  # 前一年度第四季
-    q1_day = date(current_year, 5, 15)  # 第一季(Q1)財報：5/15前
-    q2_day = date(current_year, 8, 14)  # 第二季(Q2)財報：8/14前
-    q3_day = date(current_year, 11, 14)  # 第三季(Q3)財報：11/14前
-    q4_day = date(current_year + 1, 3, 31)  # 第四季(Q4)財報及年報：隔年3/31前
-
-    if now <= last_q4_day:
-        roc_year -= 1
-        season = 3
-    elif now <= q1_day and now > last_q4_day:
-        roc_year -= 1
-        season = 4
-    elif now <= q2_day and now > q1_day:
-        season = 1
-    elif now <= q3_day and now > q2_day:
-        season = 2
-    elif now <= q4_day and now > q3_day:
-        season = 3
-
-    # print('roc_year:' + str(roc_year) + ', season:' + str(season))
-
-    url = "https://mops.twse.com.tw/mops/web/ajax_t163sb06"
-    form_data = {
-        "encodeURIComponent": 1,
-        "step": 1,
-        "firstin": 1,
-        "off": 1,
-        "TYPEK": "sii",
-        "year": roc_year,
-        "season": season,
-    }
-
-    response = requests.post(url, form_data)
-    response.encoding = "utf8"
-
-    soup = BeautifulSoup(response.text, "html.parser")
-    # print(response.text)
-    # df = translate_dataFrame(response.text)
-    if not soup.find(text=re.compile("查詢無資料")):
-        df_table = pd.read_html(response.text)
-        df = df_table[0]
-        # df.columns = df.columns.get_level_values(0)
-        # print(df.columns)
-        df = df.drop_duplicates(keep=False, inplace=False)
-
-        df.columns = ["證券代號", "公司名稱", "營業收入", "毛利率", "營業利益率", "稅前純益率", "稅後純益率"]
-        # df['營業收入'] = df['營業收入'].astype(float) / 100
-        del df["公司名稱"]
-        return df
-
-    return pd.DataFrame()
-
+    df = Utils.GetFinancialStatement('營益分析')
+    df.columns = ["證券代號", "公司名稱", "營業收入", "毛利率", "營業利益率", "稅前純益率", "稅後純益率"]
+    # df['營業收入'] = df['營業收入'].astype(float) / 100
+    del df["公司名稱"]
+    
+    df["營業收入"] = pd.to_numeric(df["營業收入"], downcast="float") / 100
+    return df
 
 def GetBasicStockInfo(filter=False):
 
@@ -150,17 +99,13 @@ def GetBasicStockInfo(filter=False):
     merge_df = pd.merge(capital, exchangeReport, on="證券代號")
     # print(merge_df)
 
-    operatingMargin_df = GetOperatingMargin()
-    merge_df = pd.merge(merge_df, operatingMargin_df, on="證券代號")
-    # print(merge_df)
-
-    # move column in pandas dataframe
-    # ref https://stackoverflow.com/questions/35321812/move-column-in-pandas-dataframe
-    column_to_move = merge_df.pop("證券名稱")
-    merge_df.insert(1, "證券名稱", column_to_move)
-    # print(merge_df)
 
     if filter:
+        operatingMargin_df = GetOperatingMargin()
+        merge_df = pd.merge(merge_df, operatingMargin_df, on="證券代號")
+        # print(merge_df)
+
+
         dailyExhange_df = GetDailyExchange()
         merge_df = pd.merge(merge_df, dailyExhange_df, on="證券代號")
 
@@ -177,6 +122,13 @@ def GetBasicStockInfo(filter=False):
         shareHoder_df["100-1000張比例"] = shareHoder_df[["101-200張人數", "201-400張人數", "401-800張人數", "801-1000張人數"]].sum(axis=1)
         shareHoder_df = shareHoder_df[["證券代號", "100張以下人數", "100張以下比例", "100-1000張人數", "100-1000張比例", "1000張以上人數", "1000張以上比例"]].astype(str)
         merge_df = pd.merge(merge_df, shareHoder_df, on="證券代號")
+
+
+    # move column in pandas dataframe
+    # ref https://stackoverflow.com/questions/35321812/move-column-in-pandas-dataframe
+    column_to_move = merge_df.pop("證券名稱")
+    merge_df.insert(1, "證券名稱", column_to_move)
+    # print(merge_df)
 
     return merge_df
 
