@@ -1,1 +1,1 @@
-GetFinDetail
+1
