@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 import os
 import app.Utils as Utils
 
-async def GetDailyExchangeReport(filter):
+def GetDailyExchangeReport(filter):
     # ----------------- （１）評估價值是否被低估？（股票價格不會太貴） -------------
     ########## 去公開資訊觀測站，把本益比、股價淨值比爬下來 ##########
     url = f'https://www.twse.com.tw/exchangeReport/BWIBBU_d?response=json&date=&selectType=&_={str(time.time())}'
