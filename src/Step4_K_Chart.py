@@ -1,6 +1,6 @@
 from fake_useragent import UserAgent
+import requests
 from bs4 import BeautifulSoup
-import Utils as Utils
 import pandas as pd
 import random
 import time
@@ -22,11 +22,11 @@ def GetTransaction(stockId):
     url = f'https://goodinfo.tw/tw/ShowK_Chart.asp?STOCK_ID={stockId}&CHT_CAT2=DATE'
     cssSelector = '#divPriceDetail'
     try:
-        df = Utils.GetDataFrameByCssSelector(url, cssSelector)
+        df = GetDataFrameByCssSelector(url, cssSelector)
         df.columns = df.columns.get_level_values(1)
     except:
         time.sleep(random.randint(20, 30))
-        df = Utils.GetDataFrameByCssSelector(url, cssSelector)
+        df = GetDataFrameByCssSelector(url, cssSelector)
         df.columns = df.columns.get_level_values(1)
     # 印出全部的rows
     #pd.set_option('display.max_rows', df.shape[0]+1)
@@ -80,6 +80,29 @@ def GetTransaction(stockId):
     #print(finalDf)
     #return finalDf
 
+
+# ------ 共用的 function ------
+def GetDataFrameByCssSelector(url, css_selector):
+    ua = UserAgent()
+    user_agent = ua.random
+    headers = {"user-agent": user_agent}
+    rawData = requests.get(url, headers=headers)
+    rawData.encoding = "utf-8"
+    soup = BeautifulSoup(rawData.text, "html.parser")
+    data = soup.select_one(css_selector)
+    try:
+        dfs = pd.read_html(data.prettify())
+    except:
+        return pd.DataFrame()
+
+    # print(dfs)
+    if len(dfs[0]) > 1:
+        return dfs[0]
+    if len(dfs[1]) > 1:
+        return dfs[1]
+    return dfs
+
+# ------ 測試 ------
 '''
 df = GetTransaction('1515')
 print(df)

@@ -13,7 +13,6 @@ from decimal import Decimal
 from datetime import datetime, timedelta
 import os
 from datetime import date
-import Utils
 
 # 本益比, 淨值比
 def GetDailyExchangeReport(filter):
@@ -80,7 +79,7 @@ def GetStockCapital(filter):
 
 # 營利率
 def GetOperatingMargin():
-    df = Utils.GetFinancialStatement('營益分析')
+    df = GetFinancialStatement('營益分析')
     df.columns = ["證券代號", "公司名稱", "營業收入", "毛利率", "營業利益率", "稅前純益率", "稅後純益率"]
     # df['營業收入'] = df['營業收入'].astype(float) / 100
     del df["公司名稱"]
@@ -110,14 +109,14 @@ def GetBasicStockInfo(filter=False):
         merge_df = pd.merge(merge_df, dailyExhange_df, on="證券代號")
 
         # 董監持股比例
-        directShareHold_df = pd.read_csv(f"{Utils.GetRootPath()}\Data\Monthly\董監持股比例.csv")
+        directShareHold_df = pd.read_csv(f"{GetRootPath()}\Data\Monthly\董監持股比例.csv")
         directShareHold_df = directShareHold_df.rename(columns={"代號": "證券代號", "全體  董監  持股  (%)": "全體董監持股(%)"})
         # print(directShareHold_df)
         directShareHold_df = directShareHold_df[["證券代號", "全體董監持股(%)"]].astype(str)
         merge_df = pd.merge(merge_df, directShareHold_df, on="證券代號")
 
         # 股東分布資料
-        shareHoder_df = pd.read_csv(f"{Utils.GetRootPath()}\Data\Weekly\股東分布資料.csv")
+        shareHoder_df = pd.read_csv(f"{GetRootPath()}\Data\Weekly\股東分布資料.csv")
         shareHoder_df["100-1000張人數"] = shareHoder_df[["101-200張人數", "201-400張人數", "401-800張人數", "801-1000張人數"]].sum(axis=1)
         shareHoder_df["100-1000張比例"] = shareHoder_df[["101-200張人數", "201-400張人數", "401-800張人數", "801-1000張人數"]].sum(axis=1)
         shareHoder_df = shareHoder_df[["證券代號", "100張以下人數", "100張以下比例", "100-1000張人數", "100-1000張比例", "1000張以上人數", "1000張以上比例"]].astype(str)
@@ -132,8 +131,91 @@ def GetBasicStockInfo(filter=False):
 
     return merge_df
 
+
 '''
-# 測試
+https://www.finlab.tw/python-%E8%B2%A1%E5%A0%B1%E7%88%AC%E8%9F%B2-1-%E7%B6%9C%E5%90%88%E6%90%8D%E7%9B%8A%E8%A1%A8/
+'''
+def GetFinancialStatement(type='綜合損益'):
+    # 判斷是哪個年度第幾季
+    # 參考: https://www.nstock.tw/author/article?id=184
+    now = date.today()
+    current_year = now.year
+    roc_year = current_year - 1911
+    season = 0
+
+    last_q4_day = date(current_year, 3, 31)  # 前一年度第四季
+    q1_day = date(current_year, 5, 15)  # 第一季(Q1)財報：5/15前
+    q2_day = date(current_year, 8, 14)  # 第二季(Q2)財報：8/14前
+    q3_day = date(current_year, 11, 14)  # 第三季(Q3)財報：11/14前
+    q4_day = date(current_year + 1, 3, 31)  # 第四季(Q4)財報及年報：隔年3/31前
+
+    if now <= last_q4_day:
+        roc_year -= 1
+        season = 3
+    elif now <= q1_day and now > last_q4_day:
+        roc_year -= 1
+        season = 4
+    elif now <= q2_day and now > q1_day:
+        season = 1
+    elif now <= q3_day and now > q2_day:
+        season = 2
+    elif now <= q4_day and now > q3_day:
+        season = 3
+
+        
+    if type == '綜合損益':
+        url = 'https://mops.twse.com.tw/mops/web/ajax_t163sb04'
+    elif type == '資產負債':
+        url = 'https://mops.twse.com.tw/mops/web/ajax_t163sb05'
+    elif type == '營益分析':
+        url = 'https://mops.twse.com.tw/mops/web/ajax_t163sb06'
+    else:
+        print('type does not match')
+
+    form_data = {
+        "encodeURIComponent": 1,
+        "step": 1,
+        "firstin": 1,
+        "off": 1,
+        "TYPEK": "sii",
+        "year": roc_year,
+        "season": season,
+    }
+
+    response = requests.post(url, form_data)
+    response.encoding = "utf8"
+
+    soup = BeautifulSoup(response.text, "html.parser")
+    # print(response.text)
+    # df = translate_dataFrame(response.text)
+    if not soup.find(text=re.compile("查詢無資料")):
+        df_table = pd.read_html(response.text)
+        df = df_table[0]
+        #print(df)
+        # df.columns = df.columns.get_level_values(0)
+        # 刪除重複, 保留唯一的第一列
+        df = df.drop_duplicates(keep='first', inplace=False)
+        # 將第一列指定為header
+        df = df.rename(columns=df.iloc[0]).drop(df.index[0])
+        # 將第三列開只轉為數值
+        for col in  df.columns[2:]:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+
+        df[["公司代號"]].rename(columns={"公司代號": "證券代號"})
+        #print(df)
+        return df
+
+    return pd.DataFrame()
+
+
+# ------ 共用的 function ------
+# 根目錄路徑
+def GetRootPath():
+    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+# ------ 測試 ------
+'''
 df = GetBasicStockInfo(True)
 print(df)
 '''

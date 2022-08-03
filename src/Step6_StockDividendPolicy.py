@@ -1,20 +1,21 @@
 from fake_useragent import UserAgent
+import requests
 from bs4 import BeautifulSoup
-import Utils as Utils
 import pandas as pd
 import random
 import time
 from datetime import datetime
+import os
 
 def GetDividend(stockId):
     url = f'https://goodinfo.tw/tw/StockDividendPolicy.asp?STOCK_ID={stockId}'
     cssSelector = '#divDetail'
     try:
-        df = Utils.GetDataFrameByCssSelector(url, cssSelector)
+        df = GetDataFrameByCssSelector(url, cssSelector)
         df.columns = df.columns.get_level_values(3)
     except:
         time.sleep(random.randint(20, 30))
-        df = Utils.GetDataFrameByCssSelector(url, cssSelector)
+        df = GetDataFrameByCssSelector(url, cssSelector)
         df.columns = df.columns.get_level_values(3)
 
     # column replace space
@@ -64,11 +65,11 @@ def GetAllDividend():
         time.sleep(random.randint(10, 20))
 
         try:
-            df = Utils.GetDataFrameByCssSelector(url, cssSelector)
+            df = GetDataFrameByCssSelector(url, cssSelector)
             #return df
         except:
             time.sleep(random.randint(20, 30))
-            df = Utils.GetDataFrameByCssSelector(url, cssSelector)
+            df = GetDataFrameByCssSelector(url, cssSelector)
             print(df)
             #df.columns = df.columns.get_level_values(1)
 
@@ -81,13 +82,13 @@ def GetAllDividend():
         #df = df[gain & length]
         df = df[length]
 
-        filePath = f'{Utils.GetRootPath()}\Data\Yearly\合計股利.csv'
+        filePath = f'{GetRootPath()}\Data\Yearly\合計股利.csv'
         if rankIndex == 0:
             df.to_csv(filePath, encoding='utf_8_sig')
         else:
             df.to_csv(filePath, mode='a', header=False, encoding='utf_8_sig')
         # 去除重複標頭
-        #sum_df[sum_df.ne(sum_df.columns).any(1)].to_csv(f'{Utils.GetRootPath()}\Data\Monthly\董監持股比例.csv',encoding='utf_8_sig')
+        #sum_df[sum_df.ne(sum_df.columns).any(1)].to_csv(f'{GetRootPath()}\Data\Monthly\董監持股比例.csv',encoding='utf_8_sig')
 
     print('執行完成')
 
@@ -96,6 +97,37 @@ def GetAllDividend():
     return ' / '.join(map(str, list(data)))
 '''
 
+
+# ------ 共用的 function ------
+
+def GetDataFrameByCssSelector(url, css_selector):
+    ua = UserAgent()
+    user_agent = ua.random
+    headers = {"user-agent": user_agent}
+    rawData = requests.get(url, headers=headers)
+    rawData.encoding = "utf-8"
+    soup = BeautifulSoup(rawData.text, "html.parser")
+    data = soup.select_one(css_selector)
+    try:
+        dfs = pd.read_html(data.prettify())
+    except:
+        return pd.DataFrame()
+
+    # print(dfs)
+    if len(dfs[0]) > 1:
+        return dfs[0]
+    if len(dfs[1]) > 1:
+        return dfs[1]
+    return dfs
+
+def GetRootPath():
+    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+#總表
+#WriteData()
+
+
+# ------ 測試 ------
 '''
 df = GetDividend('2356')
 print(df)

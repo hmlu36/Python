@@ -5,13 +5,10 @@ import requests
 import os
 from dotenv import load_dotenv
 
-
-from app.choose_stock import GetChampionStock
-import app.Utils
 import pathlib
 
 from routers import items
-from routers import Step1_BasicStockInfo
+from routers import choose_stock
 
 #load_dotenv()
 #BASE_ID = os.environ.get("BASE_ID")
@@ -34,16 +31,14 @@ from routers import Step1_BasicStockInfo
 
 app = FastAPI()
 
+app.include_router(items.router)
+app.include_router(choose_stock.router)
 
 @app.get("/")
 def root():
     return {"message": "Hello World!"}
 
 
-app.include_router(items.router)
-app.include_router(Step1_BasicStockInfo.router)
-
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)
-

@@ -5,8 +5,10 @@ from io import StringIO
 from decimal import Decimal
 import random
 import json
+import os
+import pathlib
 
-from requests import request
+from src.Step0_InstitutionalInvestors import GetDailyExchange
 from src.Step1_BasicStockInfo import GetBasicStockInfo
 from src.Step2_FinDetail import GetFinDetail
 from src.Step3_K_ChartFlow import GetPE
@@ -16,11 +18,9 @@ from src.Step6_StockDividendPolicy import GetDividend
 from src.Step7_VolumeData import GetVolume
 import src.Step8_DirectorSharehold as directorSharehold
 import src.Step9_DailyTopVolume as dailyTopVolume
-import csv
-import os
 import requests
 from fastapi import APIRouter
-
+from typing import Union
 from dotenv import load_dotenv
 
 """
@@ -87,81 +87,14 @@ stocks = [
 ]
 
 
-load_dotenv()
-BASE_ID = os.environ.get("BASE_ID")
-API_KEY = os.environ.get("API_KEY")
-
-# Headers
-headers = {"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"}
-
-
-def saveAirtable(tableName, df):
-    pd_json = df.to_json(orient="records")
-    fields = []  # store our reformed records
-
-    # loop over parsed json, and reshape it the way we want
-    """
-    格式必須為
-    {
-        "records" [
-            {
-                "fields": {
-                    "Column1": value
-                }
-            },
-            {
-                "fields": {
-                    "Column1": value
-                }
-            },
-            ...
-        ]
-    }
-    """
-    for record in json.loads(pd_json):
-        # 轉為文字格式, 避免儲存時出錯
-        if all(k in record for k in ("證券代號", "成立日期", "上市日期")):
-            for k, v in record.items():
-                try:
-                    record[k] = str(v)
-                except (ValueError, TypeError):
-                    pass
-        nested = {"fields": record}
-        fields.append(nested)
-
-    data = json.dumps({"records": fields})
-    print(data)
-
-    url = f"https://api.airtable.com/v0/{BASE_ID}/{tableName}"
-    return requests.post(url, data=data, headers=headers)
-
-
-def getAirTable(tableName):
-    url = f"https://api.airtable.com/v0/{BASE_ID}/{tableName}"
-    return requests.get(url, headers=headers)
-
-
-def deleteAllAirTable(tableName):
-    responose = getAirTable(tableName)
-    #print(responose.json())
-    allRecords = json.loads(responose.json())
-    deleteRecords = []
-    for record in allRecords['records']:
-        deleteRecords = {"id": record["id"], "deleted": "true"}
-
-    print(deleteRecords)
-    url = f"https://api.airtable.com/v0/{BASE_ID}/{tableName}"
-    requests.delete(url, headers=headers, params=deleteRecords)
-
-
-def Sleep():
-    time.sleep(random.randint(10, 20))
-
-
 @router.get("/operate/{op}")
-def GetChampionStock(op: int):
-    # 過濾清單
+def Operate(op: int, stockId: Union[str, None] = None):
+    # 三大法人買賣金額統計表
     if op == 0:
+        return GetDailyExchange()
+        
+    # 過濾清單
+    if op == 1:
         df = GetBasicStockInfo(True)
         # print(df)
 
@@ -172,61 +105,66 @@ def GetChampionStock(op: int):
         cond3 = df["本益比"] < 15
         cond3 = df["資本額"] > 15
         df = df[cond1 & cond2 & cond3]
-
         # print(df)
 
-        # df.to_csv(f"{GetRootPath()}\Data\Temp\過濾清單.csv", encoding="utf_8_sig")
-        deleteAllAirTable("過濾清單")
-        response = saveAirtable("過濾清單", df)
-        return response.json()
+        tableName = "過濾清單"
+        # 清除所有資料
+        deleteAll(tableName)
+
+        # 重新寫入
+        save(tableName, df)
+        return {"message": "執行成功"}
 
     # 明細資料
     if op == 2:
         basicStockInfo_df = GetBasicStockInfo()
-        # sum_df = pd.DataFrame()
+        print(stockId)
 
-        for stockId in ["9930"]:
-            print(stockId)
+        stockInfo_df = basicStockInfo_df[basicStockInfo_df["證券代號"] == stockId]
+        stockInfo_df.reset_index(drop=True, inplace=True)
+        print(stockInfo_df)
 
-            stockInfo_df = basicStockInfo_df[basicStockInfo_df["證券代號"] == stockId]
-            stockInfo_df.reset_index(drop=True, inplace=True)
-            print(stockInfo_df)
+        if not stockInfo_df.empty:
+            Sleep()
+            finDetail_df = GetFinDetail(stockId)
+            print(finDetail_df)
 
-            if not stockInfo_df.empty:
-                Sleep()
-                finDetail_df = GetFinDetail(stockId)
-                print(finDetail_df)
+            PE_df = GetPE(stockId)
+            print(PE_df)
 
-                PE_df = GetPE(stockId)
-                print(PE_df)
+            Sleep()
+            transaction_df = GetTransaction(stockId)
+            print(transaction_df)
 
-                Sleep()
-                transaction_df = GetTransaction(stockId)
-                print(transaction_df)
+            volume_df = GetVolume(stockId)
+            print(volume_df)
 
-                volume_df = GetVolume(stockId)
-                print(volume_df)
+            Sleep()
+            dividend_df = GetDividend(stockId)
+            print(dividend_df)
 
-                Sleep()
-                dividend_df = GetDividend(stockId)
-                print(dividend_df)
+            Sleep()
+            distribution_df = shareholderDistribution.GetDistribution(stockId)
+            print(distribution_df)
 
-                Sleep()
-                distribution_df = shareholderDistribution.GetDistribution(stockId)
-                print(distribution_df)
+            # 合併所有欄位成一列
+            temp_df = pd.concat([stockInfo_df, transaction_df, volume_df, PE_df, distribution_df, finDetail_df, dividend_df], axis=1)
+            print(temp_df)
 
-                # 合併所有欄位成一列
-                temp_df = pd.concat([stockInfo_df, transaction_df, volume_df, PE_df, distribution_df, finDetail_df, dividend_df], axis=1)
-                print(temp_df)
+            # 將列合併入dataframe
+            # sum_df = pd.concat([sum_df, temp_df], axis=0)
 
-                # 將列合併入dataframe
-                # sum_df = pd.concat([sum_df, temp_df], axis=0)
+            response = retrieve("彙整清單", "證券代號", "2458")
+            records = json.loads(response.text)["records"]
+            print(records)
+            if len(records) == 0:
+                save("彙整清單", df)
+            else:
+                updateJsonData = {"records": [{"id": records[0]["id"], "fields": jsonData["records"][0]["fields"]}]}
+                print(updateJsonData)
+                updateJson("彙整清單", updateJsonData)
 
-                # 每列寫入csv檔, 不含表頭
-                temp_df.to_csv(f"{GetRootPath()}\Data\Temp\彙整清單.csv", mode="a", header=False, encoding="utf_8_sig")
-
-        # 寫入csv檔
-        # sum_df.to_csv('彙整清單.csv', encoding='utf_8_sig')
+        return {"message": "執行成功"}
 
     # 日常籌碼面資料
     if op == 3:
@@ -307,10 +245,75 @@ def GetChampionStock(op: int):
         except Exception as ex:
             print(ex)
 
+    if op == 999:
+        jsonData = {
+            "records": [
+                {
+                    "fields": {
+                        "2018": "  2.58 /    0.0",
+                        "2019": "   5.0 /    0.0",
+                        "2020": "   6.5 /   0.0",
+                        "2021": "   9.0 /    0.0",
+                        "2022": " 13.81 /    0.0",
+                        "證券代號": "2458",
+                        "證券名稱": "義隆",
+                        "公司名稱": "義隆電子股份有限公司",
+                        "資本額": 30.38803968,
+                        "成立日期": "19940505",
+                        "上市日期": "20010917",
+                        "殖利率": "12.85",
+                        "本益比": "6.37",
+                        "淨值比": "2.66",
+                        "收盤(1ma / 5ma / 20ma / 60ma)": "👎   107.5 /    108.3 /   108.55 /   131.06",
+                        "張數(1ma / 5ma / 20ma / 60ma)": "   975.0 /   1167.2 /  1797.75 /  1372.68",
+                        "外資持股(%)(1ma / 5ma / 20ma / 60ma)": "    23.5 /    23.38 /    22.86 /     22.0",
+                        "券資比(%)(1ma / 5ma / 20ma / 60ma)": "    33.1 /    26.14 /    15.24 /     9.47",
+                        "超額買超": 0.98,
+                        "重押券商": "",
+                        "前15卷商籌碼集中度": "0.06",
+                        "買賣家數差": 78,
+                        "本益比-級距1倍數": "9",
+                        "本益比-級距1價格": "152.1",
+                        "本益比-級距2倍數": "11",
+                        "本益比-級距2價格": "185.9",
+                        "本益比-級距3倍數": "13",
+                        "本益比-級距3價格": "219.7",
+                        "本益比-級距4倍數": "15",
+                        "本益比-級距4價格": "253.5",
+                        "本益比-級距5倍數": "17",
+                        "本益比-級距5價格": "287.3",
+                        "本益比-級距6倍數": "19",
+                        "本益比-級距6價格": "321.1",
+                        "100張以下比例": "36.17  /  35.72  /  35.5  /  35.8  /  35.44",
+                        "100-1000張比例": "16.11  /  16.55  /  16.24  /  16.71  /  17.22",
+                        "1000張以上比例": "47.66  /  47.63  /  48.17  /  47.61  /  47.25",
+                        "1000張以上人數": "45.0  /  45.0  /  46.0  /  46.0  /  45.0",
+                        "毛利率": "47.24",
+                        "營業利益率": "27.15",
+                        "ROE": "27.02",
+                        "稅前淨利率": "24.72",
+                        "稅後淨利率": "18.86",
+                        "總資產週轉率": "0.93",
+                        "本業收益": "109.83",
+                        "每股營業現金流量": "2.66",
+                        "每股自由現金流量": "-1.5",
+                        "財報評分": "68",
+                    }
+                }
+            ]
+        }
+        response = retrieve("彙整清單", "證券代號", "2458")
+        records = json.loads(response.text)["records"]
+        print(records)
+        if len(records) == 0:
+            createJson("彙整清單", jsonData)
+        else:
+            newJsonData = {"records": [{"id": records[0]["id"], "fields": jsonData["records"][0]["fields"]}]}
+            print(newJsonData)
+            updateJson("彙整清單", newJsonData)
+
 
 # ------ 共用的 function ------
-def GetRootPath():
-    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def delete_folder(path):
@@ -320,6 +323,135 @@ def delete_folder(path):
         else:
             sub.unlink()
     path.rmdir()
+
+
+load_dotenv()
+BASE_ID = os.environ.get("BASE_ID")
+API_KEY = os.environ.get("API_KEY")
+
+# Headers
+headers = {"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json; charset=utf-8"}
+url = f"https://api.airtable.com/v0/{BASE_ID}/"
+
+
+def createJson(tableName, data):
+    response = requests.post(url + tableName, data=json.dumps(data), headers=headers)
+    print(response.json())
+
+
+def updateJson(tableName, data):
+    response = requests.patch(url + tableName, data=json.dumps(data), headers=headers)
+    print(response.json())
+
+
+def save(tableName, df):
+    # 每次上限為10筆
+    if len(df.index) > 10:
+        pageSize = 10
+        totalItems = df.shape[0] 
+        totalPages = totalItems // pageSize
+        startIndex = 0
+        endIndex = 0
+        print("dataframe page size:" + str(totalPages))
+        for pageIndex in range(totalPages + 1):
+            print('pageIndex:' + str(pageIndex))
+            startIndex = pageSize * pageIndex
+            endIndex = pageSize * (pageIndex + 1) - 1
+            if endIndex > totalItems:
+                endIndex = totalItems
+            print("start:" + str(startIndex) + ", end:" + str(endIndex))
+            print(df.iloc[startIndex : endIndex])
+            jsonData = dataFrame2Json(df.iloc[startIndex : endIndex])
+            createJson(tableName, jsonData)
+    else:
+        jsonData = dataFrame2Json(df)
+        createJson(tableName, jsonData)
+
+# 刪除上限為10筆
+def deleteAll(tableName):
+    response = getAll(tableName)
+    allRecords = json.loads(response.text)
+    # print(allRecords)
+    deleteParams = ""
+    count = 0
+    for record in allRecords["records"]:
+        deleteParams = deleteParams + ("&" if deleteParams != "" else "") + "records[]=" + record["id"]
+        count += 1
+        if (count % 10 == 0) or (count == len(allRecords["records"])):
+            # print(deleteParams)
+            tempUrl = url + tableName + ("?" if deleteParams != "" else "") + deleteParams
+            requests.delete(tempUrl, headers=headers)
+            deleteParams = ""
+
+
+def getAll(tableName):
+    return requests.get(url + tableName, headers=headers)
+
+
+def retrieve(tableName, column, value):
+    tempUrl = url + tableName + "?filterByFormula={" + column + "}='" + value + "'"
+    print(tempUrl)
+    return requests.get(tempUrl, headers=headers)
+
+
+def dataFrame2Json(df):
+    """
+    格式必須為
+    {
+        "records" [
+            {
+                "fields": {
+                    "Column1": value
+                }
+            },
+            {
+                "fields": {
+                    "Column1": value
+                }
+            },
+            ...
+        ]
+    }
+    """
+    pd_json = df.to_json(orient="records")
+    jsonRecord = json.loads(pd_json)
+
+    fields = []
+    for record in jsonRecord:
+        for k, v in record.items():
+            try:
+                # 轉為文字
+                if k in (
+                    "證券代號",
+                    "成立日期",
+                    "上市日期",
+                    "收盤(1ma / 5ma / 20ma / 60ma)",
+                    "張數(1ma / 5ma / 20ma / 60ma)",
+                    "外資持股(%)(1ma / 5ma / 20ma / 60ma)",
+                    "券資比(%)(1ma / 5ma / 20ma / 60ma)",
+                    "重押券商",
+                    """
+                    "100張以下比例",
+                    "100-1000張比例",
+                    "1000張以上比例",
+                    "1000張以上人數",
+                    """,
+                ):
+                    record[k] = str(v)
+                else:
+                    record[k] = v
+            except (ValueError, TypeError):
+                pass
+        entry = {"fields": record}
+        fields.append(entry)
+
+    data = {"records": fields}
+    print(data)
+    return data
+
+
+def Sleep():
+    time.sleep(random.randint(10, 20))
 
 
 # ------ 測試 ------

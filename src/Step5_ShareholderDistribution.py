@@ -1,7 +1,5 @@
 from fake_useragent import UserAgent
-from BrowserUserAgent import GetHeader
 from bs4 import BeautifulSoup
-import Utils as Utils
 import pandas as pd
 import random
 import time
@@ -50,7 +48,7 @@ def WriteData():
            '1000張以上人數', '1000張以上比例']]
 
     print(s)
-    s.to_csv(f'{Utils.GetRootPath()}\Data\Weekly\股東分布資料.csv',encoding='utf_8_sig')
+    s.to_csv(f'{GetRootPath()}\Data\Weekly\股東分布資料.csv',encoding='utf_8_sig')
     
 
     
@@ -62,7 +60,10 @@ def GetDistribution(stockId):
         'REQ_OPR': 'qrySelScaDates',
     }
 
-    dates = requests.post(url, data=payload, headers=GetHeader()).json()
+    ua = UserAgent()
+    user_agent = ua.random
+    headers = {"user-agent": user_agent}
+    dates = requests.post(url, data=payload, headers=headers).json()
     # print(dates)
 
     '''
@@ -92,7 +93,10 @@ def GetDistribution(stockId):
             'clkStockName': ''
         }
 
-        rawData = requests.post(url, data=payload, headers=GetHeader())
+        ua = UserAgent()
+        user_agent = ua.random
+        headers = {"user-agent": user_agent}
+        rawData = requests.post(url, data=payload, headers=headers)
 
         soup = BeautifulSoup(rawData.text, 'html.parser')
         tb = soup.select('.mt')[1]
@@ -151,8 +155,16 @@ def GetDistribution(stockId):
     #print(df)
     return df
 
+
+# ------ 共用的 function ------
+def GetRootPath():
+    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 #總表
 #WriteData()
+
+
+# ------ 測試 ------
 '''
 # 個股(含歷程)
 df = GetDistribution('2477')

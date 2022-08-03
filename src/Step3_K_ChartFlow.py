@@ -1,11 +1,10 @@
 import pandas as pd
-import Utils as Utils
 import re
-from BrowserUserAgent import GetHeader
 import requests
 from bs4 import BeautifulSoup
 import random
 import time
+from fake_useragent import UserAgent
 '''
 抓取本益比
 取得現今EPS、本益比、近五年六個級距本益比
@@ -18,13 +17,13 @@ def GetPE(stockId):
     url = f'https://goodinfo.tw/StockInfo/ShowK_ChartFlow.asp?RPT_CAT=PER&STOCK_ID={stockId}&CHT_CAT=WEEK'
     css_selector = '#divK_ChartFlowDetail'
     try:
-        df = Utils.GetDataFrameByCssSelector(url, css_selector)
+        df = GetDataFrameByCssSelector(url, css_selector)
         # 取前兩列後面倒數6欄資料
         firtRowDf = df.iloc[0,-6:]
         #print(firtRowDf)
     except:
         time.sleep(random.randint(20, 30))
-        df = Utils.GetDataFrameByCssSelector(url, css_selector)
+        df = GetDataFrameByCssSelector(url, css_selector)
         
         # 取前兩列後面倒數6欄資料
         firtRowDf = df.iloc[0,-6:]
@@ -52,8 +51,30 @@ def GetPE(stockId):
     df = pd.DataFrame([data], columns=headers)
     return df
 
+
+# ------ 共用的 function ------
+def GetDataFrameByCssSelector(url, css_selector):
+    ua = UserAgent()
+    user_agent = ua.random
+    headers = {"user-agent": user_agent}
+    rawData = requests.get(url, headers=headers)
+    rawData.encoding = "utf-8"
+    soup = BeautifulSoup(rawData.text, "html.parser")
+    data = soup.select_one(css_selector)
+    try:
+        dfs = pd.read_html(data.prettify())
+    except:
+        return pd.DataFrame()
+
+    # print(dfs)
+    if len(dfs[0]) > 1:
+        return dfs[0]
+    if len(dfs[1]) > 1:
+        return dfs[1]
+    return dfs
+    
+# ------ 測試 ------
 '''
-# 測試
 data = GetPE('2474')
 print(data)
 '''
