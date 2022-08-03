@@ -15,7 +15,7 @@ def GetDailyExchange():
     #print(jsonData["data"])
     #print(jsonData["fields"])
     df = pd.DataFrame(jsonData["data"], columns=jsonData["fields"])
-    df["買賣差額"] = pd.to_numeric(df["買賣差額"], downcast="float") 
+    df["買賣差額"] = (pd.to_numeric(df["買賣差額"].str.strip().str.replace(",", ""))  / 100000000).round(3)
     df = df[['單位名稱', '買賣差額']]
     return df
 
