@@ -36,6 +36,9 @@ def GetDailyExchange():
         print(sum_df)
         count += 1
         Sleep()
+
+        
+    print(sum_df)
     return sum_df
 
 
@@ -83,5 +86,5 @@ def Sleep():
 
 # ------ 測試 ------
 
-print(GetDailyExchange())
+#GetDailyExchange()
 #GetDailyExchangeTotal()
