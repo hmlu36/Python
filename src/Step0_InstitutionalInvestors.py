@@ -93,4 +93,4 @@ def Sleep():
 
 # ------ 測試 ------
 #GetDailyExchange()
-GetDailyExchangeTotal()
+#GetDailyExchangeTotal()
