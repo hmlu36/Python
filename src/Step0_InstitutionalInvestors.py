@@ -10,17 +10,20 @@ def GetDailyExchangeData(dayCount=1):
     iie_df = GetInstitutionalInvestorsExchange(dayCount)
     dea_df = GetDailyExchangeAmount(dayCount)
     sum_df = pd.concat([iie_df, dea_df])
-    sum_df.loc['三大法人比例'] = ((sum_df.iloc[0:4].abs().sum(axis=0, numeric_only=True) / sum_df.loc['總成交金額']) * 100).round(3)
+    sum_df.loc["三大法人比例"] = ((sum_df.iloc[0:4].abs().sum(axis=0, numeric_only=True) / sum_df.loc["總成交金額"]) * 100).round(3)
     print(sum_df)
 
 
 # 取出每日收盤價
 # 計算60個交易日
 def GetInstitutionalInvestorsExchange(dayCount=1):
+    amount_df = GetDailyExchangeAmount(dayCount)
+
     count = 0
     sum_df = pd.DataFrame()
     while sum_df.shape[1] < dayCount + 1:
         tempDate = datetime.today() - pd.tseries.offsets.BDay(count)
+        mingoDateStr = str(tempDate.year - 1911) + "/" + tempDate.strftime("%m/%d")
         print(tempDate)
         url = f"https://www.twse.com.tw/fund/BFI82U?response=json&dayDate={tempDate.strftime('%Y%m%d')}&type=day"
         # print(url)
@@ -33,8 +36,14 @@ def GetInstitutionalInvestorsExchange(dayCount=1):
             df = pd.DataFrame(jsonData["data"], columns=jsonData["fields"])
             df["買賣差額"] = (pd.to_numeric(df["買賣差額"].str.strip().str.replace(",", "")) / 100000000).round(3)
             print(df)
+            total = (int(df.loc[5, "買進金額"].replace(",", "")) + int(df.loc[5, "賣出金額"].replace(",", ""))) / 100000000/ 2
+            print(total)
+            print((amount_df.loc["總成交金額", mingoDateStr]).round(3))
+            # print(((pd.to_numeric(df.loc[5, "買進金額"].str.strip().str.replace(",", "")).abs().sum() + pd.to_numeric(df.loc[5, "賣出金額"].str.strip().str.replace(",", "")).abs().sum())/ 100000000).round(3) / 2)
+            print(df)
             df = df[["單位名稱", "買賣差額"]]
-            df = df.rename(columns={"買賣差額": str(tempDate.year - 1911) + "/" + tempDate.strftime("%m/%d")})
+            df = df.append({"單位名稱":"法人成交比重",  "買賣差額": (total / amount_df.loc["總成交金額", mingoDateStr] * 100 ).round(3)}, ignore_index=True)
+            df = df.rename(columns={"買賣差額": mingoDateStr})
             # print(df)
 
             if sum_df.empty:
@@ -44,7 +53,7 @@ def GetInstitutionalInvestorsExchange(dayCount=1):
 
         print(sum_df)
         count += 1
-        #Sleep()
+        Sleep()
 
     sum_df = sum_df.set_index("單位名稱")
     print(sum_df)
@@ -69,10 +78,10 @@ def GetDailyExchangeAmount(dayCount=1):
         df = df[["日期", "成交金額"]]
         df["成交金額"] = (pd.to_numeric(df["成交金額"].str.strip().str.replace(",", "")) / 100000000).round(3)
         df = df.rename(columns={"成交金額": "總成交金額"})
-        print(df)
+        #print(df)
 
         df = df.set_index("日期").T
-        print(df)
+        #print(df)
 
         if sum_df.empty:
             sum_df = df
@@ -82,13 +91,13 @@ def GetDailyExchangeAmount(dayCount=1):
 
         count += 1
         print(sum_df)
-        #Sleep()
+        Sleep()
 
     sum_df = sum_df.sort_values(by="日期", axis=1, ascending=False)
 
     print(sum_df)
     print(sum_df.shape[1])
-    return sum_df.iloc[:, 0: dayCount]
+    return sum_df.iloc[:, 0:dayCount]
 
 
 def Sleep():
@@ -96,6 +105,6 @@ def Sleep():
 
 
 # ------ 測試 ------
-GetInstitutionalInvestorsExchange()
-#GetDailyExchangeAmount()
-#GetDailyExchangeData()
+GetInstitutionalInvestorsExchange(3)
+# GetDailyExchangeAmount()
+# GetDailyExchangeData()
