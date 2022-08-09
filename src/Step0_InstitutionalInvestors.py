@@ -32,6 +32,7 @@ def GetInstitutionalInvestorsExchange(dayCount=1):
         if jsonData["stat"] == "OK":
             df = pd.DataFrame(jsonData["data"], columns=jsonData["fields"])
             df["買賣差額"] = (pd.to_numeric(df["買賣差額"].str.strip().str.replace(",", "")) / 100000000).round(3)
+            print(df)
             df = df[["單位名稱", "買賣差額"]]
             df = df.rename(columns={"買賣差額": str(tempDate.year - 1911) + "/" + tempDate.strftime("%m/%d")})
             # print(df)
@@ -95,6 +96,6 @@ def Sleep():
 
 
 # ------ 測試 ------
-# GetInstitutionalInvestorsExchange()
+GetInstitutionalInvestorsExchange()
 #GetDailyExchangeAmount()
-GetDailyExchangeData()
+#GetDailyExchangeData()
