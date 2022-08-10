@@ -6,16 +6,8 @@ import time
 import random
 
 
-def GetDailyExchangeData(dayCount=1):
-    iie_df = GetInstitutionalInvestorsExchange(dayCount)
-    dea_df = GetDailyExchangeAmount(dayCount)
-    sum_df = pd.concat([iie_df, dea_df])
-    sum_df.loc["三大法人比例"] = ((sum_df.iloc[0:4].abs().sum(axis=0, numeric_only=True) / sum_df.loc["總成交金額"]) * 100).round(3)
-    print(sum_df)
-
-
 # 取出每日收盤價
-# 計算60個交易日
+# 計算n個交易日
 def GetInstitutionalInvestorsExchange(dayCount=1):
     amount_df = GetDailyExchangeAmount(dayCount)
 
@@ -24,43 +16,57 @@ def GetInstitutionalInvestorsExchange(dayCount=1):
     while sum_df.shape[1] < dayCount + 1:
         tempDate = datetime.today() - pd.tseries.offsets.BDay(count)
         mingoDateStr = str(tempDate.year - 1911) + "/" + tempDate.strftime("%m/%d")
-        print(tempDate)
+        # print(tempDate)
         url = f"https://www.twse.com.tw/fund/BFI82U?response=json&dayDate={tempDate.strftime('%Y%m%d')}&type=day"
         # print(url)
         response = requests.get(url)
         jsonData = response.json()
         # print(jsonData)
-        # print(jsonData["data"])
-        # print(jsonData["fields"])
+
         if jsonData["stat"] == "OK":
             df = pd.DataFrame(jsonData["data"], columns=jsonData["fields"])
-            df["買賣差額"] = (pd.to_numeric(df["買賣差額"].str.strip().str.replace(",", "")) / 100000000).round(3)
-            print(df)
-            total = (int(df.loc[5, "買進金額"].replace(",", "")) + int(df.loc[5, "賣出金額"].replace(",", ""))) / 100000000/ 2
-            print(total)
-            print((amount_df.loc["總成交金額", mingoDateStr]).round(3))
-            # print(((pd.to_numeric(df.loc[5, "買進金額"].str.strip().str.replace(",", "")).abs().sum() + pd.to_numeric(df.loc[5, "賣出金額"].str.strip().str.replace(",", "")).abs().sum())/ 100000000).round(3) / 2)
-            print(df)
+            df["買賣差額"] = pd.to_numeric(df["買賣差額"].str.strip().str.replace(",", ""))
+            # print(df)
+            total = (int(df.loc[5, "買進金額"].replace(",", "")) + int(df.loc[5, "賣出金額"].replace(",", ""))) / 2
+            # print(total)
+            # print((amount_df.loc["總成交金額", mingoDateStr]))
             df = df[["單位名稱", "買賣差額"]]
-            df = df.append({"單位名稱":"法人成交比重",  "買賣差額": (total / amount_df.loc["總成交金額", mingoDateStr] * 100 ).round(3)}, ignore_index=True)
-            df = df.rename(columns={"買賣差額": mingoDateStr})
+            # print(df)
+
+            # 新增列 (市場總交易金額)
+            df = df.append(
+                {"單位名稱": "市場總交易金額", "買賣差額": amount_df.loc["總成交金額", mingoDateStr]},
+                ignore_index=True,
+            )
+
+            # 單位轉為億, 取小數點第三位
+            df["買賣差額"] = (pd.to_numeric(df["買賣差額"], downcast="float") / 100000000).round(3)
+
+            # 新增列 (法人成交比重)
+            df = df.append(
+                {"單位名稱": "法人成交比重", "買賣差額": (total / amount_df.loc["總成交金額", mingoDateStr] * 100).round(2)},
+                ignore_index=True,
+            )
+
+            # 買賣差額 名稱改為名國年
+            df = df.rename(columns={"單位名稱": "項目", "買賣差額": mingoDateStr})
             # print(df)
 
             if sum_df.empty:
                 sum_df = df
             else:
-                sum_df = pd.merge(sum_df, df, on=["單位名稱"])
+                sum_df = pd.merge(sum_df, df, on=["項目"])
 
-        print(sum_df)
+        # print(sum_df)
         count += 1
         Sleep()
 
-    sum_df = sum_df.set_index("單位名稱")
+    sum_df = sum_df.set_index("項目")
     print(sum_df)
     return sum_df
 
 
-# ------ 共用的 function ------
+# 取得當日總成交金額
 def GetDailyExchangeAmount(dayCount=1):
     count = 0
     sum_df = pd.DataFrame()
@@ -72,31 +78,30 @@ def GetDailyExchangeAmount(dayCount=1):
 
         response = requests.get(url)
         jsonData = response.json()
-        print(jsonData)
+        # print(jsonData)
 
         df = pd.DataFrame(jsonData["data"], columns=jsonData["fields"])
         df = df[["日期", "成交金額"]]
-        df["成交金額"] = (pd.to_numeric(df["成交金額"].str.strip().str.replace(",", "")) / 100000000).round(3)
+        df["成交金額"] = pd.to_numeric(df["成交金額"].str.strip().str.replace(",", ""))
         df = df.rename(columns={"成交金額": "總成交金額"})
-        #print(df)
+        # print(df)
 
         df = df.set_index("日期").T
-        #print(df)
+        # print(df)
 
         if sum_df.empty:
             sum_df = df
         else:
-            sum_df = pd.merge(sum_df, df, on=["日期"])
-            # sum_df = pd.concat([sum_df, df], axis = 1)
+            sum_df = pd.concat([sum_df, df], axis=1)
 
         count += 1
-        print(sum_df)
+        # print(sum_df)
         Sleep()
 
     sum_df = sum_df.sort_values(by="日期", axis=1, ascending=False)
 
     print(sum_df)
-    print(sum_df.shape[1])
+    # print(sum_df.shape[1])
     return sum_df.iloc[:, 0:dayCount]
 
 
@@ -105,6 +110,5 @@ def Sleep():
 
 
 # ------ 測試 ------
-GetInstitutionalInvestorsExchange(3)
+GetInstitutionalInvestorsExchange()
 # GetDailyExchangeAmount()
-# GetDailyExchangeData()
