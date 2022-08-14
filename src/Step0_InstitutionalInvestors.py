@@ -105,7 +105,7 @@ def GetDailyExchangeAmount(dayCount=1):
     # print(sum_df.shape[1])
     return sum_df.iloc[:, 0:dayCount]
 
-
+# ------ 共用的 function ------
 def GetHeaders():
     ua = UserAgent()
     user_agent = ua.random
