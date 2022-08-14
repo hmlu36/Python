@@ -4,7 +4,7 @@ from datetime import datetime
 from dateutil.relativedelta import *
 import time
 import random
-
+from fake_useragent import UserAgent
 
 # 取出每日收盤價
 # 計算n個交易日
@@ -19,7 +19,8 @@ def GetInstitutionalInvestorsExchange(dayCount=1):
         # print(tempDate)
         url = f"https://www.twse.com.tw/fund/BFI82U?response=json&dayDate={tempDate.strftime('%Y%m%d')}&type=day"
         # print(url)
-        response = requests.get(url)
+        
+        response = requests.get(url, headers=GetHeaders())
         jsonData = response.json()
         # print(jsonData)
 
@@ -76,7 +77,7 @@ def GetDailyExchangeAmount(dayCount=1):
         tempDate = datetime.today() - relativedelta(months=count)
         url = f"https://www.twse.com.tw/exchangeReport/FMTQIK?response=json&date={tempDate.strftime('%Y%m%d')}"
 
-        response = requests.get(url)
+        response = requests.get(url, headers=GetHeaders())
         jsonData = response.json()
         # print(jsonData)
 
@@ -104,6 +105,12 @@ def GetDailyExchangeAmount(dayCount=1):
     # print(sum_df.shape[1])
     return sum_df.iloc[:, 0:dayCount]
 
+
+def GetHeaders():
+    ua = UserAgent()
+    user_agent = ua.random
+    headers = {"user-agent": user_agent}
+    return headers
 
 def Sleep():
     time.sleep(random.randint(3, 10))
