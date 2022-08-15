@@ -10,7 +10,8 @@ import pathlib
 from routers import items
 from routers import choose_stock
 
-#load_dotenv()
+load_dotenv()
+ENVIRONMENT = os.environ.get("ENVIRONMENT")
 #BASE_ID = os.environ.get("BASE_ID")
 #TABLE_NAME = os.environ.get("TABLE_NAME")
 #API_KEY = os.environ.get("API_KEY")
@@ -39,6 +40,5 @@ def root():
     return {"message": "Hello World!"}
 
 
-
-if __name__ == "__main__":
+if __name__ == "__main__" and ENVIRONMENT == "dev":
     uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)

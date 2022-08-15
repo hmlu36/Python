@@ -117,5 +117,5 @@ def Sleep():
 
 
 # ------ 測試 ------
-GetInstitutionalInvestorsExchange()
+#GetInstitutionalInvestorsExchange()
 # GetDailyExchangeAmount()

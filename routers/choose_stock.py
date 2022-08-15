@@ -8,7 +8,7 @@ import json
 import os
 import pathlib
 
-from src.Step0_InstitutionalInvestors import GetDailyExchange
+from src.Step0_InstitutionalInvestors import GetInstitutionalInvestorsExchange
 from src.Step1_BasicStockInfo import GetBasicStockInfo
 from src.Step2_FinDetail import GetFinDetail
 from src.Step3_K_ChartFlow import GetPE
@@ -91,7 +91,7 @@ stocks = [
 def Operate(op: int, stockId: Union[str, None] = None):
     # 三大法人買賣金額統計表
     if op == 0:
-        return GetDailyExchange()
+        return GetInstitutionalInvestorsExchange()
         
     # 過濾清單
     if op == 1:
