@@ -13,10 +13,10 @@ from src.Step1_BasicStockInfo import GetBasicStockInfo
 from src.Step2_FinDetail import GetFinDetail
 from src.Step3_K_ChartFlow import GetPE
 from src.Step4_K_Chart import GetTransaction
-import src.Step5_ShareholderDistribution as shareholderDistribution
+#import src.Step5_ShareholderDistribution as shareholderDistribution
 from src.Step6_StockDividendPolicy import GetDividend
 from src.Step7_VolumeData import GetVolume
-import src.Step8_DirectorSharehold as directorSharehold
+#import src.Step8_DirectorSharehold as directorSharehold
 import src.Step9_DailyTopVolume as dailyTopVolume
 import requests
 from fastapi import APIRouter
@@ -196,7 +196,7 @@ def Operate(op: int, stockId: Union[str, None] = None):
 
     # 大戶、本益比
     if op == 4:
-        shareholderDistribution.WriteData()
+        #shareholderDistribution.WriteData()
 
         for stockId in stocks:
             print(stockId)
@@ -215,8 +215,9 @@ def Operate(op: int, stockId: Union[str, None] = None):
             temp_df.to_csv(f'\Data\\Weekly\股東分布_本益比_{date.today().strftime("%Y%m%d")}.csv', mode="a", header=False, encoding="utf_8_sig")
 
     if op == 5:
-        directorSharehold.WriteData()
-
+        #directorSharehold.WriteData()
+        print(5)
+        
     if op == 7:
         basicStockInfo_df = GetBasicStockInfo()
         topVolumeStocks = dailyTopVolume.GetTopVolume()[:100]

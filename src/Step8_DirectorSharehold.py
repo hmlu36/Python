@@ -6,7 +6,7 @@ import time
 import pandas as pd
 import os 
 
-def WriteData():    
+def GetDirectorSharehold():    
     cssSelector = '#divStockList'
     sum_df = pd.DataFrame()
 
@@ -27,7 +27,9 @@ def WriteData():
             #df.columns = df.columns.get_level_values(1)
 
     # 去除重複標頭
-    sum_df[sum_df.ne(sum_df.columns).any(1)].to_csv(f'{GetRootPath()}\Data\Monthly\董監持股比例.csv',encoding='utf_8_sig')
+    sum_df = sum_df[sum_df.ne(sum_df.columns).any(1)]
+    #sum_df.to_csv(f'{GetRootPath()}\Data\Monthly\董監持股比例.csv',encoding='utf_8_sig')
+    return sum_df
 
 
 # ------ 共用的 function ------
@@ -56,5 +58,5 @@ def GetRootPath():
 
 # ------ 測試 ------
 '''
-WriteData()
+print(GetDirectorSharehold())
 '''

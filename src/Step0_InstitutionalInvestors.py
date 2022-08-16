@@ -19,7 +19,7 @@ def GetInstitutionalInvestorsExchange(dayCount=1):
         # print(tempDate)
         url = f"https://www.twse.com.tw/fund/BFI82U?response=json&dayDate={tempDate.strftime('%Y%m%d')}&type=day"
         # print(url)
-        
+
         response = requests.get(url, headers=GetHeaders())
         jsonData = response.json()
         # print(jsonData)
@@ -32,22 +32,18 @@ def GetInstitutionalInvestorsExchange(dayCount=1):
             # print(total)
             # print((amount_df.loc["總成交金額", mingoDateStr]))
             df = df[["單位名稱", "買賣差額"]]
-            # print(df)
+            #print(df)
 
             # 新增列 (市場總交易金額)
-            df = df.append(
-                {"單位名稱": "市場總交易金額", "買賣差額": amount_df.loc["總成交金額", mingoDateStr]},
-                ignore_index=True,
-            )
+            temp_df = pd.DataFrame([{"單位名稱": "市場總交易金額", "買賣差額": amount_df.loc["總成交金額", mingoDateStr]}])
+            df = pd.concat([df, temp_df], axis=0, ignore_index=True)
 
             # 單位轉為億, 取小數點第三位
             df["買賣差額"] = (pd.to_numeric(df["買賣差額"], downcast="float") / 100000000).round(3)
 
             # 新增列 (法人成交比重)
-            df = df.append(
-                {"單位名稱": "法人成交比重", "買賣差額": (total / amount_df.loc["總成交金額", mingoDateStr] * 100).round(2)},
-                ignore_index=True,
-            )
+            temp_df = pd.DataFrame([{"單位名稱": "法人成交比重", "買賣差額": (total / amount_df.loc["總成交金額", mingoDateStr] * 100).round(2)}])
+            df = pd.concat([df, temp_df], axis=0, ignore_index=True)
 
             # 買賣差額 名稱改為名國年
             df = df.rename(columns={"單位名稱": "項目", "買賣差額": mingoDateStr})
@@ -105,6 +101,7 @@ def GetDailyExchangeAmount(dayCount=1):
     # print(sum_df.shape[1])
     return sum_df.iloc[:, 0:dayCount]
 
+
 # ------ 共用的 function ------
 def GetHeaders():
     ua = UserAgent()
@@ -112,10 +109,11 @@ def GetHeaders():
     headers = {"user-agent": user_agent}
     return headers
 
+
 def Sleep():
     time.sleep(random.randint(3, 10))
 
 
 # ------ 測試 ------
-#GetInstitutionalInvestorsExchange()
+# GetInstitutionalInvestorsExchange()
 # GetDailyExchangeAmount()

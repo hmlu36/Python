@@ -7,7 +7,7 @@ import requests
 import os
 
 
-def WriteData():
+def GetAllShareholderDistribution():
     url='https://smart.tdcc.com.tw/opendata/getOD.ashx?id=1-5'
     #url = 'TDCC_OD_1-5.csv'
     df = pd.read_csv(url)
@@ -48,8 +48,8 @@ def WriteData():
            '1000張以上人數', '1000張以上比例']]
 
     print(s)
-    s.to_csv(f'{GetRootPath()}\Data\Weekly\股東分布資料.csv',encoding='utf_8_sig')
-    
+    #s.to_csv(f'{GetRootPath()}\Data\Weekly\股東分布資料.csv',encoding='utf_8_sig')
+    return s
 
     
 def GetDistribution(stockId):
@@ -170,3 +170,4 @@ def GetRootPath():
 df = GetDistribution('2477')
 print(df)
 '''
+print(GetAllShareholderDistribution())

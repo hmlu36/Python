@@ -1,5 +1,9 @@
 {
     "python.pythonPath": "C:\\Users\\joshua.lu\\AppData\\Local\\Programs\\Python\\Python310\\python.exe",
+    "code-runner.executorMap":
+    {
+        "python": "$pythonPath -u $fullFileName"
+    }
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": true,
     "python.formatting.provider": "black",
