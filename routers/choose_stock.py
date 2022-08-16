@@ -154,11 +154,10 @@ def Operate(op: int, stockId: Union[str, None] = None):
             # 將列合併入dataframe
             # sum_df = pd.concat([sum_df, temp_df], axis=0)
 
-            response = retrieve("彙整清單", "證券代號", "2458")
+            response = retrieve("彙整清單", "證券代號", stockId)
             records = json.loads(response.text)["records"]
-            print(records)
             if len(records) == 0:
-                save("彙整清單", df)
+                save("彙整清單", temp_df)
             else:
                 updateJsonData = {"records": [{"id": records[0]["id"], "fields": jsonData["records"][0]["fields"]}]}
                 print(updateJsonData)
