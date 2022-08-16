@@ -187,7 +187,7 @@ def Operate(op: int, stockId: Union[str, None] = None):
                 temp_df = pd.concat([stockInfo_df, transaction_df, volume_df], axis=1)
                 print(temp_df)
 
-                temp_df.to_csv(f"{GetRootPath()}\Data\Daily\籌碼面資料.csv", mode="a", header=False, encoding="utf_8_sig")
+                temp_df.to_csv(f"\Data\Daily\籌碼面資料.csv", mode="a", header=False, encoding="utf_8_sig")
                 # 合併所有欄位成一列
                 # sum_df = pd.concat([sum_df, temp_df], axis=0)
 
@@ -212,7 +212,7 @@ def Operate(op: int, stockId: Union[str, None] = None):
             temp_df = pd.concat([PE_df, distribution_df], axis=1)
             print(temp_df)
 
-            temp_df.to_csv(f'{GetRootPath()}\Data\\Weekly\股東分布_本益比_{date.today().strftime("%Y%m%d")}.csv', mode="a", header=False, encoding="utf_8_sig")
+            temp_df.to_csv(f'\Data\\Weekly\股東分布_本益比_{date.today().strftime("%Y%m%d")}.csv', mode="a", header=False, encoding="utf_8_sig")
 
     if op == 5:
         directorSharehold.WriteData()
@@ -235,11 +235,11 @@ def Operate(op: int, stockId: Union[str, None] = None):
                 temp_df = pd.concat([stockInfo_df, volume_df], axis=1)
                 print(temp_df)
 
-                temp_df.to_csv(f'{GetRootPath()}\Data\Daily\異常籌碼資料_{date.today().strftime("%Y%m%d")}.csv', mode="a", header=False, encoding="utf_8_sig")
+                temp_df.to_csv(f'\Data\Daily\異常籌碼資料_{date.today().strftime("%Y%m%d")}.csv', mode="a", header=False, encoding="utf_8_sig")
 
         # 刪除暫存檔案
         try:
-            folderPath = pathlib.Path(f'{GetRootPath()}\Data\Daily\Chip\{(date.today() - timedelta(days=1)).strftime("%Y%m%d")}')
+            folderPath = pathlib.Path(f'\Data\Daily\Chip\{(date.today() - timedelta(days=1)).strftime("%Y%m%d")}')
             delete_folder(folderPath)
         except Exception as ex:
             print(ex)
