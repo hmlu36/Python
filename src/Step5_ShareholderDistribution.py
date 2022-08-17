@@ -52,7 +52,7 @@ def GetAllShareholderDistribution():
     return s
 
     
-def GetDistribution(stockId):
+def GetShareholderDistribution(stockId):
     url = 'https://www.tdcc.com.tw/smWeb/QryStockAjax.do'
     # print(rawData.text)
     # 取得日期下拉選單

@@ -13,7 +13,7 @@ from src.Step1_BasicStockInfo import GetBasicStockInfo
 from src.Step2_FinDetail import GetFinDetail
 from src.Step3_K_ChartFlow import GetPE
 from src.Step4_K_Chart import GetTransaction
-#import src.Step5_ShareholderDistribution as shareholderDistribution
+from src.Step5_ShareholderDistribution import GetShareholderDistribution
 from src.Step6_StockDividendPolicy import GetDividend
 from src.Step7_VolumeData import GetVolume
 #import src.Step8_DirectorSharehold as directorSharehold
@@ -144,7 +144,7 @@ def Operate(op: int, stockId: Union[str, None] = None):
             print(dividend_df)
 
             Sleep()
-            distribution_df = shareholderDistribution.GetDistribution(stockId)
+            distribution_df = GetShareholderDistribution(stockId)
             print(distribution_df)
 
             # 合併所有欄位成一列
