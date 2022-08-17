@@ -279,7 +279,7 @@ def GetRootPath():
 
 
 def GetDataFrameByCssSelector(url, css_selector):
-    ua = UserAgent()
+    ua = UserAgent(use_cache_server=False)
     user_agent = ua.random
     headers = {"user-agent": user_agent}
     rawData = requests.get(url, headers=headers)
