@@ -1,7 +1,7 @@
 pandas
 beautifulsoup4
 lxml
-fake_useragent
+fake-useragent
 urllib3
 
 opencv-python
