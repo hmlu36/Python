@@ -261,7 +261,10 @@ def GetDirectorSharehold():
     url = "https://norway.twsthr.info/StockBoardTop.aspx"
     cssSelector = "#details"
     df = GetDataFrameByCssSelector(url, cssSelector)
+    print(df)
+    
     df.columns = df.columns.get_level_values(0)
+    
     print(df)
     df = df.iloc[:, [3, 7]]
     
