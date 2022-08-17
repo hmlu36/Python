@@ -170,4 +170,4 @@ def GetRootPath():
 df = GetDistribution('2477')
 print(df)
 '''
-print(GetAllShareholderDistribution())
+#print(GetAllShareholderDistribution())
