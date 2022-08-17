@@ -6,3 +6,4 @@
 /src/*.spec
 .env
 /routers/__pycache__
+node_modules
