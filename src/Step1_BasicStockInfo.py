@@ -13,7 +13,9 @@ from decimal import Decimal
 from datetime import datetime, timedelta
 import os
 from datetime import date
-from fake_useragent import UserAgent
+import fake_useragent
+
+print(fake_useragent.__file__)
 
 # 本益比, 淨值比
 def GetDailyExchangeReport(filter):
@@ -279,7 +281,8 @@ def GetRootPath():
 
 
 def GetDataFrameByCssSelector(url, css_selector):
-    ua = UserAgent()
+    print(fake_useragent.__file__)
+    ua = fake_useragent.UserAgent()
     user_agent = ua.random
     headers = {"user-agent": user_agent}
     rawData = requests.get(url, headers=headers)
