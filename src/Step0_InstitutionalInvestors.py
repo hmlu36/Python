@@ -94,7 +94,7 @@ def GetDailyExchangeAmount(dayCount=1):
 
         count += 1
         # print(sum_df)
-        if dayCount > 1
+        if dayCount > 1:
             Sleep()
 
     sum_df = sum_df.sort_values(by="日期", axis=1, ascending=False)
