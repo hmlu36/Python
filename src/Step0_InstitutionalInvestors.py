@@ -56,7 +56,8 @@ def GetInstitutionalInvestorsExchange(dayCount=1):
 
         # print(sum_df)
         count += 1
-        Sleep()
+        if dayCount > 1:
+            Sleep()
 
     sum_df = sum_df.set_index("項目")
     print(sum_df)
@@ -93,7 +94,8 @@ def GetDailyExchangeAmount(dayCount=1):
 
         count += 1
         # print(sum_df)
-        Sleep()
+        if dayCount > 1
+            Sleep()
 
     sum_df = sum_df.sort_values(by="日期", axis=1, ascending=False)
 
