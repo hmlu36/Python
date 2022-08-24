@@ -300,5 +300,5 @@ def GetDataFrameByCssSelector(url, css_selector):
     return dfs
 
 # ------ 測試 ------
-print(GetBasicStockInfo(True))
+#print(GetBasicStockInfo(True))
 #print(GetDirectorSharehold())
