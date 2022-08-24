@@ -4,7 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 import random
 import time
-from fake_useragent import UserAgent
+import pyuser_agent
 '''
 抓取本益比
 取得現今EPS、本益比、近五年六個級距本益比

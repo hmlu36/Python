@@ -4,7 +4,7 @@ from datetime import datetime
 from dateutil.relativedelta import *
 import time
 import random
-from fake_useragent import UserAgent
+import pyuser_agent
 
 # 取出每日收盤價
 # 計算n個交易日
@@ -105,7 +105,7 @@ def GetDailyExchangeAmount(dayCount=1):
 
 # ------ 共用的 function ------
 def GetHeaders():
-    ua = UserAgent()
+    ua = pyuser_agent.UA()
     user_agent = ua.random
     headers = {"user-agent": user_agent}
     return headers

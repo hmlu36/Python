@@ -1,11 +1,10 @@
-from fake_useragent import UserAgent
 from bs4 import BeautifulSoup
 import pandas as pd
 import random
 import time
 import requests
 import os
-
+import pyuser_agent
 
 def GetAllShareholderDistribution():
     url='https://smart.tdcc.com.tw/opendata/getOD.ashx?id=1-5'
@@ -60,7 +59,7 @@ def GetShareholderDistribution(stockId):
         'REQ_OPR': 'qrySelScaDates',
     }
 
-    ua = UserAgent()
+    ua = pyuser_agent.UA()
     user_agent = ua.random
     headers = {"user-agent": user_agent}
     dates = requests.post(url, data=payload, headers=headers).json()

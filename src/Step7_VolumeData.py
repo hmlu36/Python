@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from fake_useragent import UserAgent
 import requests
 from bs4 import BeautifulSoup
 import time
@@ -9,6 +8,7 @@ import random
 from functools import reduce
 import os
 import errno
+import pyuser_agent
 
 import re
 from PIL import Image
@@ -225,7 +225,7 @@ def GetVolume(stockId):
 
 
 def GetDataFrameByCssSelector(url, css_selector):
-    ua = UserAgent()
+    ua = pyuser_agent.UA()
     user_agent = ua.random
     headers = {"user-agent": user_agent}
     rawData = requests.get(url, headers=headers,verify=False)

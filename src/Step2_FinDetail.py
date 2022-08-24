@@ -4,7 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 import time
 import random
-from fake_useragent import UserAgent
+import pyuser_agent
 
 """
 1. 營收累計年增率 > 0 %
@@ -88,7 +88,7 @@ def GetFinDetail2():
 
 # ------ 共用的 function ------
 def GetDataFrameByCssSelector(url, css_selector):
-    ua = UserAgent()
+    ua = pyuser_agent.UA()
     user_agent = ua.random
     headers = {"user-agent": user_agent}
     rawData = requests.get(url, headers=headers)

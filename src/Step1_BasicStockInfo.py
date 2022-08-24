@@ -13,7 +13,6 @@ from decimal import Decimal
 from datetime import datetime, timedelta
 import os
 from datetime import date
-import fake_useragent
 import pyuser_agent
 
 # 本益比, 淨值比

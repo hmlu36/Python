@@ -1,9 +1,10 @@
-from fake_useragent import UserAgent
 from bs4 import BeautifulSoup
 import pandas as pd
 import random
 import time
 import os
+import pyuser_agent
+import requests
 
 def GetTopVolume():    
     cssSelector = '#divStockList'
@@ -35,7 +36,7 @@ def GetTopVolume():
 
 # ------ 共用的 function ------
 def GetDataFrameByCssSelector(url, css_selector):
-    ua = UserAgent()
+    ua = pyuser_agent.UA()
     user_agent = ua.random
     headers = {"user-agent": user_agent}
     rawData = requests.get(url, headers=headers)

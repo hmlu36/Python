@@ -1,4 +1,3 @@
-from fake_useragent import UserAgent
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -6,6 +5,8 @@ import random
 import time
 from datetime import datetime
 import os
+
+import pyuser_agent
 
 def GetDividend(stockId):
     url = f'https://goodinfo.tw/tw/StockDividendPolicy.asp?STOCK_ID={stockId}'
@@ -101,7 +102,7 @@ def GetAllDividend():
 # ------ 共用的 function ------
 
 def GetDataFrameByCssSelector(url, css_selector):
-    ua = UserAgent()
+    ua = pyuser_agent.UA()
     user_agent = ua.random
     headers = {"user-agent": user_agent}
     rawData = requests.get(url, headers=headers)
