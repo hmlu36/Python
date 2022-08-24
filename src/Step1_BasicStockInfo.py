@@ -283,7 +283,9 @@ def GetDataFrameByCssSelector(url, css_selector):
     ua = pyuser_agent.UA()
     user_agent = ua.random
     headers = {"user-agent": user_agent}
-    rawData = requests.get(url, headers=headers, timeout=(5, 10))
+    rawData = requests.get(url, headers=headers, timeout=(5, 10)) 
+    #Max 5 seconds to connect to server and max 10 seconds to wait on response
+    
     rawData.encoding = "utf-8"
     soup = BeautifulSoup(rawData.text, "html.parser")
     data = soup.select_one(css_selector)
@@ -300,5 +302,5 @@ def GetDataFrameByCssSelector(url, css_selector):
     return dfs
 
 # ------ 測試 ------
-print(GetBasicStockInfo(True))
+#print(GetBasicStockInfo(True))
 #print(GetDirectorSharehold())
