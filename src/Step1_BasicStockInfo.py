@@ -14,8 +14,7 @@ from datetime import datetime, timedelta
 import os
 from datetime import date
 import fake_useragent
-
-print(fake_useragent.__file__)
+import pyuser_agent
 
 # 本益比, 淨值比
 def GetDailyExchangeReport(filter):
@@ -281,8 +280,8 @@ def GetRootPath():
 
 
 def GetDataFrameByCssSelector(url, css_selector):
-    print(fake_useragent.__file__)
-    ua = fake_useragent.UserAgent()
+    #ua = fake_useragent.UserAgent()
+    ua = pyuser_agent.UA()
     user_agent = ua.random
     headers = {"user-agent": user_agent}
     rawData = requests.get(url, headers=headers)
@@ -302,5 +301,5 @@ def GetDataFrameByCssSelector(url, css_selector):
     return dfs
 
 # ------ 測試 ------
-#print(GetBasicStockInfo(True))
+print(GetBasicStockInfo(True))
 #print(GetDirectorSharehold())

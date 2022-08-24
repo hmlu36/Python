@@ -157,3 +157,15 @@ https://www.banking.gov.tw/ch/home.jsp?id=591&parentpath=0,590&mcustomize=multim
 #「景氣循環股」有哪些？怎麼運作？
 https://www.cmoney.tw/learn/course/basicanalysisfast/topic/1557
 https://www.businesstoday.com.tw/article/category/183008/post/202110040020
+
+
+# PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: after installing python-certifi-win32
+The files are listed below, and were located here:
+  C:\Users\<username>\AppData\Local\Programs\Python\Python310\Lib\site-packages
+
+Files:
+  python-certifi-win32-init.pth
+  distutils-precedence.pth
+
+Removing these files allowed me to install/uninstall other modules.
+https://stackoverflow.com/questions/72011315/permissionerror-winerror-32-the-process-cannot-access-the-file-because-it-is
