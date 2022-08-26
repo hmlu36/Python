@@ -91,24 +91,22 @@ def GetOperatingMargin():
 def GetBasicStockInfo(filter=False):
 
     exchangeReport = GetDailyExchangeReport(filter)
-
+    
     capital = GetStockCapital(filter)
-
+    
     # merge dataframe
     # ref: http://violin-tao.blogspot.com/2017/06/pandas-2-concat-merge.html
     merge_df = pd.merge(capital, exchangeReport, on="證券代號")
-    # print(merge_df)
-
+    #print(merge_df)
 
     if filter:
         operatingMargin_df = GetOperatingMargin()
         merge_df = pd.merge(merge_df, operatingMargin_df, on="證券代號")
         # print(merge_df)
 
-
         dailyExhange_df = GetDailyExchange()
         merge_df = pd.merge(merge_df, dailyExhange_df, on="證券代號")
-
+        
         # 董監持股比例
         #directShareHold_df = pd.read_csv(f"{GetRootPath()}\Data\Monthly\董監持股比例.csv")
         #directShareHold_df = directShareHold_df.rename(columns={"代號": "證券代號", "全體  董監  持股  (%)": "全體董監持股(%)"})
@@ -116,15 +114,14 @@ def GetBasicStockInfo(filter=False):
         #directShareHold_df = directShareHold_df[["證券代號", "全體董監持股(%)"]].astype(str)
         directShareHold_df = GetDirectorSharehold()
         merge_df = pd.merge(merge_df, directShareHold_df, on="證券代號")
-
+        
         # 股東分布資料
         shareHoder_df = GetAllShareholderDistribution()
         shareHoder_df["100-1000張人數"] = shareHoder_df[["101-200張人數", "201-400張人數", "401-800張人數", "801-1000張人數"]].sum(axis=1)
         shareHoder_df["100-1000張比例"] = shareHoder_df[["101-200張人數", "201-400張人數", "401-800張人數", "801-1000張人數"]].sum(axis=1)
         shareHoder_df = shareHoder_df[["證券代號", "100張以下人數", "100張以下比例", "100-1000張人數", "100-1000張比例", "1000張以上人數", "1000張以上比例"]].astype(str)
         merge_df = pd.merge(merge_df, shareHoder_df, on="證券代號")
-
-
+        
     # move column in pandas dataframe
     # ref https://stackoverflow.com/questions/35321812/move-column-in-pandas-dataframe
     column_to_move = merge_df.pop("證券名稱")
@@ -263,12 +260,12 @@ def GetDirectorSharehold():
     df = GetDataFrameByCssSelector(url, cssSelector)
     df.columns = df.columns.get_level_values(0)
     
-    print(df)
-    df = df.iloc[:, [3, 7]]
+    #print(df)
+    df = df.iloc[:, [3, 7]] #擷取所需欄位
     
     df['證券代號'] = df['個股代號/名稱'].str[0:4]
     df['公司名稱'] = df['個股代號/名稱'].str[4:]
-    df = df[['證券代號', '公司名稱', '持股比率 %']]
+    df = df[['證券代號', '持股比率 %']]
     df = df.rename(columns={"持股比率 %": "全體董監持股(%)"})
     return df
 
@@ -302,5 +299,5 @@ def GetDataFrameByCssSelector(url, css_selector):
     return dfs
 
 # ------ 測試 ------
-#print(GetBasicStockInfo(True))
+print(GetBasicStockInfo(True))
 #print(GetDirectorSharehold())
