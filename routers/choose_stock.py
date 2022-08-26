@@ -96,7 +96,6 @@ def Operate(op: int, stockId: Union[str, None] = None):
     # 過濾清單
     if op == 1:
         df = GetBasicStockInfo(True)
-
         df.update(df.apply(lambda x: pd.to_numeric(x, errors="coerce")))
         
         cond1 = df["毛利率"] > 30
