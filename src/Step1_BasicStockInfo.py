@@ -260,7 +260,7 @@ def GetDirectorSharehold():
     df = GetDataFrameByCssSelector(url, cssSelector)
     df.columns = df.columns.get_level_values(0)
     
-    print(df)
+    #print(df)
     #擷取所需欄位
     df = df.iloc[:, [3, 7]] 
     

@@ -111,6 +111,7 @@ def Operate(op: int, stockId: Union[str, None] = None):
 
         # 重新寫入
         save(tableName, df)
+        print('執行成功')
         return {"message": "執行成功"}
 
     # 明細資料
