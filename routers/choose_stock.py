@@ -200,7 +200,7 @@ def Operate(op: int, stockId: Union[str, None] = None):
             print(stockId)
 
             Sleep()
-            distribution_df = shareholderDistribution.GetDistribution(stockId)
+            distribution_df = GetShareholderDistribution(stockId)
             print(distribution_df)
 
             Sleep()
