@@ -260,8 +260,9 @@ def GetDirectorSharehold():
     df = GetDataFrameByCssSelector(url, cssSelector)
     df.columns = df.columns.get_level_values(0)
     
-    #print(df)
-    df = df.iloc[:, [3, 7]] #擷取所需欄位
+    print(df)
+    #擷取所需欄位
+    df = df.iloc[:, [3, 7]] 
     
     df['證券代號'] = df['個股代號/名稱'].str[0:4]
     df['公司名稱'] = df['個股代號/名稱'].str[4:]
