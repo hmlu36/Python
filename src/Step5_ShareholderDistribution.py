@@ -92,7 +92,7 @@ def GetShareholderDistribution(stockId):
             'clkStockName': ''
         }
 
-        ua = UserAgent()
+        ua = pyuser_agent.UA()
         user_agent = ua.random
         headers = {"user-agent": user_agent}
         rawData = requests.post(url, data=payload, headers=headers)

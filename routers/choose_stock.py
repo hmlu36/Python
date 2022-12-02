@@ -96,16 +96,14 @@ def Operate(op: int, stockId: Union[str, None] = None):
     # 過濾清單
     if op == 1:
         df = GetBasicStockInfo(True)
-        # print(df)
-
         df.update(df.apply(lambda x: pd.to_numeric(x, errors="coerce")))
-
+        
         cond1 = df["毛利率"] > 30
         cond2 = df["營業利益率"] > 30
         cond3 = df["本益比"] < 15
         cond3 = df["資本額"] > 15
         df = df[cond1 & cond2 & cond3]
-        # print(df)
+        #print(df)
 
         tableName = "過濾清單"
         # 清除所有資料
@@ -113,6 +111,7 @@ def Operate(op: int, stockId: Union[str, None] = None):
 
         # 重新寫入
         save(tableName, df)
+        print('執行成功')
         return {"message": "執行成功"}
 
     # 明細資料
@@ -202,7 +201,7 @@ def Operate(op: int, stockId: Union[str, None] = None):
             print(stockId)
 
             Sleep()
-            distribution_df = shareholderDistribution.GetDistribution(stockId)
+            distribution_df = GetShareholderDistribution(stockId)
             print(distribution_df)
 
             Sleep()
