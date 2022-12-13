@@ -169,3 +169,9 @@ Files:
 
 Removing these files allowed me to install/uninstall other modules.
 https://stackoverflow.com/questions/72011315/permissionerror-winerror-32-the-process-cannot-access-the-file-because-it-is
+
+# ta
+https://github.com/bukosabino/ta
+
+# FinMind
+https://finmindtrade.com/analysis/#/account/user
