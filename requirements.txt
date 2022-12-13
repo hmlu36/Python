@@ -1,7 +1,7 @@
 pandas
 beautifulsoup4
 lxml
-pyuser-agent
+fake_useragent
 urllib3
 
 opencv-python
@@ -24,3 +24,6 @@ python-certifi-win32
 seaborn
 pandas_datareader
 black
+
+yfinance
+FinMind
