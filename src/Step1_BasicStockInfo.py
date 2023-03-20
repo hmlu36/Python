@@ -187,7 +187,7 @@ def GetFinancialStatement(type='綜合損益'):
     soup = BeautifulSoup(response.text, "html.parser")
     # print(response.text)
     # df = translate_dataFrame(response.text)
-    if not soup.find(text=re.compile("查詢無資料")):
+    if not soup.find(string=re.compile("查詢無資料")):
         df_table = pd.read_html(response.text)
         df = df_table[0]
         #print(df)
@@ -300,5 +300,5 @@ def GetDataFrameByCssSelector(url, css_selector):
     return dfs
 
 # ------ 測試 ------
-#print(GetBasicStockInfo(True))
+print(GetBasicStockInfo(True))
 #print(GetDirectorSharehold())
