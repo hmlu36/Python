@@ -5,8 +5,6 @@ import requests
 import json
 import time
 from io import StringIO
-import random
-import requests
 import re
 from lxml import etree
 from decimal import Decimal
@@ -14,6 +12,12 @@ from datetime import datetime, timedelta
 import os
 from datetime import date
 import pyuser_agent
+import ssl
+import Utils
+from Step11_GetNetWorth import GetNetWorth
+
+# 發現是urlopen https時需要驗證一次SSL證書，當網站目標使用自簽名的證書時就會跳出這個錯誤
+ssl._create_default_https_context = ssl._create_unverified_context
 
 # 本益比, 淨值比
 def GetDailyExchangeReport(filter):
@@ -77,7 +81,6 @@ def GetStockCapital(filter):
     # print(data)
     # return data
 
-
 # 營利率
 def GetOperatingMargin():
     df = GetFinancialStatement('營益分析')
@@ -94,6 +97,7 @@ def GetBasicStockInfo(filter=False):
     
     capital = GetStockCapital(filter)
     
+
     # merge dataframe
     # ref: http://violin-tao.blogspot.com/2017/06/pandas-2-concat-merge.html
     merge_df = pd.merge(capital, exchangeReport, on="證券代號")
@@ -107,6 +111,9 @@ def GetBasicStockInfo(filter=False):
         dailyExhange_df = GetDailyExchange()
         merge_df = pd.merge(merge_df, dailyExhange_df, on="證券代號")
         
+        #netWorth_df = GetNetWorth()
+        #merge_df = pd.merge(merge_df, netWorth_df, on="證券代號")
+
         # 董監持股比例
         #directShareHold_df = pd.read_csv(f"{GetRootPath()}\Data\Monthly\董監持股比例.csv")
         #directShareHold_df = directShareHold_df.rename(columns={"代號": "證券代號", "全體  董監  持股  (%)": "全體董監持股(%)"})
@@ -127,7 +134,7 @@ def GetBasicStockInfo(filter=False):
     column_to_move = merge_df.pop("證券名稱")
     merge_df.insert(1, "證券名稱", column_to_move)
     # print(merge_df)
-
+    merge_df.to_csv(f"{Utils.GetRootPath()}\Data\Temp\基本資訊.csv", encoding="utf_8_sig")
     return merge_df
 
 

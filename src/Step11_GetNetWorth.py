@@ -1,36 +1,19 @@
 from bs4 import BeautifulSoup
-import requests
+import pandas as pd
 import random
 import time
-import pandas as pd
 import os
 import pyuser_agent
+import requests
 
+def GetNetWorth():    
+    cssSelector = '#divStockList'
 
-def GetStockBoardTop():
-    # 取自神秘金字塔
-    url = "https://norway.twsthr.info/StockBoardTop.aspx"
-    cssSelector = "#details"
-    df = GetDataFrameByCssSelector(url, cssSelector)
-    df.columns = df.columns.get_level_values(0)
-    df = df.iloc[:, [3, 7]]
-    
-    df['證券代號'] = df['個股代號/名稱'].str[0:4]
-    df['公司名稱'] = df['個股代號/名稱'].str[4:]
-    df = df[['證券代號', '公司名稱', '持股比率 %']]
-    df = df.rename(columns={"持股比率 %": "全體董監持股(%)"})
-    #df.to_csv(f"{GetRootPath()}\Data\Monthly\董監持股比例.csv", encoding="utf_8_sig")
-    return df
-
-
-def GetDirectorSharehold():
-    cssSelector = "#divStockList"
     sum_df = pd.DataFrame()
 
     for rankIndex in range(0, 5):
-        url = f"https://goodinfo.tw/tw/StockList.asp?SHEET=董監持股&MARKET_CAT=熱門排行&INDUSTRY_CAT=全體董監持股比例&RANK={str(rankIndex)}"
+        url = f'https://goodinfo.tw/tw2/StockList.asp?MARKET_CAT=熱門排行&INDUSTRY_CAT=每股淨值最高@@每股淨值@@每股淨值最高&SHEET=季資產狀況&SHEET2=資產負債金額&RANK={str(rankIndex)}'
         print(url)
-
         try:
             time.sleep(random.randint(5, 10))
             df = GetDataFrameByCssSelector(url, cssSelector)
@@ -45,9 +28,7 @@ def GetDirectorSharehold():
 
     # 去除重複標頭
     sum_df = sum_df[sum_df.ne(sum_df.columns).any(1)]
-    # sum_df.to_csv(f'{GetRootPath()}\Data\Monthly\董監持股比例.csv',encoding='utf_8_sig')
-    return sum_df
-
+    return sum_df[["代號", "每股  淨值  (元)"]].rename(columns={"代號": "證券代號", "每股  淨值  (元)": "淨值"})
 
 # ------ 共用的 function ------
 def GetDataFrameByCssSelector(url, css_selector):
@@ -63,18 +44,18 @@ def GetDataFrameByCssSelector(url, css_selector):
     except:
         return pd.DataFrame()
 
-    # print(dfs)
+    #print(dfs)
     if len(dfs[0]) > 1:
         return dfs[0]
     if len(dfs[1]) > 1:
         return dfs[1]
     return dfs
-
-
+    
 def GetRootPath():
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # ------ 測試 ------
-print(GetDirectorSharehold())
-#print(GetStockBoardTop())
+
+#df = GetNetWorth()
+#print(df)
+#df.to_csv(f'{GetRootPath()}\Data\Temp\export.csv',encoding='utf_8_sig')
