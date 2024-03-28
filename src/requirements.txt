@@ -1,3 +1,11 @@
+pandas
+bs4
+requests
+lxml
+pyuser_agent
+fake_useragent
+Pillow
+
 libsm6
 libxrender1
 libfontconfig1
