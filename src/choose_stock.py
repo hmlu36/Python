@@ -69,14 +69,14 @@ def GetChampionStock(op):
         df = df[cond1 & cond2 & cond3]
         print(df)
         
-        df.to_csv(f"{Utils.GetRootPath()}\Data\Temp\過濾清單.csv", encoding="utf_8_sig")
+        df.to_csv(f"{Utils.GetRootPath()}\\Data\\Temp\\過濾清單.csv", encoding="utf_8_sig")
 
     # 明細資料
     if op == 2:
         basicStockInfo_df = GetBasicStockInfo()
         # sum_df = pd.DataFrame()
 
-        for stockId in ["9930"]:
+        for stockId in stocks:
             print(stockId)
 
             stockInfo_df = basicStockInfo_df[basicStockInfo_df["證券代號"] == stockId]
@@ -114,7 +114,7 @@ def GetChampionStock(op):
                 # sum_df = pd.concat([sum_df, temp_df], axis=0)
 
                 # 每列寫入csv檔, 不含表頭
-                temp_df.to_csv(f"{Utils.GetRootPath()}\Data\Temp\彙整清單.csv", mode="a", header=False, encoding="utf_8_sig")
+                temp_df.to_csv(f"{Utils.GetRootPath()}\\Data\\Temp\\彙整清單.csv", mode="a", header=False, encoding="utf_8_sig")
 
         # 寫入csv檔
         # sum_df.to_csv('彙整清單.csv', encoding='utf_8_sig')
@@ -141,7 +141,7 @@ def GetChampionStock(op):
                 temp_df = pd.concat([stockInfo_df, transaction_df, volume_df], axis=1)
                 print(temp_df)
 
-                temp_df.to_csv(f"{Utils.GetRootPath()}\Data\Daily\籌碼面資料.csv", mode="a", header=False, encoding="utf_8_sig")
+                temp_df.to_csv(f"{Utils.GetRootPath()}\\Data\\Daily\\籌碼面資料.csv", mode="a", header=False, encoding="utf_8_sig")
                 # 合併所有欄位成一列
                 # sum_df = pd.concat([sum_df, temp_df], axis=0)
 
@@ -166,7 +166,7 @@ def GetChampionStock(op):
             temp_df = pd.concat([PE_df, distribution_df], axis=1)
             print(temp_df)
 
-            temp_df.to_csv(f'{Utils.GetRootPath()}\Data\\Weekly\股東分布_本益比_{date.today().strftime("%Y%m%d")}.csv', mode="a", header=False, encoding="utf_8_sig")
+            temp_df.to_csv(f'{Utils.GetRootPath()}\\Data\\\\Weekly\\股東分布_本益比_{date.today().strftime("%Y%m%d")}.csv', mode="a", header=False, encoding="utf_8_sig")
 
     if op == 5:
         directorSharehold.WriteData()
@@ -189,11 +189,11 @@ def GetChampionStock(op):
                 temp_df = pd.concat([stockInfo_df, volume_df], axis=1)
                 print(temp_df)
 
-                temp_df.to_csv(f'{Utils.GetRootPath()}\Data\Daily\異常籌碼資料_{date.today().strftime("%Y%m%d")}.csv', mode="a", header=False, encoding="utf_8_sig")
+                temp_df.to_csv(f'{Utils.GetRootPath()}\\Data\\Daily\\異常籌碼資料_{date.today().strftime("%Y%m%d")}.csv', mode="a", header=False, encoding="utf_8_sig")
 
         # 刪除暫存檔案
         try:
-            folderPath = pathlib.Path(f'{Utils.GetRootPath()}\Data\Daily\Chip\{(date.today() - timedelta(days=1)).strftime("%Y%m%d")}')
+            folderPath = pathlib.Path(f'{Utils.GetRootPath()}\\Data\\Daily\\Chip\\{(date.today() - timedelta(days=1)).strftime("%Y%m%d")}')
             Utils.delete_folder(folderPath)
         except Exception as ex:
             print(ex)
@@ -207,4 +207,4 @@ def GetChampionStock(op):
 # 5 月排程 - 董監比例
 # 6 季排程 - 財務資料
 # 7 日排程 - 異常買入
-GetChampionStock(0)
+GetChampionStock(2)

@@ -134,7 +134,7 @@ def GetBasicStockInfo(filter=False):
     column_to_move = merge_df.pop("證券名稱")
     merge_df.insert(1, "證券名稱", column_to_move)
     # print(merge_df)
-    merge_df.to_csv(f"{Utils.GetRootPath()}\Data\Temp\基本資訊.csv", encoding="utf_8_sig")
+    merge_df.to_csv(f"{Utils.GetRootPath()}/Data/Temp/基本資訊.csv", encoding="utf_8_sig")
     return merge_df
 
 
@@ -195,7 +195,7 @@ def GetFinancialStatement(type='綜合損益'):
     # print(response.text)
     # df = translate_dataFrame(response.text)
     if not soup.find(string=re.compile("查詢無資料")):
-        df_table = pd.read_html(response.text)
+        df_table = pd.read_html(StringIO(response.text))
         df = df_table[0]
         #print(df)
         # df.columns = df.columns.get_level_values(0)
@@ -295,7 +295,7 @@ def GetDataFrameByCssSelector(url, css_selector):
     soup = BeautifulSoup(rawData.text, "html.parser")
     data = soup.select_one(css_selector)
     try:
-        dfs = pd.read_html(data.prettify())
+        dfs = pd.read_html(StringIO(data.prettify()))
     except:
         return pd.DataFrame()
 

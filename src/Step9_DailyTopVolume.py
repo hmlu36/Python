@@ -1,3 +1,4 @@
+from io import StringIO
 from bs4 import BeautifulSoup
 import pandas as pd
 import random
@@ -28,7 +29,7 @@ def GetTopVolume():
     length = df['代號'].astype(str).map(len) == 4
     #df = df[gain & length]
     df = df[length]
-    df.to_csv(f'{GetRootPath()}\Data\Daily\日成交張數創近期新高日數.csv', encoding='utf_8_sig')
+    df.to_csv(f'{GetRootPath()}\\Data\\Daily\\日成交張數創近期新高日數.csv', encoding='utf_8_sig')
     return df['代號'].values
     # 去除重複標頭
     #sum_df[sum_df.ne(sum_df.columns).any(1)].to_csv(f'{Utils.GetRootPath()}\Data\Monthly\董監持股比例.csv',encoding='utf_8_sig')
@@ -44,7 +45,7 @@ def GetDataFrameByCssSelector(url, css_selector):
     soup = BeautifulSoup(rawData.text, "html.parser")
     data = soup.select_one(css_selector)
     try:
-        dfs = pd.read_html(data.prettify())
+        dfs = pd.read_html(StringIO(data.prettify()))
     except:
         return pd.DataFrame()
 
@@ -60,5 +61,5 @@ def GetRootPath():
 
 # ------ 測試 ------
 
-df = GetTopVolume()
-print(df)
+# df = GetTopVolume()
+# print(df)

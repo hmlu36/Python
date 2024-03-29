@@ -1,3 +1,4 @@
+from io import StringIO
 import numpy as np
 import pandas as pd
 import requests
@@ -118,7 +119,7 @@ def DownloadVolume(stockId):
 
             soup = BeautifulSoup(f"<table>{str(trs)}</table", "html.parser")
             data = soup.select_one("table")
-            df = pd.read_html(data.prettify())[0]
+            df = pd.read_html(StringIO(data.prettify()))[0]
             df.columns = ["序號", "券商", "價格", "買進股數", "賣出股數"]
             df.dropna(subset=["券商"], inplace=True)  # 移除空白列
             df["買進股數"] = df["買進股數"].astype(int)
@@ -233,7 +234,7 @@ def GetDataFrameByCssSelector(url, css_selector):
     soup = BeautifulSoup(rawData.text, "html.parser")
     data = soup.select_one(css_selector)
     try:
-        dfs = pd.read_html(data.prettify())
+        dfs = pd.read_html(StringIO(data.prettify()))
     except:
         return pd.DataFrame()
 

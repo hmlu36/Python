@@ -5,6 +5,9 @@ lxml
 pyuser_agent
 fake_useragent
 Pillow
+IPython
+pytesseract
+Opencv-python
 
 libsm6
 libxrender1

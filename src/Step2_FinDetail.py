@@ -1,3 +1,4 @@
+from io import StringIO
 import pandas as pd
 from decimal import Decimal
 import requests
@@ -96,7 +97,7 @@ def GetDataFrameByCssSelector(url, css_selector):
     soup = BeautifulSoup(rawData.text, "html.parser")
     data = soup.select_one(css_selector)
     try:
-        dfs = pd.read_html(data.prettify())
+        dfs = pd.read_html(StringIO(data.prettify()))
     except:
         return pd.DataFrame()
 

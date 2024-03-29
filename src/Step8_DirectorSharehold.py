@@ -1,3 +1,4 @@
+from io import StringIO
 from bs4 import BeautifulSoup
 import requests
 import random
@@ -44,7 +45,7 @@ def GetDirectorSharehold():
             # df.columns = df.columns.get_level_values(1)
 
     # 去除重複標頭
-    sum_df = sum_df[sum_df.ne(sum_df.columns).any(1)]
+    sum_df = sum_df[~(sum_df == sum_df.columns).all(axis=1)]
     # sum_df.to_csv(f'{GetRootPath()}\Data\Monthly\董監持股比例.csv',encoding='utf_8_sig')
     return sum_df
 
@@ -59,7 +60,7 @@ def GetDataFrameByCssSelector(url, css_selector):
     soup = BeautifulSoup(rawData.text, "html.parser")
     data = soup.select_one(css_selector)
     try:
-        dfs = pd.read_html(data.prettify())
+        dfs = pd.read_html(StringIO(data.prettify()))
     except:
         return pd.DataFrame()
 
