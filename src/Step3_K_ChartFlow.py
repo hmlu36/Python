@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 import random
 import time
 import pyuser_agent
+import time
 
 """
 抓取本益比
@@ -21,16 +22,17 @@ def GetPE(stockId):
     url = f"https://goodinfo.tw/StockInfo/ShowK_ChartFlow.asp?RPT_CAT=PER&STOCK_ID={stockId}&CHT_CAT=WEEK"
     css_selector = "#divK_ChartFlowDetail"
     try:
-        df = GetDataFrameByCssSelector(url, css_selector)
+        list = GetDataFrameByCssSelector(url, css_selector)
+        print(list)
         # 取前兩列後面倒數6欄資料
-        firtRowDf = df.iloc[0, -6:]
-        # print(firtRowDf)
+        firtRowDf = [row[-6:] for row in list[3]]
+        print(firtRowDf)
     except:
         time.sleep(random.randint(20, 30))
         df = GetDataFrameByCssSelector(url, css_selector)
 
         # 取前兩列後面倒數6欄資料
-        firtRowDf = df.iloc[0, -6:]
+        firtRowDf = df.iloc[:2, -6:]
         # print(firtRowDf)
 
     # dataframe轉成dictionary 參考 https://stackoverflow.com/questions/45452935/pandas-how-to-get-series-to-dict
@@ -77,11 +79,11 @@ def GetDataFrameByCssSelector(url, css_selector):
     soup = BeautifulSoup(rawData.text, "html.parser")
     data = soup.select_one(css_selector)
     try:
-        dfs = pd.read_html(StringIO(data.prettify()))
+        #讀取網頁內容，並轉成pd.DataFrame
+        dfs = pd.read_html(StringIO(data.prettify()), displayed_only=False)
     except:
         return pd.DataFrame()
 
-    # print(dfs)
     if len(dfs[0]) > 1:
         return dfs[0]
     if len(dfs[1]) > 1:
