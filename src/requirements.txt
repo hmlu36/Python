@@ -8,13 +8,8 @@ Pillow
 IPython
 pytesseract
 Opencv-python
+tesseract
 
-libsm6
-libxrender1
-libfontconfig1
-libice6
-libxext-dev
-libgl1
 
 tesseract-ocr
 tesseract-ocr-eng

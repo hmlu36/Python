@@ -4,16 +4,10 @@
 - 安裝檔案
   pip install -r requirements.txt
 
-- heroku set Config Vars
-heroku config:set DB_PASSWORD=secret -a [heroku-app-name]
 
-- FastAPI Swagger UI
-localhost:port/docs
-- OpenAPI and JSON Schema
-localhost:port/openapi.json
+- Tesseract 
+https://github.com/UB-Mannheim/tesseract/wiki
 
-- fastapi tutorial
-https://fastapi.tiangolo.com/tutorial/
 
 * ORM - Pony
   https://www.blog.pythonlibrary.org/2014/07/21/python-101-an-intro-to-pony-orm/

@@ -23,24 +23,25 @@ def GetPE(stockId):
     css_selector = "#divK_ChartFlowDetail"
     try:
         list = GetDataFrameByCssSelector(url, css_selector)
-        print(list)
-        # 取前兩列後面倒數6欄資料
-        firtRowDf = [row[-6:] for row in list[3]]
-        print(firtRowDf)
+        #print(list)
+        # 取前兩列後面倒數6欄資料, 轉成DataFrame
+        firstRowDf = list.iloc[:1, -6:]
+        #print(firstRowDf)
     except:
         time.sleep(random.randint(20, 30))
         df = GetDataFrameByCssSelector(url, css_selector)
 
         # 取前兩列後面倒數6欄資料
-        firtRowDf = df.iloc[:2, -6:]
-        # print(firtRowDf)
+        firstRowDf = list.iloc[:1, -6:]
+        #print(firtRowDf)
 
     # dataframe轉成dictionary 參考 https://stackoverflow.com/questions/45452935/pandas-how-to-get-series-to-dict
     dictionaries = [
-        dict(key=re.findall(r"[0-9]+[.]?[0-9]*", str(k))[0], value=v)
-        for k, v in firtRowDf.items()
+        dict(key=re.findall(r'[0-9]+[.]?[0-9]*', str(k))[0], value=v) 
+        for k, v in firstRowDf.items()
     ]
-    # print(data)
+   
+    #print(dictionaries)
 
     # 轉換成dataframe
     data = []
@@ -63,8 +64,8 @@ def GetPE(stockId):
         data.append(entry["key"])
         data.append(entry["value"])
 
-    ##print(headers)
-    # print(data)
+    #print(headers)
+    #print(data)
     df = pd.DataFrame([data], columns=headers)
     return df
 
@@ -74,9 +75,9 @@ def GetDataFrameByCssSelector(url, css_selector):
     ua = pyuser_agent.UA()
     user_agent = ua.random
     headers = {"user-agent": user_agent}
-    rawData = requests.get(url, headers=headers)
-    rawData.encoding = "utf-8"
-    soup = BeautifulSoup(rawData.text, "html.parser")
+    response = requests.get(url, headers=headers)
+    response.encoding = "utf-8"
+    soup = BeautifulSoup(response.text, "html.parser")
     data = soup.select_one(css_selector)
     try:
         #讀取網頁內容，並轉成pd.DataFrame
@@ -84,13 +85,17 @@ def GetDataFrameByCssSelector(url, css_selector):
     except:
         return pd.DataFrame()
 
-    if len(dfs[0]) > 1:
-        return dfs[0]
-    if len(dfs[1]) > 1:
-        return dfs[1]
-    return dfs
+        # Return the first DataFrame with more than one row
+    for df in dfs:
+        if len(df) > 1:
+            return df
+
+    # If no suitable DataFrame is found, return an empty DataFrame
+    return pd.DataFrame()
 
 
 # ------ 測試 ------
+'''
 data = GetPE('2474')
 print(data)
+'''

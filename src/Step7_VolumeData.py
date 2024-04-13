@@ -39,7 +39,7 @@ trade_amt = 0
 
 def DownloadVolume(stockId):
     session = requests.Session()
-    ua = UserAgent()
+    ua = pyuser_agent.UA()
     user_agent = ua.random
     headers = {"user-agent": user_agent}
     response = session.get(f"{base_url}/bsMenu.aspx", headers=headers, verify=False)
@@ -492,8 +492,7 @@ def DecodeCaptcha(captcha):
 
 
 # ------ 測試 ------
-'''
+
 # df = GetVolumeIndicator('8112')
 df = GetVolume("3257")
 print(df)
-'''
