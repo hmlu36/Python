@@ -164,9 +164,9 @@ def GetRootPath():
 
 
 # ------ 測試 ------
-'''
+
 # 個股(含歷程)
-df = GetDistribution('2477')
+df = GetShareholderDistribution('2477')
 print(df)
-'''
-#print(GetAllShareholderDistribution())
+
+# print(GetAllShareholderDistribution())

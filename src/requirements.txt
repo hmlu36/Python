@@ -9,7 +9,5 @@ IPython
 pytesseract
 Opencv-python
 tesseract
-
-
 tesseract-ocr
 tesseract-ocr-eng

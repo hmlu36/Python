@@ -25,7 +25,7 @@ import cv2
 # https://blog.cnyes.com/my/uniroselee/article2270853
 
 base_url = "https://bsr.twse.com.tw/bshtm"
-path = f"{os.path.dirname(os.path.dirname(os.path.abspath(__file__)))}\Data\Daily\Chip"
+path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "Data", "Daily", "Chip")
 
 # 交易日期
 receive_date = ""
@@ -42,7 +42,7 @@ def DownloadVolume(stockId):
     ua = pyuser_agent.UA()
     user_agent = ua.random
     headers = {"user-agent": user_agent}
-    response = session.get(f"{base_url}/bsMenu.aspx", headers=headers, verify=False)
+    response = session.get(f"{base_url}/bsMenu.aspx", headers=headers, verify=True)
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, "html.parser")
 
@@ -93,13 +93,13 @@ def DownloadVolume(stockId):
                 return {"success": False}
 
             # 下載分點進出 CSV
-            resp = session.get(f"{base_url}/bsContent.aspx",verify=False)
+            resp = session.get(f"{base_url}/bsContent.aspx",verify=True)
             if resp.status_code != 200:
                 print("任務失敗，無法下載分點進出 CSV")
                 return {"success": False}
 
             # print(resp.text)
-            resp = session.get(f"{base_url}/bsContent.aspx?v=t",verify=False)
+            resp = session.get(f"{base_url}/bsContent.aspx?v=t",verify=True)
             soup = BeautifulSoup(resp.text, "html.parser")
 
             # 交易日期
@@ -130,7 +130,7 @@ def DownloadVolume(stockId):
             # print(df)
 
             # 寫檔案
-            filePath = f"{path}\{receive_date}\{stockId}.csv"
+            filePath = os.path.join(path, receive_date, f"{stockId}.csv")
             # 建立資料夾, 如果資料夾不存在時
             if not os.path.exists(os.path.dirname(filePath)):
                 try:
@@ -144,7 +144,7 @@ def DownloadVolume(stockId):
 
 
 def GetVolumeIndicator(result, stockId):
-    df = pd.read_csv(f'{path}\{result["receive_date"]}\{stockId}.csv')
+    df = pd.read_csv(os.path.join(path, result["receive_date"], f"{stockId}.csv"))
 
     # TOP 1 買超 = 買最多股票的券商 買多少
     top1Buy = df["買進股數"].max()
@@ -223,29 +223,6 @@ def GetVolume(stockId):
 
 
 # ------ 共用的 function ------
-
-
-def GetDataFrameByCssSelector(url, css_selector):
-    ua = pyuser_agent.UA()
-    user_agent = ua.random
-    headers = {"user-agent": user_agent}
-    rawData = requests.get(url, headers=headers,verify=False)
-    rawData.encoding = "utf-8"
-    soup = BeautifulSoup(rawData.text, "html.parser")
-    data = soup.select_one(css_selector)
-    try:
-        dfs = pd.read_html(StringIO(data.prettify()))
-    except:
-        return pd.DataFrame()
-
-    # print(dfs)
-    if len(dfs[0]) > 1:
-        return dfs[0]
-    if len(dfs[1]) > 1:
-        return dfs[1]
-    return dfs
-
-
 """
 ref : https://stackoverflow.com/questions/57545125/attributeerror-module-scipy-misc-has-no-attribute-toimage
 https://github.com/hhschu/Captcha_OCR/blob/master/TWSE%20Captcha%20OCR%20Challenge.ipynb
@@ -272,10 +249,10 @@ def GetCaptcha(url):
     """
     print(url)
     img = bytes()
-    res = requests.get(url,verify=False)
+    res = requests.get(url,verify=True)
     if res.status_code == 200:
         img = res.content
-        with open(f"Data\Temp\Captcha\check.png", "wb") as handler:
+        with open(os.path.join("Data", "Temp", "Captcha", "check.png"), "wb") as handler:
             handler.write(img)
     else:
         print("error")
@@ -492,7 +469,8 @@ def DecodeCaptcha(captcha):
 
 
 # ------ 測試 ------
-
+"""
 # df = GetVolumeIndicator('8112')
 df = GetVolume("3257")
 print(df)
+"""

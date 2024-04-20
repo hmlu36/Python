@@ -7,6 +7,7 @@
 
 - Tesseract 
 https://github.com/UB-Mannheim/tesseract/wiki
+https://lufor129.medium.com/pytesseract-辨識圖片中的文字-b1024f678fac
 
 
 * ORM - Pony
