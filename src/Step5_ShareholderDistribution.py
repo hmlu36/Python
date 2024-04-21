@@ -1,10 +1,9 @@
 from bs4 import BeautifulSoup
 import pandas as pd
-import random
-import time
 import requests
 import os
 import pyuser_agent
+from requests import Session
 
 def GetAllShareholderDistribution():
     url='https://smart.tdcc.com.tw/opendata/getOD.ashx?id=1-5'
@@ -52,108 +51,55 @@ def GetAllShareholderDistribution():
 
     
 def GetShareholderDistribution(stockId):
-    url = 'https://www.tdcc.com.tw/smWeb/QryStockAjax.do'
-    # print(rawData.text)
-    # 取得日期下拉選單
-    payload = {
-        'REQ_OPR': 'qrySelScaDates',
-    }
-
+    url = 'https://www.tdcc.com.tw/portal/zh/smWeb/qryStock'
+    
     ua = pyuser_agent.UA()
     user_agent = ua.random
     headers = {"user-agent": user_agent}
-    dates = requests.post(url, data=payload, headers=headers).json()
-    # print(dates)
+    
+    session = Session()
+    session.headers.update(headers)
+    
+    response = session.get(url, headers=headers)
+    soup = BeautifulSoup(response.text, 'html.parser')
 
-    '''
-    產生日期區間
-    today = datetime.today()
-    dateFormat = '%Y/%m/%d'
-    startDateStr = (today - timedelta(days=30)).strftime(dateFormat)
-    endDateStr = today.strftime(dateFormat)
-    # 產生日期區間
-    datePeriod = pd.date_range(startDateStr, endDateStr, freq='W-FRI')[::-1]
-    print('startDate:' + startDateStr + ', endDate:' + endDateStr + ', loopDate:' + datePeriod[0])
-    tempDate = datePeriod[2].strftime('%Y%m%d')
-    '''
+    select = soup.find('select', {'id': 'scaDate'})
+    options = [option.text for option in select.find_all('option')]
+    lastDate = options[0]
 
-    sum_df = pd.DataFrame()
+    # 找到名為 'SYNCHRONIZER_TOKEN' 的 <input> 元素
+    synchronizer_token = soup.find('input', {'name': 'SYNCHRONIZER_TOKEN'})['value']
+    print(synchronizer_token)
 
-    for date in dates[:5]:
-        #print('date:' + date)
-        payload = {
-            'scaDates': date,
-            'scaDate': date,
-            'SqlMethod': 'StockNo',
-            'StockNo': stockId,
-            'StockName': '',
-            'REQ_OPR': 'SELECT',
-            'clkStockNo': stockId,
-            'clkStockName': ''
-        }
 
-        ua = pyuser_agent.UA()
-        user_agent = ua.random
-        headers = {"user-agent": user_agent}
-        rawData = requests.post(url, data=payload, headers=headers)
+    # 找到名為 'SYNCHRONIZER_URI' 的 <input> 元素
+    synchronizer_uri = soup.find('input', {'name': 'SYNCHRONIZER_URI'})['value']
+    print(synchronizer_uri)
 
-        soup = BeautifulSoup(rawData.text, 'html.parser')
-        tb = soup.select('.mt')[1]
-        all_data = []
-        for tr in tb.select('tr'):
-            rdata = [td.text.replace("\u3000", "").replace(",", "").strip() for td in tr.select('td')]
-            all_data.append(rdata)
+    #print('date:' + date)
+    payload = {
+        "SYNCHRONIZER_TOKEN": synchronizer_token,
+        "SYNCHRONIZER_URI": synchronizer_uri,
+        "method": "submit",
+        "firDate": lastDate,
+        "scaDate": lastDate,
+        "sqlMethod": "StockNo",
+        "stockNo:": f"{stockId}",
+        "stockName": ""
+    }
 
-        ls_head = ['SEQ', 'LV_DESC', 'NUM_OF_PEOPLE', 'STOCK_SHARES', 'PER_CENT_RT']
-        df = pd.DataFrame(all_data[1:len(all_data)-1], columns=ls_head)  # 最後一筆合計資料不要
-        # df.to_csv('股東分布資料.csv',encoding='utf_8_sig')
-        # df = pd.DataFrame(all_data[1:], columns=ls_head)	#最後一筆合計資料不要
-        # print(df)
-
-        #header = df['LV_DESC'].tolist()
-        # print(header)
-
-        df = df[['NUM_OF_PEOPLE', 'PER_CENT_RT']]
-        # print(df)
-        #df['100-1000張人數'] = df[['1-999', '1000-5000', '5001-10000', '10001-15000', '15001-20000', '20001-30000', '30001-40000', '40001-50000', '50001-100000']].sum(axis=1)
-
-        rangeDicts = {'100張以下': 9, '100-1000張': 14, '1000張以上': 15}
-        # print(df['NUM_OF_PEOPLE'].iloc[0:9])
-
-        row = {}
-        for typeKey, typeValue in {'NUM_OF_PEOPLE': 'int', 'PER_CENT_RT': 'float'}.items():
-            previousCnt = 0
-
-            for rangeIndex, (rangeKey, rangeValue) in enumerate(rangeDicts.items()):
-                #print('previousCnt:' + str(previousCnt) + ', rangeValue:' + str(rangeValue))
-                sum = df[typeKey].iloc[previousCnt: rangeValue].astype(typeValue).sum(axis=0)
-                # 有小數時, 四捨五入小數第二位
-                sum = round(sum, 0 if typeValue == 'int' else 2)
-
-                # print(sum)
-                header = rangeKey + ('人數' if typeKey == 'NUM_OF_PEOPLE' else '比例')
-                row.update({header: sum})
-                if rangeIndex == len(rangeDicts) - 1:
-                    previousCnt = rangeValue + 1
-                else:
-                    previousCnt = rangeValue
-
-        # print(row)
-        sum_df = sum_df.append(row, ignore_index=True)
-
-    #將dataframe資料轉成 / 串起來
-    data = {}
-    for column in sum_df.columns.values:
-        #print(column + ', data:' + '/'.join(sum_df[column].astype(str)))
-        data.update({column: '  /  '.join(sum_df[column].astype(str))})
-
-    df = pd.DataFrame([data])
-    df = df[['100張以下比例', '100-1000張比例', '1000張以上比例', '1000張以上人數']]
-          
-    #df.to_csv('股東分布.csv', encoding='utf_8_sig')
-    #print(df)
-    return df
-
+    rawData = session.post(url, data=payload, headers=headers)
+    print(rawData.text)
+    soup = BeautifulSoup(rawData.text, 'html.parser')
+    
+    #取出<table class="table">的內容
+    table = soup.find('table', {'class': 'table'})
+    #print(table)
+    
+    # 把table轉成DataFrame
+    
+    df = pd.read_html(str(table))[0]
+    print(df)
 
 # ------ 共用的 function ------
 def GetRootPath():
@@ -166,7 +112,7 @@ def GetRootPath():
 # ------ 測試 ------
 
 # 個股(含歷程)
-df = GetShareholderDistribution('2477')
+df = GetShareholderDistribution('2330')
 print(df)
 
 # print(GetAllShareholderDistribution())
