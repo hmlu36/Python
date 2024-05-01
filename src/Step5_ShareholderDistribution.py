@@ -1,14 +1,23 @@
 from bs4 import BeautifulSoup
 import pandas as pd
-import requests
 import os
 import pyuser_agent
 from requests import Session
+import ssl
+import urllib.request
+from io import StringIO
+import time
+import json
+import requests
 
 def GetAllShareholderDistribution():
     url='https://smart.tdcc.com.tw/opendata/getOD.ashx?id=1-5'
-    #url = 'TDCC_OD_1-5.csv'
-    df = pd.read_csv(url)
+    
+    context = ssl._create_unverified_context()
+    
+    # 使用這個 context 來打開連線
+    with urllib.request.urlopen(url, context=context) as response:
+        df = pd.read_csv(response)
 
     # 列轉成欄位
     # 參考 https://stackoverflow.com/questions/63413708/transforming-pandas-dataframe-convert-some-row-values-to-columns
@@ -57,10 +66,11 @@ def GetShareholderDistribution(stockId):
     user_agent = ua.random
     headers = {"user-agent": user_agent}
     
-    session = Session()
+    session = requests.Session()
     session.headers.update(headers)
     
     response = session.get(url, headers=headers)
+    print(session.cookies.get_dict())
     soup = BeautifulSoup(response.text, 'html.parser')
 
     select = soup.find('select', {'id': 'scaDate'})
@@ -69,12 +79,12 @@ def GetShareholderDistribution(stockId):
 
     # 找到名為 'SYNCHRONIZER_TOKEN' 的 <input> 元素
     synchronizer_token = soup.find('input', {'name': 'SYNCHRONIZER_TOKEN'})['value']
-    print(synchronizer_token)
+    # print(synchronizer_token)
 
 
     # 找到名為 'SYNCHRONIZER_URI' 的 <input> 元素
     synchronizer_uri = soup.find('input', {'name': 'SYNCHRONIZER_URI'})['value']
-    print(synchronizer_uri)
+    # print(synchronizer_uri)
 
     #print('date:' + date)
     payload = {
@@ -87,18 +97,30 @@ def GetShareholderDistribution(stockId):
         "stockNo:": f"{stockId}",
         "stockName": ""
     }
-
-    rawData = session.post(url, data=payload, headers=headers)
-    print(rawData.text)
-    soup = BeautifulSoup(rawData.text, 'html.parser')
     
+    print(headers)
+    print(payload)
+    
+    cookies_dict = {}
+    for cookie in session.cookies:
+        if cookie.name not in cookies_dict:
+            cookies_dict[cookie.name] = []
+        cookies_dict[cookie.name].append(cookie.value)
+    print(cookies_dict)
+    
+    time.sleep(1)
+    rawData = session.post(url, data=payload, headers=headers)
+    # print(rawData.text)
+    soup = BeautifulSoup(rawData.text, 'html.parser')
+    # print(soup)
     #取出<table class="table">的內容
     table = soup.find('table', {'class': 'table'})
-    #print(table)
+    # print(table)
     
     # 把table轉成DataFrame
     
-    df = pd.read_html(str(table))[0]
+    table_str = table.prettify()
+    df = pd.read_html(StringIO(table_str))[0]
     print(df)
 
 # ------ 共用的 function ------
@@ -112,7 +134,7 @@ def GetRootPath():
 # ------ 測試 ------
 
 # 個股(含歷程)
-df = GetShareholderDistribution('2330')
+df = GetShareholderDistribution(2330)
 print(df)
 
-# print(GetAllShareholderDistribution())
+#print(GetAllShareholderDistribution())
