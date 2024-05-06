@@ -11,3 +11,5 @@ Opencv-python
 tesseract
 tesseract-ocr
 tesseract-ocr-eng
+selenium
+webdriver-manager
