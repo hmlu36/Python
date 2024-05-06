@@ -1,13 +1,8 @@
 from bs4 import BeautifulSoup
 import pandas as pd
 import os
-import pyuser_agent
-from requests import Session
 import ssl
 import urllib.request
-from io import StringIO
-import time
-import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
@@ -15,7 +10,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from bs4 import BeautifulSoup
 import pandas as pd
-from io import StringIO
 import time
 
 
@@ -119,83 +113,22 @@ def GetAllShareholderDistribution():
     # s.to_csv(f'{GetRootPath()}\Data\Weekly\股東分布資料.csv',encoding='utf_8_sig')
     return s
 
-
 def GetShareholderDistribution(stockId):
-    url = "https://www.tdcc.com.tw/portal/zh/smWeb/qryStock"
-
-    ua = pyuser_agent.UA()
-    user_agent = ua.random
-    headers = {"user-agent": user_agent}
-
-    session = requests.Session()
-    session.headers.update(headers)
-
-    response = session.get(url, headers=headers)
-    print(session.cookies.get_dict())
-    soup = BeautifulSoup(response.text, "html.parser")
-
-    select = soup.find("select", {"id": "scaDate"})
-    options = [option.text for option in select.find_all("option")]
-    lastDate = options[0]
-
-    # 找到名為 'SYNCHRONIZER_TOKEN' 的 <input> 元素
-    synchronizer_token = soup.find("input", {"name": "SYNCHRONIZER_TOKEN"})["value"]
-    # print(synchronizer_token)
-
-    # 找到名為 'SYNCHRONIZER_URI' 的 <input> 元素
-    synchronizer_uri = soup.find("input", {"name": "SYNCHRONIZER_URI"})["value"]
-    # print(synchronizer_uri)
-
-    # print('date:' + date)
-    payload = {
-        "SYNCHRONIZER_TOKEN": synchronizer_token,
-        "SYNCHRONIZER_URI": synchronizer_uri,
-        "method": "submit",
-        "firDate": lastDate,
-        "scaDate": lastDate,
-        "sqlMethod": "StockNo",
-        "stockNo:": f"{stockId}",
-        "stockName": "",
-    }
-
-    print(headers)
-    print(payload)
-
-    cookies_dict = {}
-    for cookie in session.cookies:
-        if cookie.name not in cookies_dict:
-            cookies_dict[cookie.name] = []
-        cookies_dict[cookie.name].append(cookie.value)
-    print(cookies_dict)
-
-    time.sleep(1)
-    rawData = session.post(url, data=payload, headers=headers)
-    # print(rawData.text)
-    soup = BeautifulSoup(rawData.text, "html.parser")
-    # print(soup)
-    # 取出<table class="table">的內容
-    table = soup.find("table", {"class": "table"})
-    # print(table)
-
-    # 把table轉成DataFrame
-
-    table_str = table.prettify()
-    df = pd.read_html(StringIO(table_str))[0]
-    print(df)
-
-
-def GetShareholderDistribution2(stockId):
     url = "https://www.tdcc.com.tw/portal/zh/smWeb/qryStock"
 
     # 創建一個新的 Chrome 瀏覽器實例
     webdriver_service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=webdriver_service)
+    
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--headless')  # 啟動隱藏模式
+    chrome_options.add_argument('--disable-gpu')  # windowsd必須加入此行 原文網址：https://itw01.com/FYB2UED.html
+    browser = webdriver.Chrome(service=webdriver_service, options=chrome_options)
 
     # 讓瀏覽器打開指定的網址
-    driver.get(url)
+    browser.get(url)
 
     # 獲取網頁的 HTML 內容
-    html = driver.page_source
+    html = browser.page_source
 
     # 使用 BeautifulSoup 解析 HTML
     soup = BeautifulSoup(html, "html.parser")
@@ -203,39 +136,58 @@ def GetShareholderDistribution2(stockId):
     select = soup.find("select", {"id": "scaDate"})
     options = [option.text for option in select.find_all("option")]
     lastDate = options[0]
+    print(lastDate)
 
-    # 找到名為 'SYNCHRONIZER_TOKEN' 的 <input> 元素
-    synchronizer_token = soup.find("input", {"name": "SYNCHRONIZER_TOKEN"})["value"]
-
-    # 找到名為 'SYNCHRONIZER_URI' 的 <input> 元素
-    synchronizer_uri = soup.find("input", {"name": "SYNCHRONIZER_URI"})["value"]
-
-    # 填充表單並提交
-    select = Select(driver.find_element(By.ID, "scaDate"))
+    # 輸入日期
+    select = Select(browser.find_element(By.ID, "scaDate"))
     select.select_by_visible_text(lastDate)
-    driver.find_element(By.NAME, "stockNo").send_keys(stockId)
-    #driver.find_element(By.NAME, "method").click()
 
-    # 等待結果頁面加載
-    time.sleep(5)
+    # 輸入股票代碼
+    browser.find_element(By.NAME, "stockNo").send_keys(stockId)
 
-    # 獲取結果頁面的 HTML 內容
-    result_html = driver.page_source
+    # 送出查詢
+    browser.find_element(By.XPATH, "//*[@id=\"form1\"]/table/tbody/tr[4]/td/input").click()
 
-    # 使用 BeautifulSoup 解析結果頁面的 HTML
-    result_soup = BeautifulSoup(result_html, "html.parser")
+    # 取得網頁原始碼
+    html_file = browser.page_source
 
-    # 取出<table class="table">的內容
-    table = result_soup.find("table", {"class": "table"})
+    # 傳入html file
+    # 建立beautifulSoup 解析文件
+    soup = BeautifulSoup(html_file, "lxml")
 
-    # 把table轉成DataFrame
-    table_str = table.prettify()
-    df = pd.read_html(StringIO(table_str))[0]
-    print(df)
+    # 找出回傳之分散表
+    table = soup.find("table", class_="table")
+    if table is not None:
+        # 將表格轉換為 DataFrame
+        df = pd.read_html(str(table))[0]
+        print(df)
+    else:
+        print("No table with class 'table' found.")
 
-    # 關閉瀏覽器
-    #driver.quit()
+    # 將 '持股/單位數分級' 列的值轉換為整數，以便於分組
+    df['持股/單位數分級'] = df['持股/單位數分級'].str.replace(',', '').str.extract(r'(\d+)').astype(float)
 
+    # 定義分組的邊界
+    bins = [0, 100, 1000, float('inf')]
+
+    # 定義每組的標籤
+    labels = ['100張以下比例', '100-1000張比例', '1000張以上比例']
+
+    # 使用 pd.cut 函數將 '持股/單位數分級' 列的值分組
+    df['Group'] = pd.cut(df['持股/單位數分級'], bins=bins, labels=labels)
+
+    # 將每組的 '占集保庫存數比例 (%)' 列的值加總
+    result = df.groupby('Group')['占集保庫存數比例 (%)'].sum()
+
+    # 將結果轉換為 DataFrame
+    result = result.reset_index()
+
+    # 將 '1000張以上人數' 列的值加入結果
+    result['1000張以上人數'] = df.loc[df['Group'] == '1000張以上比例', '人數'].sum()
+
+    print(result)
+    
+    return result
 
 # ------ 共用的 function ------
 def GetRootPath():
@@ -249,7 +201,7 @@ def GetRootPath():
 # ------ 測試 ------
 
 # 個股(含歷程)
-df = GetShareholderDistribution2(2330)
-print(df)
+#df = GetShareholderDistribution(2330)
+#print(df)
 
 # print(GetAllShareholderDistribution())
