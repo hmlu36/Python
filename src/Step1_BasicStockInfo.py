@@ -23,9 +23,11 @@ ssl._create_default_https_context = ssl._create_unverified_context
 def GetDailyExchangeReport(filter):
     # ----------------- （１）評估價值是否被低估？（股票價格不會太貴） -------------
     ########## 去公開資訊觀測站，把本益比、股價淨值比爬下來 ##########
-    url = f"https://www.twse.com.tw/exchangeReport/BWIBBU_d?response=json&date=&selectType=&_={str(time.time())}"
+    
+    url = f"https://www.twse.com.tw/rwd/zh/afterTrading/BWIBBU_d?response=json"
     list_req = requests.get(url)
     soup = BeautifulSoup(list_req.content, "html.parser")
+    #print(soup.text)
     getjson = json.loads(soup.text)
 
     # 因為是表格式，用dataframe處理會比較方便
@@ -49,14 +51,13 @@ def GetDailyExchangeReport(filter):
     else:
         return stockdf
 
-
 # 取出每日收盤價
 def GetDailyExchange():
-    url = "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&type=ALLBUT0999"
+    url = "https://www.twse.com.tw/rwd/zh/afterTrading/BFT41U?selectType=ALL&response=json"
     jsonData = requests.get(url).json()
     # print(jsonData)
-    df = pd.DataFrame(jsonData["data9"], columns=jsonData["fields9"])
-    df = df[["證券代號", "收盤價"]]
+    df = pd.DataFrame(jsonData["data"], columns=jsonData["fields"])
+    df = df[["證券代號", "成交價"]]
     return df
 
 
@@ -178,31 +179,34 @@ def GetFinancialStatement(type='綜合損益'):
     else:
         print('type does not match')
 
+    print(f"roc_year: {roc_year}, season: {season}")
     form_data = {
         "encodeURIComponent": 1,
         "step": 1,
         "firstin": 1,
         "off": 1,
+        "isQuery": "Y",
         "TYPEK": "sii",
         "year": roc_year,
-        "season": season,
+        "season":  str(season).zfill(2),
     }
 
     response = requests.post(url, form_data)
     response.encoding = "utf8"
 
+    #print(response.text)
     soup = BeautifulSoup(response.text, "html.parser")
-    # print(response.text)
-    # df = translate_dataFrame(response.text)
+    #df = translate_dataFrame(response.text)
     if not soup.find(string=re.compile("查詢無資料")):
         df_table = pd.read_html(StringIO(response.text))
+        # 總共有7個表格, 只取第1-6個表格
         df = df_table[0]
-        #print(df)
         # df.columns = df.columns.get_level_values(0)
         # 刪除重複, 保留唯一的第一列
         df = df.drop_duplicates(keep='first', inplace=False)
         # 將第一列指定為header
         df = df.rename(columns=df.iloc[0]).drop(df.index[0])
+        print(df)
         # 將第三列開只轉為數值
         for col in  df.columns[2:]:
             df[col] = pd.to_numeric(df[col], errors='coerce')
@@ -308,4 +312,6 @@ def GetDataFrameByCssSelector(url, css_selector):
 
 # ------ 測試 ------
 print(GetBasicStockInfo(True))
+#print(GetDailyExchange())
+#print(GetFinancialStatement('營益分析'))
 #print(GetDirectorSharehold())
