@@ -9,10 +9,49 @@ from urllib.parse import urlencode
 import os
 import errno
 
+from io import StringIO
+from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from bs4 import BeautifulSoup
+
+def GetDataFrameByCssSelector(url, css_selector):
+    print(css_selector)
+    # Configure Chrome options
+    chrome_options = Options()
+    # Configure Chrome options
+    #chrome_options.add_argument("--headless")  # Run Chrome in headless mode
+    #chrome_options.add_argument("--no-sandbox")  # Bypass OS security model
+    #chrome_options.add_argument("--disable-dev-shm-usage")  # Overcome limited resource problems
+#
+    # Initialize the WebDriver with the specified options
+    # The ChromeDriverManager automatically downloads the driver version required by the current version of Chrome installed on your system
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+
+    driver.get(url)
+    # Wait for the necessary time for the page to load
+    driver.implicitly_wait(15)  # Adjust the time according to your needs
+
+    # Now you can use BeautifulSoup or Selenium to parse the page
+    page_source = driver.page_source
+    soup = BeautifulSoup(page_source, "html.parser")
+    data = soup.select_one(css_selector)
+    #print(data)
+    try:
+        dfs = pd.read_html(StringIO(data.prettify()))
+    except:
+        return pd.DataFrame()
+
+    print(dfs)
+    if len(dfs[0]) > 1:
+        return dfs[0]
+    if len(dfs[1]) > 1:
+        return dfs[1]
+    return dfs
 
 def GetRootPath():
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 def GetDataByXPath(htmlInfo, XPath):
     return htmlInfo.xpath(re.sub(r"/tbody([[]\\d[]])?", "", XPath) + "/text()")[0]
@@ -46,12 +85,12 @@ def GetYearBetween(startDateStr, endDate=datetime.today()):
 def GetDataFrameValueByLabel(df, columnLable, matchRowLable):
     return df.set_index(columnLable).filter(like=matchRowLable, axis=0).values[0]
 
-
+'''
 def GetDataFrameByCssSelector(url, css_selector):
     rawData = requests.get(url, headers=GetHeader())
     rawData.encoding = "utf-8"
     return BeautifulSoup2DataFrame(rawData, css_selector)
-
+'''
 
 def PostDataFrameByCssSelector(url_root, payload, css_selector):
     qs = urlencode(payload)

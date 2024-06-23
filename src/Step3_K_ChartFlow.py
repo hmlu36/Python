@@ -7,6 +7,7 @@ import random
 import time
 import pyuser_agent
 import time
+import Utils
 
 """
 抓取本益比
@@ -19,14 +20,14 @@ import time
 
 
 def GetPE(stockId):
-    url = f"https://goodinfo.tw/StockInfo/ShowK_ChartFlow.asp?RPT_CAT=PER&STOCK_ID={stockId}&CHT_CAT=WEEK"
+    url = f"https://goodinfo.tw/tw/ShowK_ChartFlow.asp?RPT_CAT=PER&STOCK_ID={stockId}&CHT_CAT=WEEK"
     css_selector = "#divK_ChartFlowDetail"
     try:
-        list = GetDataFrameByCssSelector(url, css_selector)
-        #print(list)
+        list = Utils.GetDataFrameByCssSelector(url, css_selector)
+        print(list)
         # 取前兩列後面倒數6欄資料, 轉成DataFrame
         firstRowDf = list.iloc[:1, -6:]
-        #print(firstRowDf)
+        print(firstRowDf)
     except:
         time.sleep(random.randint(20, 30))
         df = GetDataFrameByCssSelector(url, css_selector)
@@ -78,7 +79,8 @@ def GetDataFrameByCssSelector(url, css_selector):
     response = requests.get(url, headers=headers)
     response.encoding = "utf-8"
     soup = BeautifulSoup(response.text, "html.parser")
-    data = soup.select_one(css_selector)
+    data = soup.find(id=css_selector)
+    print(data)
     try:
         #讀取網頁內容，並轉成pd.DataFrame
         dfs = pd.read_html(StringIO(data.prettify()), displayed_only=False)
@@ -95,7 +97,7 @@ def GetDataFrameByCssSelector(url, css_selector):
 
 
 # ------ 測試 ------
-'''
-data = GetPE('2474')
+
+data = GetPE('2330')
 print(data)
-'''
+
