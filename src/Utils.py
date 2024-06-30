@@ -14,10 +14,14 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
 from bs4 import BeautifulSoup
 
-def GetDataFrameByCssSelector(url, css_selector):
-    print(css_selector)
+def GetDataFrameByCssSelector(url, css_selector, index = None):
+    #print(css_selector)
     # Configure Chrome options
     chrome_options = Options()
     # Configure Chrome options
@@ -31,7 +35,9 @@ def GetDataFrameByCssSelector(url, css_selector):
 
     driver.get(url)
     # Wait for the necessary time for the page to load
-    driver.implicitly_wait(15)  # Adjust the time according to your needs
+    #driver.implicitly_wait(15)  # Adjust the time according to your needs
+    WebDriverWait(driver, 12).until(EC.presence_of_element_located((By.CSS_SELECTOR, css_selector)))
+
 
     # Now you can use BeautifulSoup or Selenium to parse the page
     page_source = driver.page_source
@@ -43,12 +49,15 @@ def GetDataFrameByCssSelector(url, css_selector):
     except:
         return pd.DataFrame()
 
-    print(dfs)
-    if len(dfs[0]) > 1:
-        return dfs[0]
-    if len(dfs[1]) > 1:
-        return dfs[1]
-    return dfs
+    #print(dfs)
+    
+    if index is not None and index < len(dfs):
+        return dfs[index]
+
+    for df in dfs:
+        if len(df) > 1:
+            return df
+    return None 
 
 def GetRootPath():
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

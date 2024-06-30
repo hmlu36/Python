@@ -23,19 +23,20 @@ def GetPE(stockId):
     url = f"https://goodinfo.tw/tw/ShowK_ChartFlow.asp?RPT_CAT=PER&STOCK_ID={stockId}&CHT_CAT=WEEK"
     css_selector = "#divK_ChartFlowDetail"
     try:
-        list = Utils.GetDataFrameByCssSelector(url, css_selector)
-        print(list)
+        list = Utils.GetDataFrameByCssSelector(url, css_selector, 2)
+        #print(list)
         # 取前兩列後面倒數6欄資料, 轉成DataFrame
         firstRowDf = list.iloc[:1, -6:]
-        print(firstRowDf)
+        #print(firstRowDf)
     except:
         time.sleep(random.randint(20, 30))
-        df = GetDataFrameByCssSelector(url, css_selector)
+        df = Utils.GetDataFrameByCssSelector(url, css_selector, 2)
 
         # 取前兩列後面倒數6欄資料
         firstRowDf = list.iloc[:1, -6:]
         #print(firtRowDf)
-
+    
+    #print(firstRowDf)
     # dataframe轉成dictionary 參考 https://stackoverflow.com/questions/45452935/pandas-how-to-get-series-to-dict
     dictionaries = [
         dict(key=re.findall(r'[0-9]+[.]?[0-9]*', str(k))[0], value=v) 
@@ -70,34 +71,8 @@ def GetPE(stockId):
     df = pd.DataFrame([data], columns=headers)
     return df
 
-
-# ------ 共用的 function ------
-def GetDataFrameByCssSelector(url, css_selector):
-    ua = pyuser_agent.UA()
-    user_agent = ua.random
-    headers = {"user-agent": user_agent}
-    response = requests.get(url, headers=headers)
-    response.encoding = "utf-8"
-    soup = BeautifulSoup(response.text, "html.parser")
-    data = soup.find(id=css_selector)
-    print(data)
-    try:
-        #讀取網頁內容，並轉成pd.DataFrame
-        dfs = pd.read_html(StringIO(data.prettify()), displayed_only=False)
-    except:
-        return pd.DataFrame()
-
-        # Return the first DataFrame with more than one row
-    for df in dfs:
-        if len(df) > 1:
-            return df
-
-    # If no suitable DataFrame is found, return an empty DataFrame
-    return pd.DataFrame()
-
-
 # ------ 測試 ------
 
-data = GetPE('2330')
-print(data)
+#data = GetPE('2330')
+#print(data)
 

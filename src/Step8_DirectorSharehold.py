@@ -34,7 +34,7 @@ def GetDirectorSharehold():
     cssSelector = "#divStockList"
     sum_df = pd.DataFrame()
 
-    for rankIndex in range(0, 1):
+    for rankIndex in range(0, 6):
         url = f"https://goodinfo.tw/tw/StockList.asp?SHEET=董監持股&MARKET_CAT=熱門排行&INDUSTRY_CAT=全體董監持股比例&RANK={str(rankIndex)}"
         print(url)
 

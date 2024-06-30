@@ -6,18 +6,18 @@ import random
 import time
 from datetime import datetime
 import os
-
+import Utils
 import pyuser_agent
 
 def GetDividend(stockId):
     url = f'https://goodinfo.tw/tw/StockDividendPolicy.asp?STOCK_ID={stockId}'
     cssSelector = '#divDetail'
     try:
-        df = GetDataFrameByCssSelector(url, cssSelector)
+        df = Utils.GetDataFrameByCssSelector(url, cssSelector)
         df.columns = df.columns.get_level_values(3)
     except:
         time.sleep(random.randint(20, 30))
-        df = GetDataFrameByCssSelector(url, cssSelector)
+        df = Utils.GetDataFrameByCssSelector(url, cssSelector)
         df.columns = df.columns.get_level_values(3)
 
     # column replace space
@@ -84,7 +84,7 @@ def GetAllDividend():
         #df = df[gain & length]
         df = df[length]
 
-        filePath = f'{GetRootPath()}\Data\Yearly\合計股利.csv'
+        filePath = f'{Utils.GetRootPath()}\Data\Yearly\合計股利.csv'
         if rankIndex == 0:
             df.to_csv(filePath, encoding='utf_8_sig')
         else:
@@ -100,39 +100,8 @@ def GetAllDividend():
 '''
 
 
-# ------ 共用的 function ------
-
-def GetDataFrameByCssSelector(url, css_selector):
-    ua = pyuser_agent.UA()
-    user_agent = ua.random
-    headers = {"user-agent": user_agent}
-    rawData = requests.get(url, headers=headers)
-    rawData.encoding = "utf-8"
-    soup = BeautifulSoup(rawData.text, "html.parser")
-    data = soup.select_one(css_selector)
-    try:
-        dfs = pd.read_html(StringIO(data.prettify()))
-    except:
-        return pd.DataFrame()
-
-    # print(dfs)
-    if len(dfs[0]) > 1:
-        return dfs[0]
-    if len(dfs[1]) > 1:
-        return dfs[1]
-    return dfs
-
-def GetRootPath():
-    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-#總表
-#WriteData()
-
 
 # ------ 測試 ------
-'''
-df = GetDividend('2356')
-print(df)
-'''
 
-#GetAllDividend()
+#df = GetDividend('2356')
+#print(df)

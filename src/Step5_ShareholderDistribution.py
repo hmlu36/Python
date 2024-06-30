@@ -10,7 +10,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from bs4 import BeautifulSoup
 import pandas as pd
-import time
 
 
 def GetAllShareholderDistribution():
@@ -201,7 +200,5 @@ def GetRootPath():
 # ------ 測試 ------
 
 # 個股(含歷程)
-#df = GetShareholderDistribution(2330)
-#print(df)
-
-# print(GetAllShareholderDistribution())
+df = GetShareholderDistribution(2330)
+print(df)

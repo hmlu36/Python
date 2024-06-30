@@ -104,7 +104,7 @@ def GetChampionStock(op):
                 print(dividend_df)
 
                 Sleep()
-                distribution_df = shareholderDistribution.GetDistribution(stockId)
+                distribution_df = shareholderDistribution.GetShareholderDistribution(stockId)
                 print(distribution_df)
 
                 # 合併所有欄位成一列
