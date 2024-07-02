@@ -1,10 +1,7 @@
 import pandas as pd
 from datetime import datetime, timedelta, date
 import time
-from io import StringIO
-from decimal import Decimal
 import random
-import sys
 from Step1_BasicStockInfo import GetBasicStockInfo
 from Step2_FinDetail import GetFinDetail
 from Step3_K_ChartFlow import GetPE

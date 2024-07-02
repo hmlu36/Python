@@ -10,6 +10,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from bs4 import BeautifulSoup
 import pandas as pd
+import time
 
 
 def GetAllShareholderDistribution():
@@ -165,6 +166,9 @@ def GetShareholderDistribution(stockId):
 
     # 將 '持股/單位數分級' 列的值轉換為整數，以便於分組
     df['持股/單位數分級'] = df['持股/單位數分級'].str.replace(',', '').str.extract(r'(\d+)').astype(float)
+    
+    # '人數'
+    df['人數'] = df['人數'].astype(float)
 
     # 定義分組的邊界
     bins = [0, 100, 1000, float('inf')]
@@ -172,8 +176,8 @@ def GetShareholderDistribution(stockId):
     # 定義每組的標籤
     labels = ['100張以下比例', '100-1000張比例', '1000張以上比例']
 
-    # 使用 pd.cut 函數將 '持股/單位數分級' 列的值分組
-    df['Group'] = pd.cut(df['持股/單位數分級'], bins=bins, labels=labels)
+    # 使用 pd.cut 函數將 '持股/單位數分級' 列的值分組(1張 1000股)
+    df['Group'] = pd.cut(df['持股/單位數分級'], bins=[item * 1000 for item in bins], labels=labels)
 
     # 將每組的 '占集保庫存數比例 (%)' 列的值加總
     result = df.groupby('Group')['占集保庫存數比例 (%)'].sum()
@@ -183,22 +187,18 @@ def GetShareholderDistribution(stockId):
 
     # 將 '1000張以上人數' 列的值加入結果
     result['1000張以上人數'] = df.loc[df['Group'] == '1000張以上比例', '人數'].sum()
-
-    print(result)
     
     return result
 
-# ------ 共用的 function ------
-def GetRootPath():
-    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
-# 總表
-# WriteData()
 
 
 # ------ 測試 ------
+# 總表
+# WriteData()
 
 # 個股(含歷程)
 df = GetShareholderDistribution(2330)
 print(df)
+
+# print(GetAllShareholderDistribution())
