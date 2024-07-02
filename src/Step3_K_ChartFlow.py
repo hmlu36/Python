@@ -1,11 +1,7 @@
-from io import StringIO
 import pandas as pd
 import re
-import requests
-from bs4 import BeautifulSoup
 import random
 import time
-import pyuser_agent
 import time
 import Utils
 
@@ -37,9 +33,13 @@ def GetPE(stockId):
         #print(firtRowDf)
     
     #print(firstRowDf)
+    
     # dataframe轉成dictionary 參考 https://stackoverflow.com/questions/45452935/pandas-how-to-get-series-to-dict
     dictionaries = [
-        dict(key=re.findall(r'[0-9]+[.]?[0-9]*', str(k))[0], value=v) 
+        dict(
+            key=float(re.findall(r'[0-9]+[.]?[0-9]*', str(k))[0]), 
+            value=v.str.extract(r"([-+]?\d*\.\d+|\d+)")[0].astype(float).iloc[0]
+        ) 
         for k, v in firstRowDf.items()
     ]
    
@@ -62,7 +62,7 @@ def GetPE(stockId):
         "本益比-級距6價格",
     ]
     for entry in dictionaries:
-        # print(entry)
+        #print(entry)
         data.append(entry["key"])
         data.append(entry["value"])
 
