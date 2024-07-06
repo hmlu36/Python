@@ -178,15 +178,9 @@ def GetShareholderDistribution(stockId):
 
     # 使用 pd.cut 函數將 '持股/單位數分級' 列的值分組(1張 1000股)
     df['Group'] = pd.cut(df['持股/單位數分級'], bins=[item * 1000 for item in bins], labels=labels)
-
-    # 將每組的 '占集保庫存數比例 (%)' 列的值加總
-    result = df.groupby('Group')['占集保庫存數比例 (%)'].sum()
-
-    # 將結果轉換為 DataFrame
-    result = result.reset_index()
-
-    # 將 '1000張以上人數' 列的值加入結果
-    result['1000張以上人數'] = df.loc[df['Group'] == '1000張以上比例', '人數'].sum()
+    
+    # 對每組的 '占集保庫存數比例 (%)' 和 '人數' 列的值進行加總
+    result = df.groupby('Group').agg({'占集保庫存數比例 (%)': 'sum', '人數': 'sum'}).reset_index()
     
     return result
 

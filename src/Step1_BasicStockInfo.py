@@ -311,7 +311,7 @@ def GetDataFrameByCssSelector(url, css_selector):
     return dfs
 
 # ------ 測試 ------
-print(GetBasicStockInfo(True))
+#print(GetBasicStockInfo(True))
 #print(GetDailyExchange())
 #print(GetFinancialStatement('營益分析'))
 #print(GetDirectorSharehold())
