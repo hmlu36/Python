@@ -34,9 +34,10 @@ def GetDataFrameByCssSelector(url, css_selector, index = None):
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
     driver.get(url)
+    driver.refresh()
     # Wait for the necessary time for the page to load
     #driver.implicitly_wait(15)  # Adjust the time according to your needs
-    WebDriverWait(driver, 12).until(EC.presence_of_element_located((By.CSS_SELECTOR, css_selector)))
+    WebDriverWait(driver, 7).until(EC.presence_of_element_located((By.CSS_SELECTOR, css_selector)))
 
 
     # Now you can use BeautifulSoup or Selenium to parse the page

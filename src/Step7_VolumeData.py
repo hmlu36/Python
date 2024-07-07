@@ -471,5 +471,5 @@ def DecodeCaptcha(captcha):
 # ------ 測試 ------
 
 # df = GetVolumeIndicator('8112')
-df = GetVolume("3257")
-print(df)
+# df = GetVolume("3257")
+# print(df)

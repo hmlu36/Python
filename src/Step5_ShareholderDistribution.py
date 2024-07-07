@@ -10,8 +10,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from bs4 import BeautifulSoup
 import pandas as pd
-import time
-
 
 def GetAllShareholderDistribution():
     url = "https://smart.tdcc.com.tw/opendata/getOD.ashx?id=1-5"
@@ -180,19 +178,25 @@ def GetShareholderDistribution(stockId):
     df['Group'] = pd.cut(df['持股/單位數分級'], bins=[item * 1000 for item in bins], labels=labels)
     
     # 對每組的 '占集保庫存數比例 (%)' 和 '人數' 列的值進行加總
-    result = df.groupby('Group').agg({'占集保庫存數比例 (%)': 'sum', '人數': 'sum'}).reset_index()
+    group_result = df.groupby('Group').agg({'占集保庫存數比例 (%)': 'sum', '人數': 'sum'}).reset_index()
+    group_result['人數'] = group_result['人數'].astype(int)
     
-    return result
-
-
-
-
+    print(group_result)
+    shareholder_distribution = {
+        "100張以下比例" : group_result.loc[0, "占集保庫存數比例 (%)"],
+        "100張以下人數" :  group_result.loc[0, "人數"],
+        "100-1000張比例": group_result.loc[1, "占集保庫存數比例 (%)"],
+        "100-1000張人數" : group_result.loc[1, "人數"],
+        "1000張以上比例": group_result.loc[2, "占集保庫存數比例 (%)"],
+        "1000張以上人數": group_result.loc[2, "人數"]
+    }
+    return pd.DataFrame([shareholder_distribution]) 
 # ------ 測試 ------
 # 總表
 # WriteData()
 
 # 個股(含歷程)
-df = GetShareholderDistribution(2330)
-print(df)
+# df = GetShareholderDistribution(2330)
+# print(df)
 
 # print(GetAllShareholderDistribution())

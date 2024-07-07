@@ -2,6 +2,7 @@ import time
 import random
 import Utils
 from decimal import Decimal, ROUND_HALF_UP
+import pandas as pd
 
 """
 1. 營業收入累計年增率 > 0 %
@@ -187,7 +188,8 @@ def GetFinDetail(stockId):
         "每股自由現金流量": free_cash_flow_per_share,
         "財報評分": financial_score,
     }
-
+    
+    return pd.DataFrame([financial_metrics])
 """
 盈餘再投資比率
 
