@@ -1,14 +1,10 @@
-from io import StringIO
-import pandas as pd
-from decimal import Decimal
-import requests
-from bs4 import BeautifulSoup
 import time
 import random
-import pyuser_agent
+import Utils
+from decimal import Decimal, ROUND_HALF_UP
 
 """
-1. 營收累計年增率 > 0 %
+1. 營業收入累計年增率 > 0 %
 2. 毛利率 > 0 %
 3. 營業利益率 > 0 %
 4. 稅前淨利率 > 0 %
@@ -19,47 +15,178 @@ import pyuser_agent
 """
 
 
-def GetFinHeaders():
-    return ["毛利率", "營業利益率", "股東權益報酬率  (年預估)", "稅前淨利率", "稅後淨利率", "總資產週轉率", "本業收益", "每股營業現金流量", "每股自由現金流量", "財報評分"]
+def GetFinData(stockId, finType):
+    # 損益表
+    if finType == "income_statement":
+        url = f"https://goodinfo.tw/tw/StockFinDetail.asp?RPT_CAT=IS_M_QUAR_ACC&STOCK_ID={stockId}"
+    # 資產負債表
+    elif finType == "balance_sheet":
+        url = f"https://goodinfo.tw/tw/StockFinDetail.asp?RPT_CAT=BS_M_QUAR_ACC&STOCK_ID={stockId}"
+    # 財務比率表
+    elif finType == "financial_ratio":
+        url = f"https://goodinfo.tw/tw/StockFinDetail.asp?RPT_CAT=XX_M_QUAR_ACC&STOCK_ID={stockId}"
 
-
-def GetFinData(stockId):
-    url = f"https://goodinfo.tw/StockInfo/StockFinDetail.asp?RPT_CAT=XX_M_QUAR_ACC&STOCK_ID={stockId}"
+    print(url)
+    
     css_selector = "#txtFinBody"
     try:
-        df = GetDataFrameByCssSelector(url, css_selector)
+        df = Utils.GetDataFrameByCssSelector(url, css_selector)
     except:
         time.sleep(random.randint(20, 30))
-        df = GetDataFrameByCssSelector(url, css_selector)
+        df = Utils.GetDataFrameByCssSelector(url, css_selector)
     # print(df)
+
+    # 所有columns和index名稱
+    # print(df.columns)
+    # print(df.iloc[:, 0])
+
+    # 設置DataFrame的索引為第一列的值
+    df.set_index(df.iloc[:, 0], inplace=True)
     return df
 
 
 def GetFinDetail(stockId):
-    df = GetFinData(stockId)
-    dict = {}
+    df_is = GetFinData(stockId, "income_statement")
 
-    headers = GetFinHeaders()
-    for header in headers:
-        if header == "本業收益":
-            try:
-                # 本業收益（營業利益率／稅前淨利率） > ６０％
-                tempDict = round(Decimal(dict["營業利益率"]) / Decimal(dict["稅前淨利率"]) * 100, 2)
-                dict.update({"本業收益": str(tempDict)})
-            except:
-                dict.update({"本業收益": "0"})
-        else:
-            try:
-                # print(header)
-                tempDict = GetDataFrameValueByLabel(df, "獲利能力", header)
-                dict.update({header.replace("股東權益報酬率  (年預估)", "ROE"): str(Decimal(tempDict[0]))})
-            except:
-                dict.update({header.replace("股東權益報酬率  (年預估)", "ROE"): "0"})
+    # 根據column名稱, 以及列的第一欄名稱取值
+    # 取得年度季
+    yearQuarter = df_is.columns[1][0]
+    print(yearQuarter)
 
-    df = pd.DataFrame([dict])
+    # 營業收入 (含 其他收益及費損合計)
+    operating_revenue = Decimal(df_is.loc["營業收入", (yearQuarter, "金額")]) + Decimal(
+        df_is.loc["其他收益及費損合計", (yearQuarter, "金額")]
+    )
+    print(f"營業收入:{operating_revenue}")
 
-    return df
+    # 營業成本
+    operating_costs = Decimal(df_is.loc["營業成本", (yearQuarter, "金額")])
+    print(f"營業成本:{operating_costs}")
 
+    # 營業費用
+    operating_expenses = Decimal(df_is.loc["營業費用", (yearQuarter, "金額")])
+    print(f"營業費用:{operating_expenses}")
+
+    # 所得稅費用
+    tax_expense = Decimal(df_is.loc["所得稅費用", (yearQuarter, "金額")])
+    print(f"所得稅費用:{tax_expense}")
+
+    # 業外損益合計
+    non_operating_income_expense = Decimal(
+        df_is.loc["業外損益合計", (yearQuarter, "金額")]
+    )
+
+    # 每股稅後盈餘(元)
+    eps = Decimal(df_is.loc["每股稅後盈餘(元)", (yearQuarter, "金額")])
+    print(f"每股稅後盈餘:{eps}")
+
+    df_bs = GetFinData(stockId, "balance_sheet")
+
+    # 資產總額
+    total_assets = Decimal(df_bs.loc["資產總額", (yearQuarter, "金額")])
+    print(f"資產總額:{total_assets}")
+
+    # 股東權益總額
+    total_equity = Decimal(df_bs.loc["股東權益總額", (yearQuarter, "金額")])
+    print(f"股東權益總額:{total_equity}")
+
+    df_fr = GetFinData(stockId, "financial_ratio")
+    # print(df_fr)
+
+    # 每股營業現金流量
+    operating_cash_flow_per_share = Decimal(
+        df_fr.loc["每股營業現金流量 (元)", yearQuarter]
+    )
+    print(f"每股營業現金流量:{operating_cash_flow_per_share}")
+
+    # 每股自由現金流量
+    free_cash_flow_per_share = Decimal(df_fr.loc["每股自由現金流量 (元)", yearQuarter])
+    print(f"每股自由現金流量:{free_cash_flow_per_share}")
+
+    # 財報評分 (100為滿分)
+    financial_score = Decimal(df_fr.loc["財報評分 (100為滿分)", yearQuarter])
+    print(f"財報評分:{financial_score}")
+
+    # ---- 計算財務相關公式 ----
+
+    # 毛利率 	    =（營業收入 - 營業成本） / 營業收入
+    gross_profit = operating_revenue - operating_costs
+    print(f"毛利:{gross_profit}")
+    if operating_revenue == 0:
+        gross_profit_margin = 0
+    else:
+        gross_profit_margin = (gross_profit / operating_revenue * 100).quantize(
+            Decimal(".01"), rounding=ROUND_HALF_UP
+        )
+    print(f"毛利率:{gross_profit_margin}")
+
+    # 營業利益率    =（營業收入 - 營業成本 - 營業費用） / 營業成本
+    operating_profit = operating_revenue - operating_costs - operating_expenses
+    print(f"營業利益:{operating_profit}")
+    if operating_costs == 0:
+        operating_profit_margin = 0
+    else:
+        operating_profit_margin = (operating_profit / operating_costs * 100).quantize(
+            Decimal(".01"), rounding=ROUND_HALF_UP
+        )
+    print(f"營業利益率:{operating_profit_margin}")
+
+    # 淨利率        =（毛利 – 營業費用 – 稅額） / 營業成本
+    net_profit = gross_profit - operating_expenses - tax_expense
+    print(f"淨利:{net_profit}")
+    if operating_costs == 0:
+        net_profit_margin = 0
+    else:
+        net_profit_margin = (net_profit / operating_costs * 100).quantize(
+            Decimal(".01"), rounding=ROUND_HALF_UP
+        )
+    print(f"淨利率:{net_profit_margin}")
+
+    # 稅前淨利率    = 營業利益 + 業外損益
+    pre_tax_net_profit = operating_profit + non_operating_income_expense
+    print(f"稅前淨利:{pre_tax_net_profit}")
+    pre_tax_net_profit_margin = (pre_tax_net_profit / operating_revenue * 100).quantize(
+        Decimal(".01"), rounding=ROUND_HALF_UP
+    )
+    print(f"稅前淨利率:{pre_tax_net_profit_margin}")
+
+    # 稅後淨利率    = 稅前淨利 － 所得稅
+    post_tax_net_profit = pre_tax_net_profit - tax_expense
+    print(f"稅後淨利:{post_tax_net_profit}")
+    post_tax_net_profit_margin = (
+        post_tax_net_profit / operating_revenue * 100
+    ).quantize(Decimal(".01"), rounding=ROUND_HALF_UP)
+    print(f"稅後淨利率:{post_tax_net_profit_margin}")
+
+    # 總資產週轉率  = 營業收入 / 總資產
+    total_asset_turnover_ratio = (operating_revenue / total_assets).quantize(
+        Decimal(".01"), rounding=ROUND_HALF_UP
+    )
+    print(f"總資產週轉率:{total_asset_turnover_ratio}")
+
+    # 權益乘數(ROE) = 總資產 / 股東權益
+    equity_multiplier = (total_assets / total_equity).quantize(
+        Decimal(".01"), rounding=ROUND_HALF_UP
+    )
+    print(f"權益乘數:{equity_multiplier}")
+
+    # 本業收益      = 營業利益 / 稅前淨利
+    core_business_income_ratio = (operating_profit / pre_tax_net_profit * 100).quantize(Decimal(".01"), rounding=ROUND_HALF_UP)
+    print(f"本業收益:{core_business_income_ratio}")
+    
+    # 构建包含所有指标的字典
+    financial_metrics = {
+        "毛利率": net_profit_margin,
+        "營業利益率": operating_profit_margin,
+        "ROE": total_equity,
+        "稅前淨利率": pre_tax_net_profit_margin,
+        "稅後淨利率": post_tax_net_profit_margin,
+        "總資產週轉率": total_asset_turnover_ratio,
+        "本業收益": core_business_income_ratio,
+        "每股營業現金流量": operating_cash_flow_per_share,
+        "每股自由現金流量": free_cash_flow_per_share,
+        "財報評分": financial_score,
+    }
 
 """
 盈餘再投資比率
@@ -75,50 +202,6 @@ def GetFinDetail(stockId):
 此比率為洪瑞泰在其著作"巴菲特選股魔法書"中所創，書中建議低於80%財務較為穩健；高於200%則企業財務風險過高，投資人應避開。
 """
 
-
-def GetBonusReinvestmentRate(stockId):
-    df = GetFinData(stockId)
-
-
-"""
-def GetFinDetail2():
-    url = "https://mops.twse.com.tw/mops/web/ajax_t163sb05"
-    df = Utils.GetFromMops(url)
-    print(df)
-"""
-
-# ------ 共用的 function ------
-def GetDataFrameByCssSelector(url, css_selector):
-    ua = pyuser_agent.UA()
-    user_agent = ua.random
-    headers = {"user-agent": user_agent}
-    rawData = requests.get(url, headers=headers)
-    rawData.encoding = "utf-8"
-    soup = BeautifulSoup(rawData.text, "html.parser")
-    data = soup.select_one(css_selector)
-    try:
-        dfs = pd.read_html(StringIO(data.prettify()))
-    except:
-        return pd.DataFrame()
-
-    # print(dfs)
-    if len(dfs[0]) > 1:
-        return dfs[0]
-    if len(dfs[1]) > 1:
-        return dfs[1]
-    return dfs
-
-
-# 取得dataframe比對相等(含有字元), 第一欄值
-def GetDataFrameValueByLabel(df, columnLable, matchRowLable):
-    return df.set_index(columnLable).filter(like=matchRowLable, axis=0).values[0]
-
-
 # ------ 測試 ------
-'''
-data = GetFinDetail("8150")
-print(data)
-'''
-"""
-GetFinDetail2()
-"""
+# data = GetFinDetail("8150")
+# print(data)
