@@ -133,70 +133,93 @@ def GetShareholderDistribution(stockId):
 
     select = soup.find("select", {"id": "scaDate"})
     options = [option.text for option in select.find_all("option")]
-    lastDate = options[0]
-    print(lastDate)
-
-    # 輸入日期
-    select = Select(browser.find_element(By.ID, "scaDate"))
-    select.select_by_visible_text(lastDate)
-
-    # 輸入股票代碼
-    browser.find_element(By.NAME, "stockNo").send_keys(stockId)
-
-    # 送出查詢
-    browser.find_element(By.XPATH, "//*[@id=\"form1\"]/table/tbody/tr[4]/td/input").click()
-
-    # 取得網頁原始碼
-    html_file = browser.page_source
-
-    # 傳入html file
-    # 建立beautifulSoup 解析文件
-    soup = BeautifulSoup(html_file, "lxml")
-
-    # 找出回傳之分散表
-    table = soup.find("table", class_="table")
-    if table is not None:
-        # 將表格轉換為 DataFrame
-        df = pd.read_html(str(table))[0]
-        print(df)
-    else:
-        print("No table with class 'table' found.")
-
-    # 將 '持股/單位數分級' 列的值轉換為整數，以便於分組
-    df['持股/單位數分級'] = df['持股/單位數分級'].str.replace(',', '').str.extract(r'(\d+)').astype(float)
+    top5_dates = options[:5]
     
-    # '人數'
-    df['人數'] = df['人數'].astype(float)
-
-    # 定義分組的邊界
-    bins = [0, 100, 1000, float('inf')]
-
-    # 定義每組的標籤
-    labels = ['100張以下比例', '100-1000張比例', '1000張以上比例']
-
-    # 使用 pd.cut 函數將 '持股/單位數分級' 列的值分組(1張 1000股)
-    df['Group'] = pd.cut(df['持股/單位數分級'], bins=[item * 1000 for item in bins], labels=labels)
-    
-    # 對每組的 '占集保庫存數比例 (%)' 和 '人數' 列的值進行加總
-    group_result = df.groupby('Group').agg({'占集保庫存數比例 (%)': 'sum', '人數': 'sum'}).reset_index()
-    group_result['人數'] = group_result['人數'].astype(int)
-    
-    print(group_result)
-    shareholder_distribution = {
-        "100張以下比例" : group_result.loc[0, "占集保庫存數比例 (%)"],
-        "100張以下人數" :  group_result.loc[0, "人數"],
-        "100-1000張比例": group_result.loc[1, "占集保庫存數比例 (%)"],
-        "100-1000張人數" : group_result.loc[1, "人數"],
-        "1000張以上比例": group_result.loc[2, "占集保庫存數比例 (%)"],
-        "1000張以上人數": group_result.loc[2, "人數"]
+    accumulator = {
+        "100張以下比例": [],
+        "100張以下人數": [],
+        "100-1000張比例": [],
+        "100-1000張人數": [],
+        "1000張以上比例": [],
+        "1000張以上人數": []
     }
+
+    for lastDate in top5_dates:
+        print(lastDate)
+
+        # 輸入日期
+        select = Select(browser.find_element(By.ID, "scaDate"))
+        select.select_by_visible_text(lastDate)
+
+        # 輸入股票代碼
+        browser.find_element(By.NAME, "stockNo").send_keys(stockId)
+
+        # 送出查詢
+        browser.find_element(By.XPATH, "//*[@id=\"form1\"]/table/tbody/tr[4]/td/input").click()
+
+        # 取得網頁原始碼
+        html_file = browser.page_source
+
+        # 傳入html file
+        # 建立beautifulSoup 解析文件
+        soup = BeautifulSoup(html_file, "lxml")
+
+        # 找出回傳之分散表
+        table = soup.find("table", class_="table")
+        if table is not None:
+            # 將表格轉換為 DataFrame
+            df = pd.read_html(str(table))[0]
+            print(df)
+        else:
+            print("No table with class 'table' found.")
+
+        # 將 '持股/單位數分級' 列的值轉換為整數，以便於分組
+        df['持股/單位數分級'] = df['持股/單位數分級'].str.replace(',', '').str.extract(r'(\d+)').astype(float)
+        
+        # '人數'
+        df['人數'] = df['人數'].astype(float)
+
+        # 定義分組的邊界
+        bins = [0, 100, 1000, float('inf')]
+
+        # 定義每組的標籤
+        labels = ['100張以下比例', '100-1000張比例', '1000張以上比例']
+
+        # 使用 pd.cut 函數將 '持股/單位數分級' 列的值分組(1張 1000股)
+        df['Group'] = pd.cut(df['持股/單位數分級'], bins=[item * 1000 for item in bins], labels=labels)
+        
+        # 對每組的 '占集保庫存數比例 (%)' 和 '人數' 列的值進行加總
+        group_result = df.groupby('Group').agg({'占集保庫存數比例 (%)': 'sum', '人數': 'sum'}).reset_index()
+        group_result['人數'] = group_result['人數'].astype(int)
+        
+        print(group_result)
+        shareholder_distribution = {
+            "100張以下比例" : group_result.loc[0, "占集保庫存數比例 (%)"],
+            "100張以下人數" :  group_result.loc[0, "人數"],
+            "100-1000張比例": group_result.loc[1, "占集保庫存數比例 (%)"],
+            "100-1000張人數" : group_result.loc[1, "人數"],
+            "1000張以上比例": group_result.loc[2, "占集保庫存數比例 (%)"],
+            "1000張以上人數": group_result.loc[2, "人數"]
+        }
+        
+            
+        for key in accumulator:
+            accumulator[key].append(shareholder_distribution[key])
+            
+        # After processing all dates, format the accumulated values
+        for key, values in accumulator.items():
+            # Convert each value to string and format with 2 decimal places
+            formatted_values = ["{:.2f}".format(value) for value in values]
+            # Join the formatted values with " / "
+            accumulator[key] = " / ".join(formatted_values)
+        
     return pd.DataFrame([shareholder_distribution]) 
 # ------ 測試 ------
 # 總表
 # WriteData()
 
 # 個股(含歷程)
-# df = GetShareholderDistribution(2330)
-# print(df)
+df = GetShareholderDistribution(2330)
+print(df)
 
 # print(GetAllShareholderDistribution())

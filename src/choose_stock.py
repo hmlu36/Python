@@ -112,7 +112,7 @@ def GetChampionStock(op):
                 # sum_df = pd.concat([sum_df, temp_df], axis=0)
 
                 # 每列寫入csv檔, 不含表頭
-                temp_df.to_csv(f"{Utils.GetRootPath()}\\Data\\Temp\\彙整清單.csv", mode="a", header=False, encoding="utf_8_sig")
+                temp_df.to_csv(f"{Utils.GetRootPath()}\\Data\\Temp\\彙整清單.csv", mode="a", header=False, index=False, encoding="utf_8_sig")
 
         # 寫入csv檔
         # sum_df.to_csv('彙整清單.csv', encoding='utf_8_sig')
