@@ -232,27 +232,14 @@ _errstr = "Mode is unknown or incompatible with input array shape."
 
 
 def GetCaptcha(url):
-    """
-    # Where our captcha is at.
-    base_url = 'http://bsr.twse.com.tw/bshtm/'
-    print('img_url:' + str(img_url))
-    if not img_url:
-        page = requests.get(base_url + 'bsMenu.aspx')
-
-        # Get the capthca on TWSE's website. It's the second image on the page.
-        soup = BeautifulSoup(page.content, 'html.parser')
-        img_url = soup.findAll('img')[1]['src']
-
-    # Request the captch and write it to disk.
-    print('img_url:' + base_url + str(img_url))
-    res = requests.get(base_url + str(img_url))
-    """
     print(url)
     img = bytes()
-    res = requests.get(url,verify=True)
+    res = requests.get(url, verify=True)
     if res.status_code == 200:
         img = res.content
-        with open(os.path.join("Data", "Temp", "Captcha", "check.png"), "wb") as handler:
+        captcha_dir = os.path.join("Data", "Temp", "Captcha")
+        os.makedirs(captcha_dir, exist_ok=True)  # 確保目錄存在
+        with open(os.path.join(captcha_dir, "check.png"), "wb") as handler:
             handler.write(img)
     else:
         print("error")
@@ -470,6 +457,5 @@ def DecodeCaptcha(captcha):
 
 # ------ 測試 ------
 
-# df = GetVolumeIndicator('8112')
 # df = GetVolume("3257")
 # print(df)

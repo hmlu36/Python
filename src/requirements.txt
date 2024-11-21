@@ -1,5 +1,6 @@
 pandas
 bs4
+numpy
 requests
 lxml
 pyuser_agent
@@ -8,8 +9,5 @@ Pillow
 IPython
 pytesseract
 Opencv-python
-tesseract
-tesseract-ocr
-tesseract-ocr-eng
-selenium
+pytesseract
 webdriver-manager
